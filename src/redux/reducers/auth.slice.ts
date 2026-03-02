@@ -17,6 +17,15 @@ export const login = createAsyncThunk(
   },
 );
 
+// ✅ NEW: get my permissions (tenant scoped)
+export const fetchMyPermissions = createAsyncThunk(
+  `${config.name}/fetchMyPermissions`,
+  async (payload: { slug: string }) => {
+    const { slug } = payload;
+    return await Client.get(`/v1/${slug}/me/permissions`);
+  },
+);
+
 export const auth = createSlice({
   name: config.name,
   initialState: {
@@ -24,6 +33,9 @@ export const auth = createSlice({
     token: (localStorage.getItem("token") as string) || "",
     user: null as any,
     error: "" as string,
+    // ✅ NEW
+    permissions: [] as string[],
+    permissionsLoading: false,
   },
   reducers: {
     reset: (state) => {
@@ -31,11 +43,17 @@ export const auth = createSlice({
       state.token = "";
       state.user = null;
       state.error = "";
+      state.permissions = []; // ✅
+      state.permissionsLoading = false; // ✅
       localStorage.removeItem("token");
     },
     setToken: (state, action) => {
       state.token = action.payload;
       localStorage.setItem("token", action.payload);
+    },
+    // ✅ optional helper (manual set)
+    setPermissions: (state, action) => {
+      state.permissions = action.payload || [];
     },
   },
   extraReducers(builder) {
@@ -68,9 +86,21 @@ export const auth = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = (action as any)?.error?.message || "Login failed";
+      })
+      // ✅ Permissions
+      .addCase(fetchMyPermissions.pending, (state) => {
+        state.permissionsLoading = true;
+      })
+      .addCase(fetchMyPermissions.fulfilled, (state, action) => {
+        state.permissionsLoading = false;
+        state.permissions = action?.payload?.data?.permissions || [];
+      })
+      .addCase(fetchMyPermissions.rejected, (state) => {
+        state.permissionsLoading = false;
+        state.permissions = [];
       });
   },
 });
 
-export const { reset, setToken } = auth.actions;
+export const { reset, setToken, setPermissions } = auth.actions;
 export default auth.reducer;

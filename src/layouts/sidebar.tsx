@@ -1,11 +1,35 @@
 import {
+    AppstoreOutlined,
+    BankOutlined,
+    BarChartOutlined,
     BellOutlined,
+    // BoxOutlined,
     BulbOutlined,
+    CalendarOutlined,
+    CheckCircleOutlined,
+    ClockCircleOutlined,
     DashboardOutlined,
+    DollarOutlined,
+    EyeOutlined,
+    FilePdfOutlined,
+    FileTextOutlined,
+    FolderOutlined,
+    GiftOutlined,
+    HistoryOutlined,
+    // optional extra icons (safe to keep)
+    HomeOutlined,
+    ImportOutlined,
     LogoutOutlined,
+    MailOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    PartitionOutlined,
+    PhoneOutlined,
+    PlusOutlined,
+    RiseOutlined,
+    ScheduleOutlined,
     SettingOutlined,
+    TagOutlined,
     TeamOutlined,
     UserOutlined,
 } from "@ant-design/icons";
@@ -14,6 +38,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAppTheme } from "../theme/ThemeProvider";
 
+
+// ✅ your registry + builder
+import { useSelector } from "react-redux";
+import { buildMenuTree } from "../menu/buildMenu";
+import { MENU_REGISTRY } from "../menu/menuRegistry";
+
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
 
@@ -21,6 +51,41 @@ type Props = {
     children: React.ReactNode;
     user?: { name?: string; email?: string };
     onLogout?: () => void;
+};
+
+// ✅ map string icon names from registry -> actual icon components
+const iconMap: Record<string, React.ReactNode> = {
+    DashboardOutlined: <DashboardOutlined />,
+    TeamOutlined: <TeamOutlined />,
+    UserOutlined: <UserOutlined />,
+    BellOutlined: <BellOutlined />,
+    SettingOutlined: <SettingOutlined />,
+
+    HomeOutlined: <HomeOutlined />,
+    CalendarOutlined: <CalendarOutlined />,
+    MailOutlined: <MailOutlined />,
+    PhoneOutlined: <PhoneOutlined />,
+    ScheduleOutlined: <ScheduleOutlined />,
+    CheckCircleOutlined: <CheckCircleOutlined />,
+    FileTextOutlined: <FileTextOutlined />,
+    FolderOutlined: <FolderOutlined />,
+    FilePdfOutlined: <FilePdfOutlined />,
+    BarChartOutlined: <BarChartOutlined />,
+    GiftOutlined: <GiftOutlined />,
+    PartitionOutlined: <PartitionOutlined />,
+    AppstoreOutlined: <AppstoreOutlined />,
+    TagOutlined: <TagOutlined />,
+    ClockCircleOutlined: <ClockCircleOutlined />,
+    BankOutlined: <BankOutlined />,
+    RiseOutlined: <RiseOutlined />,
+    DollarOutlined: <DollarOutlined />,
+    BoxOutlined: <DollarOutlined />,
+
+    // action icons (if you used in registry)
+    PlusOutlined: <PlusOutlined />,
+    EyeOutlined: <EyeOutlined />,
+    ImportOutlined: <ImportOutlined />,
+    HistoryOutlined: <HistoryOutlined />,
 };
 
 export default function AppShell({ children, user, onLogout }: Props) {
@@ -36,23 +101,42 @@ export default function AppShell({ children, user, onLogout }: Props) {
     const isMobile = !screens.md;
     const base = `/${slug}`;
 
-    const navItems = useMemo(
-        () => [
-            { key: `${base}/dashboard`, icon: <DashboardOutlined />, label: "Dashboard" },
-            { key: `${base}/leads`, icon: <TeamOutlined />, label: "Leads" },
-            { key: `${base}/users`, icon: <UserOutlined />, label: "Users" },
-            { key: `${base}/notifications`, icon: <BellOutlined />, label: "Notifications" },
-            { key: `${base}/settings`, icon: <SettingOutlined />, label: "Settings" },
-        ],
-        [base]
-    );
+    // ✅ TEMP: until backend + redux done
+    // Put permissions in localStorage like:
+    // localStorage.setItem("fl_permissions", JSON.stringify(["LEADS.VIEW","CONTACTS.VIEW"]))
+    const permissions = useSelector((state: any) => state.auth?.permissions || []);
+    const navItems = useMemo(() => {
+        // build tree using permissions + registry
+        const raw = buildMenuTree(MENU_REGISTRY, permissions, base);
 
+        // attach icon components
+        const attachIcons = (items: any[]): any[] =>
+            items.map((i) => ({
+                ...i,
+                icon: i.icon ? iconMap[i.icon] : i.icon, // if already node, keep
+                children: i.children ? attachIcons(i.children) : undefined,
+            }));
+
+        return attachIcons(raw);
+    }, [permissions, base]);
+
+    // ✅ selectedKey supports nested leaf routes
     const selectedKey = useMemo(() => {
         const path = location.pathname;
-        const keys = navItems.map((i) => i.key).sort((a, b) => b.length - a.length);
-        const match = keys.find((k) => path.startsWith(k));
+
+        const leafKeys: string[] = [];
+        const walk = (arr: any[]) => {
+            arr.forEach((n) => {
+                if (n?.children?.length) walk(n.children);
+                else if (typeof n.key === "string" && n.key.startsWith(base + "/")) leafKeys.push(n.key);
+            });
+        };
+        walk(navItems);
+
+        leafKeys.sort((a, b) => b.length - a.length);
+        const match = leafKeys.find((k) => path.startsWith(k));
         return match ? [match] : [];
-    }, [navItems, location.pathname]);
+    }, [navItems, location.pathname, base]);
 
     // Animated active “pill” position
     const menuWrapRef = useRef<HTMLDivElement | null>(null);
@@ -213,7 +297,7 @@ export default function AppShell({ children, user, onLogout }: Props) {
                         selectedKeys={selectedKey}
                         items={
                             (collapsed
-                                ? navItems.map((i) => ({
+                                ? navItems.map((i: any) => ({
                                     ...i,
                                     icon: (
                                         <Tooltip placement="right" title={i.label}>
@@ -224,7 +308,10 @@ export default function AppShell({ children, user, onLogout }: Props) {
                                 }))
                                 : navItems) as any
                         }
-                        onClick={(e) => navigate(e.key)}
+                        onClick={(e) => {
+                            // ✅ only navigate leaf routes (they start with base + "/")
+                            if (typeof e.key === "string" && e.key.startsWith(base + "/")) navigate(e.key);
+                        }}
                     />
                 </div>
 
