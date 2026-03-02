@@ -1,3 +1,9 @@
+import AppShell from "../layouts/sidebar";
+
 export default function Dashboard() {
-    return <div style={{ padding: 20 }}>Dashboard ✅</div>;
+    return (
+        <AppShell>
+            <div style={{ padding: 20 }}>Dashboard ✅</div>
+        </AppShell>
+    );
 }

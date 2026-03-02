@@ -1,0 +1,300 @@
+import {
+    BellOutlined,
+    BulbOutlined,
+    DashboardOutlined,
+    LogoutOutlined,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
+    SettingOutlined,
+    TeamOutlined,
+    UserOutlined,
+} from "@ant-design/icons";
+import { Avatar, Button, Grid, Layout, Menu, Space, Switch, Tooltip, Typography } from "antd";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useAppTheme } from "../theme/ThemeProvider";
+
+const { Sider, Header, Content } = Layout;
+const { Text } = Typography;
+
+type Props = {
+    children: React.ReactNode;
+    user?: { name?: string; email?: string };
+    onLogout?: () => void;
+};
+
+export default function AppShell({ children, user, onLogout }: Props) {
+    const { dark, setDark } = useAppTheme();
+
+    const { slug } = useParams();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const screens = Grid.useBreakpoint();
+
+    const [collapsed, setCollapsed] = useState(false);
+
+    const isMobile = !screens.md;
+    const base = `/${slug}`;
+
+    const navItems = useMemo(
+        () => [
+            { key: `${base}/dashboard`, icon: <DashboardOutlined />, label: "Dashboard" },
+            { key: `${base}/leads`, icon: <TeamOutlined />, label: "Leads" },
+            { key: `${base}/users`, icon: <UserOutlined />, label: "Users" },
+            { key: `${base}/notifications`, icon: <BellOutlined />, label: "Notifications" },
+            { key: `${base}/settings`, icon: <SettingOutlined />, label: "Settings" },
+        ],
+        [base]
+    );
+
+    const selectedKey = useMemo(() => {
+        const path = location.pathname;
+        const keys = navItems.map((i) => i.key).sort((a, b) => b.length - a.length);
+        const match = keys.find((k) => path.startsWith(k));
+        return match ? [match] : [];
+    }, [navItems, location.pathname]);
+
+    // Animated active “pill” position
+    const menuWrapRef = useRef<HTMLDivElement | null>(null);
+    const [pillTop, setPillTop] = useState<number>(84);
+
+    useEffect(() => {
+        const el = menuWrapRef.current;
+        if (!el) return;
+
+        const selected = el.querySelector(".ant-menu-item-selected") as HTMLElement | null;
+        if (!selected) return;
+
+        const wrapRect = el.getBoundingClientRect();
+        const itemRect = selected.getBoundingClientRect();
+        setPillTop(itemRect.top - wrapRect.top);
+    }, [location.pathname, collapsed, dark]);
+
+    return (
+        <Layout style={{ minHeight: "100vh" }}>
+            <style>{`
+        :root{
+          --fl-bg: ${dark ? "#0b1220" : "#ffffff"};
+          --fl-panel: ${dark ? "rgba(255,255,255,0.06)" : "#ffffff"};
+          --fl-border: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"};
+          --fl-text: ${dark ? "rgba(255,255,255,0.90)" : "rgba(15,23,42,0.92)"};
+          --fl-text2: ${dark ? "rgba(255,255,255,0.68)" : "rgba(15,23,42,0.58)"};
+          --fl-cardbg: ${dark ? "rgba(255,255,255,0.06)" : "#ffffff"};
+          --fl-content: ${dark ? "#0b1220" : "#f5f7fb"};
+          --fl-shadow: ${dark ? "0 16px 40px rgba(0,0,0,0.35)" : "0 10px 24px rgba(15,23,42,0.06)"};
+        }
+
+        .fl-sider {
+          background: var(--fl-bg) !important;
+          border-right: 1px solid var(--fl-border);
+        }
+
+        .fl-brand {
+          height: 64px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 0 14px;
+          border-bottom: 1px solid var(--fl-border);
+        }
+
+        .fl-logo {
+          width: 38px; height: 38px;
+          border-radius: 12px;
+          background: radial-gradient(circle at 30% 30%, #69b1ff, #1677ff 55%, #10239e);
+          box-shadow: 0 12px 28px rgba(22,119,255,0.35);
+          display: grid; place-items: center;
+          color: #fff; font-weight: 900;
+        }
+
+        .fl-menuWrap{
+          position: relative;
+          padding: 10px 8px;
+        }
+
+        .fl-pill{
+          position: absolute;
+          left: 8px;
+          right: 8px;
+          height: 44px;
+          border-radius: 14px;
+          top: ${pillTop}px;
+          background: linear-gradient(135deg, rgba(22,119,255,0.95), rgba(105,177,255,0.55));
+          box-shadow: 0 16px 34px rgba(22,119,255,0.25);
+          transition: top .18s ease;
+          pointer-events: none;
+          opacity: ${selectedKey.length ? 1 : 0};
+        }
+
+        .fl-sider .ant-menu{
+          background: transparent !important;
+          border-inline-end: none !important;
+        }
+
+        .fl-sider .ant-menu-item{
+          border-radius: 14px !important;
+          margin: 6px 6px !important;
+          height: 44px !important;
+          line-height: 44px !important;
+          color: var(--fl-text2) !important;
+          transition: all .18s ease;
+        }
+
+        .fl-sider .ant-menu-item:hover{
+          background: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"} !important;
+          color: var(--fl-text) !important;
+        }
+
+        .fl-sider .ant-menu-item-selected{
+          background: transparent !important;
+          color: #fff !important;
+          font-weight: 700;
+        }
+        .fl-sider .ant-menu-item-selected::after{ border-right: none !important; }
+
+        .fl-header{
+          background: ${dark ? "rgba(11,18,32,0.72)" : "rgba(255,255,255,0.75)"} !important;
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid var(--fl-border);
+        }
+
+        .fl-contentBg{
+          background:
+            radial-gradient(circle at 20% 10%, rgba(22,119,255,0.10), transparent 35%),
+            radial-gradient(circle at 80% 0%, rgba(105,177,255,0.16), transparent 40%),
+            var(--fl-content);
+          padding: 16px;
+        }
+
+        .fl-card{
+          background: var(--fl-cardbg);
+          border-radius: 18px;
+          padding: 16px;
+          min-height: calc(100vh - 64px - 32px);
+          box-shadow: var(--fl-shadow);
+          border: 1px solid var(--fl-border);
+        }
+
+        .fl-profile{
+          margin: 10px;
+          padding: 12px;
+          border-radius: 16px;
+          background: var(--fl-panel);
+          border: 1px solid var(--fl-border);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+      `}</style>
+
+            <Sider
+                className="fl-sider"
+                collapsible
+                trigger={null}
+                width={270}
+                collapsed={collapsed}
+                collapsedWidth={isMobile ? 0 : 86}
+                breakpoint="md"
+            >
+                <div className="fl-brand">
+                    <div className="fl-logo">F</div>
+                    {!collapsed && (
+                        <div style={{ lineHeight: 1.1 }}>
+                            <div style={{ color: "var(--fl-text)", fontWeight: 800, fontSize: 16 }}>FlexLoud</div>
+                            <div style={{ color: "var(--fl-text2)", fontSize: 12 }}>Tenant: {slug}</div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="fl-menuWrap" ref={menuWrapRef}>
+                    <div className="fl-pill" />
+                    <Menu
+                        mode="inline"
+                        selectedKeys={selectedKey}
+                        items={
+                            (collapsed
+                                ? navItems.map((i) => ({
+                                    ...i,
+                                    icon: (
+                                        <Tooltip placement="right" title={i.label}>
+                                            {i.icon}
+                                        </Tooltip>
+                                    ),
+                                    label: null,
+                                }))
+                                : navItems) as any
+                        }
+                        onClick={(e) => navigate(e.key)}
+                    />
+                </div>
+
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+                    <div className="fl-profile" style={{ justifyContent: collapsed ? "center" : "space-between" }}>
+                        <Space>
+                            <Avatar style={{ backgroundColor: "#1677ff" }}>
+                                {(user?.name || "A").slice(0, 1).toUpperCase()}
+                            </Avatar>
+                            {!collapsed && (
+                                <div style={{ lineHeight: 1.1 }}>
+                                    <div style={{ color: "var(--fl-text)", fontWeight: 800 }}>{user?.name || "Admin"}</div>
+                                    <div
+                                        style={{
+                                            color: "var(--fl-text2)",
+                                            fontSize: 12,
+                                            maxWidth: 150,
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                        }}
+                                    >
+                                        {user?.email || "admin@flexloud.com"}
+                                    </div>
+                                </div>
+                            )}
+                        </Space>
+
+                        {!collapsed && (
+                            <Space>
+                                <BulbOutlined style={{ color: "var(--fl-text2)" }} />
+                                <Switch checked={dark} onChange={setDark} />
+                            </Space>
+                        )}
+                    </div>
+
+                    <div style={{ padding: "0 10px 12px" }}>
+                        <Button block icon={<LogoutOutlined />} onClick={() => onLogout?.()}>
+                            {!collapsed ? "Logout" : null}
+                        </Button>
+                    </div>
+                </div>
+            </Sider>
+
+            <Layout>
+                <Header
+                    className="fl-header"
+                    style={{
+                        padding: "0 16px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                    }}
+                >
+                    <Button
+                        type="text"
+                        icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                        onClick={() => setCollapsed((v) => !v)}
+                    />
+                    <Text style={{ fontWeight: 800, fontSize: 16, color: "var(--fl-text)" }}>CRM</Text>
+                    <div style={{ marginLeft: "auto" }} />
+                    <Space>
+                        <BulbOutlined style={{ color: "var(--fl-text2)" }} />
+                        <Switch checked={dark} onChange={setDark} />
+                    </Space>
+                </Header>
+
+                <Content className="fl-contentBg">
+                    <div className="fl-card">{children}</div>
+                </Content>
+            </Layout>
+        </Layout>
+    );
+}
