@@ -4,6 +4,8 @@ import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import { fetchMyPermissions } from "../redux/reducers/auth.slice";
 
 type Props = {
+    children?: React.ReactNode;
+
     required?: string | string[]; // any-of
     anyOf?: string[];             // any-of
     allOf?: string[];             // all-of
@@ -11,6 +13,7 @@ type Props = {
 };
 
 export default function ProtectedRoute({
+    children,
     required,
     anyOf,
     allOf,
@@ -70,5 +73,5 @@ export default function ProtectedRoute({
         return <Navigate to={redirectTo || `/${slug}/dashboard`} replace />;
     }
 
-    return <Outlet />;
+    return children ? <>{children}</> : <Outlet />;
 }
