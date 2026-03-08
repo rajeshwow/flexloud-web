@@ -120,6 +120,7 @@ export default function AppShell({ children, user, onLogout }: Props) {
         return attachIcons(raw);
     }, [permissions, base]);
 
+
     // ✅ selectedKey supports nested leaf routes
     const selectedKey = useMemo(() => {
         const path = location.pathname;
@@ -143,133 +144,229 @@ export default function AppShell({ children, user, onLogout }: Props) {
     const [pillTop, setPillTop] = useState<number>(84);
 
     useEffect(() => {
-        const el = menuWrapRef.current;
-        if (!el) return;
+        const updatePill = () => {
+            const el = menuWrapRef.current;
+            if (!el) return;
 
-        const selected = el.querySelector(".ant-menu-item-selected") as HTMLElement | null;
-        if (!selected) return;
+            const selected = el.querySelector(
+                ".ant-menu-item-selected, .ant-menu-submenu-selected > .ant-menu-submenu-title"
+            ) as HTMLElement | null;
 
-        const wrapRect = el.getBoundingClientRect();
-        const itemRect = selected.getBoundingClientRect();
-        setPillTop(itemRect.top - wrapRect.top);
-    }, [location.pathname, collapsed, dark]);
+            if (!selected) {
+                setPillTop(84);
+                return;
+            }
+
+            const wrapRect = el.getBoundingClientRect();
+            const itemRect = selected.getBoundingClientRect();
+
+            setPillTop(itemRect.top - wrapRect.top);
+        };
+
+        // render ke baad calculate karo
+        const id = requestAnimationFrame(() => {
+            updatePill();
+        });
+
+        // resize/collapse ke case me thoda aur safe
+        const timeout = setTimeout(updatePill, 80);
+
+        return () => {
+            cancelAnimationFrame(id);
+            clearTimeout(timeout);
+        };
+    }, [location.pathname, collapsed, dark, navItems]);
 
     return (
         <Layout style={{ minHeight: "100vh" }}>
             <style>{`
-        :root{
-          --fl-bg: ${dark ? "#0b1220" : "#ffffff"};
-          --fl-panel: ${dark ? "rgba(255,255,255,0.06)" : "#ffffff"};
-          --fl-border: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"};
-          --fl-text: ${dark ? "rgba(255,255,255,0.90)" : "rgba(15,23,42,0.92)"};
-          --fl-text2: ${dark ? "rgba(255,255,255,0.68)" : "rgba(15,23,42,0.58)"};
-          --fl-cardbg: ${dark ? "rgba(255,255,255,0.06)" : "#ffffff"};
-          --fl-content: ${dark ? "#0b1220" : "#f5f7fb"};
-          --fl-shadow: ${dark ? "0 16px 40px rgba(0,0,0,0.35)" : "0 10px 24px rgba(15,23,42,0.06)"};
-        }
+  :root{
+    --fl-bg: ${dark ? "#0b1220" : "#ffffff"};
+    --fl-panel: ${dark ? "rgba(255,255,255,0.06)" : "#ffffff"};
+    --fl-border: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"};
+    --fl-text: ${dark ? "rgba(255,255,255,0.90)" : "rgba(15,23,42,0.92)"};
+    --fl-text2: ${dark ? "rgba(255,255,255,0.68)" : "rgba(15,23,42,0.58)"};
+    --fl-cardbg: ${dark ? "rgba(255,255,255,0.06)" : "#ffffff"};
+    --fl-content: ${dark ? "#0b1220" : "#f5f7fb"};
+    --fl-shadow: ${dark ? "0 16px 40px rgba(0,0,0,0.35)" : "0 10px 24px rgba(15,23,42,0.06)"};
+    --fl-active-text: ${dark ? "#ffffff" : "#1677ff"};
+--fl-active-submenu-bg: ${dark ? "rgba(255,255,255,0.10)" : "rgba(22,119,255,0.10)"};
+  }
 
-        .fl-sider {
-          background: var(--fl-bg) !important;
-          border-right: 1px solid var(--fl-border);
-        }
+  .fl-sider {
+    background: var(--fl-bg) !important;
+    border-right: 1px solid var(--fl-border);
+  }
 
-        .fl-brand {
-          height: 64px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 0 14px;
-          border-bottom: 1px solid var(--fl-border);
-        }
+  .fl-brand {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--fl-border);
+  }
 
-        .fl-logo {
-          width: 38px; height: 38px;
-          border-radius: 12px;
-          background: radial-gradient(circle at 30% 30%, #69b1ff, #1677ff 55%, #10239e);
-          box-shadow: 0 12px 28px rgba(22,119,255,0.35);
-          display: grid; place-items: center;
-          color: #fff; font-weight: 900;
-        }
+  .fl-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: radial-gradient(circle at 30% 30%, #69b1ff, #1677ff 55%, #10239e);
+    box-shadow: 0 12px 28px rgba(22,119,255,0.35);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 900;
+  }
 
-        .fl-menuWrap{
-          position: relative;
-          padding: 10px 8px;
-        }
+  .fl-menuWrap{
+    position: relative;
+    padding: 10px 8px;
+  }
 
-        .fl-pill{
-          position: absolute;
-          left: 8px;
-          right: 8px;
-          height: 44px;
-          border-radius: 14px;
-          top: ${pillTop}px;
-          background: linear-gradient(135deg, rgba(22,119,255,0.95), rgba(105,177,255,0.55));
-          box-shadow: 0 16px 34px rgba(22,119,255,0.25);
-          transition: top .18s ease;
-          pointer-events: none;
-          opacity: ${selectedKey.length ? 1 : 0};
-        }
+  .fl-pill{
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    height: 44px;
+    border-radius: 14px;
+    top: ${pillTop}px;
+    background: linear-gradient(135deg, rgba(22,119,255,0.95), rgba(105,177,255,0.55));
+    box-shadow: 0 16px 34px rgba(22,119,255,0.25);
+    transition: top .18s ease;
+    pointer-events: none;
+    opacity: ${selectedKey.length ? 1 : 0};
+    z-index: 0;
+  }
 
-        .fl-sider .ant-menu{
-          background: transparent !important;
-          border-inline-end: none !important;
-        }
+  .fl-menuWrap .ant-menu{
+    position: relative;
+    z-index: 1;
+  }
 
-        .fl-sider .ant-menu-item{
-          border-radius: 14px !important;
-          margin: 6px 6px !important;
-          height: 44px !important;
-          line-height: 44px !important;
-          color: var(--fl-text2) !important;
-          transition: all .18s ease;
-        }
+  .fl-sider .ant-menu{
+    background: transparent !important;
+    border-inline-end: none !important;
+  }
 
-        .fl-sider .ant-menu-item:hover{
-          background: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"} !important;
-          color: var(--fl-text) !important;
-        }
+  /* top level items + submenu titles */
+  .fl-sider .ant-menu-item,
+  .fl-sider .ant-menu-submenu-title{
+    border-radius: 14px !important;
+    margin: 6px 6px !important;
+    min-height: 44px !important;
+    line-height: 44px !important;
+    color: var(--fl-text2) !important;
+    transition: all .18s ease;
+  }
 
-        .fl-sider .ant-menu-item-selected{
-          background: transparent !important;
-          color: #fff !important;
-          font-weight: 700;
-        }
-        .fl-sider .ant-menu-item-selected::after{ border-right: none !important; }
+  /* hover */
+  .fl-sider .ant-menu-item:hover,
+  .fl-sider .ant-menu-submenu-title:hover{
+    background: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"} !important;
+    color: var(--fl-text) !important;
+  }
 
-        .fl-header{
-          background: ${dark ? "rgba(11,18,32,0.72)" : "rgba(255,255,255,0.75)"} !important;
-          backdrop-filter: blur(12px);
-          border-bottom: 1px solid var(--fl-border);
-        }
+  /* selected top-level leaf */
+  .fl-sider .ant-menu-item-selected{
+    background: transparent !important;
+    color: var(--fl-active-text) !important;
+    font-weight: 700;
+  }
 
-        .fl-contentBg{
-          background:
-            radial-gradient(circle at 20% 10%, rgba(22,119,255,0.10), transparent 35%),
-            radial-gradient(circle at 80% 0%, rgba(105,177,255,0.16), transparent 40%),
-            var(--fl-content);
-          padding: 16px;
-        }
+  .fl-sider .ant-menu-item-selected::after{
+    border-right: none !important;
+  }
 
-        .fl-card{
-          background: var(--fl-cardbg);
-          border-radius: 18px;
-          padding: 16px;
-          min-height: calc(100vh - 64px - 32px);
-          box-shadow: var(--fl-shadow);
-          border: 1px solid var(--fl-border);
-        }
+  /* parent submenu open / selected */
+  .fl-sider .ant-menu-submenu-selected > .ant-menu-submenu-title,
+  .fl-sider .ant-menu-submenu-open > .ant-menu-submenu-title{
+    background: transparent !important;
+    color: var(--fl-active-text) !important;
+    font-weight: 700;
+  }
 
-        .fl-profile{
-          margin: 10px;
-          padding: 12px;
-          border-radius: 16px;
-          background: var(--fl-panel);
-          border: 1px solid var(--fl-border);
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-      `}</style>
+  /* submenu wrappers */
+  .fl-sider .ant-menu-sub,
+  .fl-sider .ant-menu-inline .ant-menu-sub{
+    background: transparent !important;
+  }
+
+  /* nested submenu items */
+  .fl-sider .ant-menu-sub .ant-menu-item{
+    min-height: 40px !important;
+    line-height: 40px !important;
+    margin: 4px 6px 4px 18px !important;
+    border-radius: 12px !important;
+    color: var(--fl-text2) !important;
+    background: transparent !important;
+  }
+
+  /* nested submenu hover */
+  .fl-sider .ant-menu-sub .ant-menu-item:hover{
+    background: ${dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.035)"} !important;
+    color: var(--fl-text) !important;
+  }
+
+  /* nested submenu selected */
+  .fl-sider .ant-menu-sub .ant-menu-item-selected{
+    background: ${dark ? "rgba(255,255,255,0.10)" : "rgba(22,119,255,0.10)"} !important;
+    color: ${dark ? "#ffffff" : "#1677ff"} !important;
+    font-weight: 600;
+  }
+
+  /* arrow */
+  .fl-sider .ant-menu-submenu-arrow{
+    color: var(--fl-text2) !important;
+  }
+
+  .fl-sider .ant-menu-submenu-selected > .ant-menu-submenu-title .ant-menu-submenu-arrow,
+  .fl-sider .ant-menu-submenu-open > .ant-menu-submenu-title .ant-menu-submenu-arrow{
+    color: var(--fl-active-text) !important;
+  }
+
+  /* icons inherit color */
+  .fl-sider .ant-menu-item .ant-menu-item-icon,
+  .fl-sider .ant-menu-submenu-title .ant-menu-item-icon,
+  .fl-sider .ant-menu-submenu-title .anticon,
+  .fl-sider .ant-menu-item .anticon{
+    color: inherit !important;
+  }
+
+  .fl-header{
+    background: ${dark ? "rgba(11,18,32,0.72)" : "rgba(255,255,255,0.75)"} !important;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--fl-border);
+  }
+
+  .fl-contentBg{
+    background:
+      radial-gradient(circle at 20% 10%, rgba(22,119,255,0.10), transparent 35%),
+      radial-gradient(circle at 80% 0%, rgba(105,177,255,0.16), transparent 40%),
+      var(--fl-content);
+    padding: 16px;
+  }
+
+  .fl-card{
+    background: var(--fl-cardbg);
+    border-radius: 18px;
+    padding: 16px;
+    min-height: calc(100vh - 64px - 32px);
+    box-shadow: var(--fl-shadow);
+    border: 1px solid var(--fl-border);
+  }
+
+  .fl-profile{
+    margin: 10px;
+    padding: 12px;
+    border-radius: 16px;
+    background: var(--fl-panel);
+    border: 1px solid var(--fl-border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+`}</style>
 
             <Sider
                 className="fl-sider"

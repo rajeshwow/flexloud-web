@@ -1,0 +1,173 @@
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { Client } from "../../shared/Utils/api-client";
+
+export type CreateContactPayload = {
+  first_name: string;
+  last_name?: string | null;
+  mobile?: string | null;
+  email?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  organization_id?: string | null;
+  assigned_to?: string | null;
+};
+
+export type ContactItem = {
+  id: string;
+  first_name: string;
+  last_name: string | null;
+  mobile: string | null;
+  email: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  organization_id: string | null;
+  assigned_to: string | null;
+  organization_name?: string | null;
+  assigned_to_name?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GetContactsParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+};
+
+type PaginationState = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
+
+type ContactsState = {
+  createLoading: boolean;
+  createError: string | null;
+  createdContact: ContactItem | null;
+
+  listLoading: boolean;
+  listError: string | null;
+  list: ContactItem[];
+  pagination: PaginationState;
+};
+
+const initialState: ContactsState = {
+  createLoading: false,
+  createError: null,
+  createdContact: null,
+
+  listLoading: false,
+  listError: null,
+  list: [],
+  pagination: {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  },
+};
+
+export const createContact = createAsyncThunk<
+  ContactItem,
+  CreateContactPayload,
+  { rejectValue: string }
+>("contacts/createContact", async (payload, thunkAPI) => {
+  try {
+    const response = await Client.post("/v1/contacts", payload);
+    return response.data?.data;
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(
+      error?.data?.message || error?.message || "Failed to create contact",
+    );
+  }
+});
+
+export const fetchContacts = createAsyncThunk<
+  { data: ContactItem[]; pagination: PaginationState },
+  GetContactsParams | undefined,
+  { rejectValue: string }
+>("contacts/fetchContacts", async (params, thunkAPI) => {
+  try {
+    const response = await Client.get("/v1/contacts", {
+      params: {
+        page: params?.page || 1,
+        limit: params?.limit || 10,
+        search: params?.search || "",
+      },
+    });
+
+    return {
+      data: response.data?.data || [],
+      pagination: response.data?.pagination || {
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0,
+      },
+    };
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(
+      error?.data?.message || error?.message || "Failed to fetch contacts",
+    );
+  }
+});
+
+const contactsSlice = createSlice({
+  name: "contacts",
+  initialState,
+  reducers: {
+    resetContactsState: (state) => {
+      state.createLoading = false;
+      state.createError = null;
+      state.createdContact = null;
+    },
+    resetContactsListState: (state) => {
+      state.listLoading = false;
+      state.listError = null;
+      state.list = [];
+      state.pagination = {
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0,
+      };
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createContact.pending, (state) => {
+        state.createLoading = true;
+        state.createError = null;
+      })
+      .addCase(createContact.fulfilled, (state, action) => {
+        state.createLoading = false;
+        state.createdContact = action.payload;
+      })
+      .addCase(createContact.rejected, (state, action) => {
+        state.createLoading = false;
+        state.createError = action.payload || "Failed to create contact";
+      })
+
+      .addCase(fetchContacts.pending, (state) => {
+        state.listLoading = true;
+        state.listError = null;
+      })
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.listLoading = false;
+        state.list = action.payload.data;
+        state.pagination = action.payload.pagination;
+      })
+      .addCase(fetchContacts.rejected, (state, action) => {
+        state.listLoading = false;
+        state.listError = action.payload || "Failed to fetch contacts";
+      });
+  },
+});
+
+export const { resetContactsState, resetContactsListState } =
+  contactsSlice.actions;
+
+export default contactsSlice.reducer;

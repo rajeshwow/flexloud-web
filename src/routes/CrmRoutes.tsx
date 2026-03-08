@@ -1,10 +1,11 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import AppShell from "../layouts/sidebar";
-import ContactsPage from "../pages/ContactsPage";
+import ContactsPage from "../pages/Contacts/contacts.page";
 import Dashboard from "../pages/Dashboard";
 import LeadsPage from "../pages/LeadsPage";
 import LoginPage from "../pages/LoginPage";
 import OrganizationCreate from "../pages/Organization/createOrg";
+import OrganizationGet from "../pages/Organization/getOrg";
 import ProtectedRoute from "./ProtectedRoutes";
 
 export default function CrmRoutes() {
@@ -41,10 +42,28 @@ export default function CrmRoutes() {
           />
 
           <Route
-            path="organizations/create"
+            path="organization/create"
             element={
-              <ProtectedRoute >
+              <ProtectedRoute required="org.create">
                 <OrganizationCreate />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="organization/view"
+            element={
+              <ProtectedRoute required="ORG.VIEW">
+                <OrganizationGet />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="contacts/create"
+            element={
+              <ProtectedRoute required="contacts.create">
+                <ContactsPage />
               </ProtectedRoute>
             }
           />

@@ -6,11 +6,18 @@ import {
     DatePicker,
     Form,
     Input,
+    message,
     Row,
     Select,
     Space,
 } from "antd";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import {
+    createOrganization,
+    type CreateOrganizationPayload,
+} from "../../redux/reducers/organization.slice";
+import type { AppDispatch } from "../../redux/store";
 
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -18,6 +25,8 @@ const { Option } = Select;
 const OrganizationCreate: React.FC = () => {
     const [form] = Form.useForm();
     const [copyAddress, setCopyAddress] = useState(false);
+
+    const dispatch = useDispatch<AppDispatch>();
 
     const copyBillingAddress = (checked: boolean) => {
         setCopyAddress(checked);
@@ -43,8 +52,43 @@ const OrganizationCreate: React.FC = () => {
         }
     };
 
-    const onFinish = (values: any) => {
-        console.log("Form Data:", values, copyAddress);
+    const onFinish = async (values: any) => {
+        const payload: CreateOrganizationPayload = {
+            name: values.name,
+            gst_number: values.gst || null,
+            email: values.email || null,
+            next_followup_at: values.followup ? values.followup.toISOString() : null,
+
+            type: values.type || null,
+            industry: values.industry || null,
+            assigned_to: null,
+
+            billing_street: values.billingStreet,
+            billing_area: values.billingArea,
+            billing_postal_code: values.billingPostal,
+            billing_city: values.billingCity,
+            billing_state: values.billingState,
+            billing_country: values.billingCountry,
+
+            shipping_street: values.shippingStreet || null,
+            shipping_area: values.shippingArea || null,
+            shipping_postal_code: values.shippingPostal || null,
+            shipping_city: values.shippingCity || null,
+            shipping_state: values.shippingState || null,
+            shipping_country: values.shippingCountry || null,
+
+            is_shipping_same_as_billing: copyAddress,
+        };
+
+        try {
+            await dispatch(createOrganization(payload)).unwrap();
+            message.success("Organization created successfully");
+            form.resetFields();
+            setCopyAddress(false);
+            console.log("payload", payload);
+        } catch (error: any) {
+            message.error(error || "Failed to create organization");
+        }
     };
 
     return (
@@ -55,9 +99,7 @@ const OrganizationCreate: React.FC = () => {
             style={{ padding: 20 }}
         >
             <Collapse defaultActiveKey={["overview"]}>
-                {/* OVERVIEW */}
                 <Panel header="Overview" key="overview">
-
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
@@ -81,9 +123,7 @@ const OrganizationCreate: React.FC = () => {
                             <Form.Item
                                 label="Email Address"
                                 name="email"
-                                rules={[
-                                    { type: "email", message: "Invalid email" },
-                                ]}
+                                rules={[{ type: "email", message: "Invalid email" }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -91,10 +131,7 @@ const OrganizationCreate: React.FC = () => {
 
                         <Col span={12}>
                             <Form.Item label="Next Followup Date" name="followup">
-                                <DatePicker
-                                    style={{ width: "100%" }}
-                                    showTime
-                                />
+                                <DatePicker style={{ width: "100%" }} showTime />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -133,18 +170,15 @@ const OrganizationCreate: React.FC = () => {
                     </Row>
                 </Panel>
 
-                {/* ADDRESS */}
                 <Panel header="Address Information" key="address">
-
                     <Row gutter={24}>
-                        {/* BILLING */}
                         <Col span={12}>
                             <h3>Billing Address</h3>
 
                             <Form.Item
                                 label="Billing Street"
                                 name="billingStreet"
-                                rules={[{ required: true }]}
+                                rules={[{ required: true, message: "Billing street is required" }]}
                             >
                                 <Input.TextArea rows={2} />
                             </Form.Item>
@@ -152,7 +186,7 @@ const OrganizationCreate: React.FC = () => {
                             <Form.Item
                                 label="Billing Area"
                                 name="billingArea"
-                                rules={[{ required: true }]}
+                                rules={[{ required: true, message: "Billing area is required" }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -161,7 +195,7 @@ const OrganizationCreate: React.FC = () => {
                                 label="Billing Postal Code"
                                 name="billingPostal"
                                 rules={[
-                                    { required: true },
+                                    { required: true, message: "Billing postal code is required" },
                                     { pattern: /^[0-9]+$/, message: "Must be number" },
                                 ]}
                             >
@@ -171,7 +205,7 @@ const OrganizationCreate: React.FC = () => {
                             <Form.Item
                                 label="Billing City"
                                 name="billingCity"
-                                rules={[{ required: true }]}
+                                rules={[{ required: true, message: "Billing city is required" }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -179,7 +213,7 @@ const OrganizationCreate: React.FC = () => {
                             <Form.Item
                                 label="Billing State"
                                 name="billingState"
-                                rules={[{ required: true }]}
+                                rules={[{ required: true, message: "Billing state is required" }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -187,13 +221,12 @@ const OrganizationCreate: React.FC = () => {
                             <Form.Item
                                 label="Billing Country"
                                 name="billingCountry"
-                                rules={[{ required: true }]}
+                                rules={[{ required: true, message: "Billing country is required" }]}
                             >
                                 <Input />
                             </Form.Item>
                         </Col>
 
-                        {/* SHIPPING */}
                         <Col span={12}>
                             <h3>Shipping Address</h3>
 
@@ -208,9 +241,7 @@ const OrganizationCreate: React.FC = () => {
                             <Form.Item
                                 label="Shipping Postal Code"
                                 name="shippingPostal"
-                                rules={[
-                                    { pattern: /^[0-9]+$/, message: "Must be number" },
-                                ]}
+                                rules={[{ pattern: /^[0-9]+$/, message: "Must be number" }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -227,9 +258,7 @@ const OrganizationCreate: React.FC = () => {
                                 <Input />
                             </Form.Item>
 
-                            <Checkbox
-                                onChange={(e) => copyBillingAddress(e.target.checked)}
-                            >
+                            <Checkbox onChange={(e) => copyBillingAddress(e.target.checked)}>
                                 Copy Address from Left
                             </Checkbox>
                         </Col>
@@ -242,7 +271,14 @@ const OrganizationCreate: React.FC = () => {
                     Save
                 </Button>
 
-                <Button>Cancel</Button>
+                <Button
+                    onClick={() => {
+                        form.resetFields();
+                        setCopyAddress(false);
+                    }}
+                >
+                    Cancel
+                </Button>
             </Space>
         </Form>
     );

@@ -38,11 +38,19 @@ async function request(
 
   const token = localStorage.getItem("token");
 
+  // current tenant slug from url
+  const pathname = window.location.pathname;
+  const slug = pathname.split("/")[1] || "";
+  const tenantId = localStorage.getItem("tenantId");
+
   const headers: Record<string, string> = {
     ...(config.headers || {}),
   };
 
   if (token) headers.Authorization = `Bearer ${token}`;
+  if (slug) headers["x-tenant-slug"] = slug;
+
+  if (tenantId) headers["x-tenant-id"] = tenantId;
 
   // JSON default unless FormData
   if (!config.isFormData) headers["Content-Type"] = "application/json";

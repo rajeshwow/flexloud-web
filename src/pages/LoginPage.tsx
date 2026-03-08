@@ -2,7 +2,7 @@ import { Button, Card, Form, Input, Typography, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchMyPermissions, login } from "../redux/reducers/auth.slice";
-import { setTenantSlug } from "../redux/reducers/tenant.slice";
+import { setTenantId, setTenantSlug } from "../redux/reducers/tenant.slice";
 
 export default function LoginPage() {
     const { slug = "" } = useParams();
@@ -29,6 +29,7 @@ export default function LoginPage() {
 
         if (res?.payload?.data?.statusCode === 200) {
             await dispatch(fetchMyPermissions({ slug })); // ✅ add
+            dispatch(setTenantId(res.payload.data.data.user?.tenantId));
 
             navigate(`/${slug}/dashboard`, { replace: true });
             message.success("Login successful");
