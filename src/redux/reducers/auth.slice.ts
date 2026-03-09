@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { Client } from "../../shared/Utils/api-client";
+import { withTenant } from "../../shared/Utils/utils";
 
 const config = {
   name: "auth",
@@ -10,7 +11,7 @@ export const login = createAsyncThunk(
   async (payload: { slug: string; email: string; password: string }) => {
     const { slug, email, password } = payload;
 
-    return await Client.post(`/v1/${slug}/auth/login`, {
+    return await Client.post(withTenant(`/auth/login`), {
       identifier: email,
       password,
     });
@@ -22,7 +23,7 @@ export const fetchMyPermissions = createAsyncThunk(
   `${config.name}/fetchMyPermissions`,
   async (payload: { slug: string }) => {
     const { slug } = payload;
-    return await Client.get(`/v1/${slug}/me/permissions`);
+    return await Client.get(withTenant(`/me/permissions`));
   },
 );
 
@@ -45,7 +46,7 @@ export const auth = createSlice({
       state.error = "";
       state.permissions = []; // ✅
       state.permissionsLoading = false; // ✅
-      localStorage.removeItem("token");
+      // localStorage.removeItem("token");
     },
     setToken: (state, action) => {
       state.token = action.payload;
@@ -66,18 +67,12 @@ export const auth = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
 
-        // supports token OR accessToken
-        const token =
-          action?.payload?.data?.data?.token ||
-          action?.payload?.data?.token ||
-          action?.payload?.data?.data?.accessToken ||
-          action?.payload?.data?.accessToken ||
-          "";
+        state.token = action?.payload?.data?.data?.accessToken || "";
 
-        state.token = token;
-        if (token) localStorage.setItem("token", token);
+        if (state.token) {
+          localStorage.setItem("token", state.token);
+        }
 
-        // supports user in various shapes
         state.user =
           action?.payload?.data?.data?.user ||
           action?.payload?.data?.user ||

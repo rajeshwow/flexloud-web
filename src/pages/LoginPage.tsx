@@ -1,7 +1,7 @@
 import { Button, Card, Form, Input, Typography, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { fetchMyPermissions, login } from "../redux/reducers/auth.slice";
+import { fetchMyPermissions, login, setToken } from "../redux/reducers/auth.slice";
 import { setTenantId, setTenantSlug } from "../redux/reducers/tenant.slice";
 
 export default function LoginPage() {
@@ -27,12 +27,19 @@ export default function LoginPage() {
         );
 
 
-        if (res?.payload?.data?.statusCode === 200) {
-            await dispatch(fetchMyPermissions({ slug })); // ✅ add
-            dispatch(setTenantId(res.payload.data.data.user?.tenantId));
 
-            navigate(`/${slug}/dashboard`, { replace: true });
-            message.success("Login successful");
+        if (res?.payload?.data?.statusCode === 200) {
+
+            const token = res.payload.data.data.accessToken
+            const user = res.payload.data.data.user
+
+            dispatch(setToken(token))
+            dispatch(setTenantId(user?.tenantId))
+
+            await dispatch(fetchMyPermissions({ slug } as any))
+
+            navigate(`/${slug}/dashboard`, { replace: true })
+            message.success("Login successful")
         } else {
             message.error(res.payload?.message || "Invalid email or password");
         }

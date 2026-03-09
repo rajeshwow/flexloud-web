@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { Client } from "../../shared/Utils/api-client";
+import { withTenant } from "../../shared/Utils/utils";
 
 export type CreateContactPayload = {
   first_name: string;
@@ -76,7 +77,7 @@ export const createContact = createAsyncThunk<
   { rejectValue: string }
 >("contacts/createContact", async (payload, thunkAPI) => {
   try {
-    const response = await Client.post("/v1/contacts", payload);
+    const response = await Client.post(withTenant("/contacts"), payload);
     return response.data?.data;
   } catch (error: any) {
     return thunkAPI.rejectWithValue(
@@ -85,35 +86,33 @@ export const createContact = createAsyncThunk<
   }
 });
 
-export const fetchContacts = createAsyncThunk<
-  { data: ContactItem[]; pagination: PaginationState },
-  GetContactsParams | undefined,
-  { rejectValue: string }
->("contacts/fetchContacts", async (params, thunkAPI) => {
-  try {
-    const response = await Client.get("/v1/contacts", {
-      params: {
-        page: params?.page || 1,
-        limit: params?.limit || 10,
-        search: params?.search || "",
-      },
-    });
-
-    return {
-      data: response.data?.data || [],
-      pagination: response.data?.pagination || {
-        page: 1,
-        limit: 10,
-        total: 0,
-        totalPages: 0,
-      },
-    };
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(
-      error?.data?.message || error?.message || "Failed to fetch contacts",
-    );
-  }
-});
+export const fetchContacts = createAsyncThunk(
+  "contacts/fetchContacts",
+  async (params: GetContactsParams | undefined) => {
+    try {
+      const response = await Client.get(withTenant("/contacts"), {
+        params: {
+          page: params?.page || 1,
+          limit: params?.limit || 10,
+          search: params?.search || "",
+        },
+      });
+      return {
+        data: response.data?.data || [],
+        pagination: response.data?.pagination || {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+        },
+      };
+    } catch (error: any) {
+      return (
+        error?.data?.message || error?.message || "Failed to fetch contacts"
+      );
+    }
+  },
+);
 
 const contactsSlice = createSlice({
   name: "contacts",
@@ -148,7 +147,7 @@ const contactsSlice = createSlice({
       })
       .addCase(createContact.rejected, (state, action) => {
         state.createLoading = false;
-        state.createError = action.payload || "Failed to create contact";
+        state.createError = "Failed to create contact";
       })
 
       .addCase(fetchContacts.pending, (state) => {
@@ -162,7 +161,7 @@ const contactsSlice = createSlice({
       })
       .addCase(fetchContacts.rejected, (state, action) => {
         state.listLoading = false;
-        state.listError = action.payload || "Failed to fetch contacts";
+        state.listError = "Failed to fetch contacts";
       });
   },
 });

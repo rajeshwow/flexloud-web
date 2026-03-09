@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { Client } from "../../shared/Utils/api-client";
+import { withTenant } from "../../shared/Utils/utils";
 
 export type CreateOrganizationPayload = {
   name: string;
@@ -87,7 +88,7 @@ export const createOrganization = createAsyncThunk<
   { rejectValue: string }
 >("organization/createOrganization", async (payload, thunkAPI) => {
   try {
-    const response = await Client.post("/v1/organizations", payload);
+    const response = await Client.post(withTenant("/organizations"), payload);
     return response.data?.data;
   } catch (error: any) {
     return thunkAPI.rejectWithValue(
@@ -98,33 +99,35 @@ export const createOrganization = createAsyncThunk<
 
 export const getOrganization = createAsyncThunk<
   { data: OrganizationItem[]; pagination: PaginationState },
-  GetOrganizationsParams | undefined,
-  { rejectValue: string }
->("organization/getOrganization", async (params, thunkAPI) => {
-  try {
-    const response = await Client.get("/v1/organizations", {
-      params: {
-        page: params?.page || 1,
-        limit: params?.limit || 10,
-        search: params?.search || "",
-      },
-    });
+  GetOrganizationsParams | undefined
+>(
+  "organization/getOrganization",
+  async (params: GetOrganizationsParams | undefined) => {
+    try {
+      const response = await Client.get(withTenant("/organizations"), {
+        params: {
+          page: params?.page || 1,
+          limit: params?.limit || 10,
+          search: params?.search || "",
+        },
+      });
 
-    return {
-      data: response.data?.data || [],
-      pagination: response.data?.pagination || {
-        page: 1,
-        limit: 10,
-        total: 0,
-        totalPages: 0,
-      },
-    };
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(
-      error?.data?.message || error?.message || "Failed to get organization",
-    );
-  }
-});
+      return {
+        data: response.data?.data || [],
+        pagination: response.data?.pagination || {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+        },
+      };
+    } catch (error: any) {
+      return (
+        error?.data?.message || error?.message || "Failed to get organization"
+      );
+    }
+  },
+);
 
 const organizationSlice = createSlice({
   name: "organization",
@@ -173,7 +176,7 @@ const organizationSlice = createSlice({
       })
       .addCase(getOrganization.rejected, (state, action) => {
         state.listLoading = false;
-        state.listError = action.payload || "Failed to get organization";
+        state.listError = "Failed to get organization";
       });
   },
 });

@@ -21,6 +21,13 @@ export default defineConfig([
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "off", // ✅ allow any
+      "@typescript-eslint/no-unused-vars": "off", // ✅ allow unused vars
+      "@typescript-eslint/no-unsafe-assignment": "off", // ✅ allow unsafe assignments
+      "@typescript-eslint/no-unsafe-call": "off", // ✅ allow unsafe calls
+      "@typescript-eslint/no-unsafe-member-access": "off", // ✅ allow unsafe member access
+      "@typescript-eslint/no-unsafe-return": "off", // ✅ allow unsafe returns
+      "@typescript-eslint/no-unsafe-argument": "off", // ✅ allow unsafe arguments
+      "@typescript-eslint/no-unsafe-optional-chaining": "off", // ✅ allow unsafe optional chaining
     },
   },
 ]);

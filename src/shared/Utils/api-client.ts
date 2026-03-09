@@ -83,10 +83,8 @@ async function request(
   // auth/permission handling
   if (res.status === 401) {
     const msg = data?.message || data?.error || "Unauthorized";
-    // ✅ token remove only if user already had a token (expired scenario)
-    if (localStorage.getItem("token")) localStorage.removeItem("token");
-
-    showErr(msg, config.shouldHideError); // will show "Invalid credentials"
+    console.error("401 API =>", url, data);
+    showErr(msg, config.shouldHideError);
     throw Object.assign(new Error(msg), { status: 401, data });
   }
 

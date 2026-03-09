@@ -10,7 +10,7 @@ export type MenuItemConfig = {
 /**
  * Permission naming convention (suggested):
  *  - ORG.CREATE, ORG.VIEW, ORG.IMPORT, ORG.RECENT
- *  - CONTACTS.CREATE, CONTACTS.VIEW, CONTACTS.IMPORT, CONTACTS.RECENT
+ *  - contacts.create, CONTACTS.VIEW, CONTACTS.IMPORT, CONTACTS.RECENT
  *  - LEADS.CREATE, LEADS.VIEW, LEADS.IMPORT, LEADS.RECENT
  *  - ...etc
  *
@@ -144,14 +144,14 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         label: "Create Contact",
         path: "/contacts/create",
         icon: "PlusOutlined",
-        requiresAny: ["CONTACTS.CREATE"],
+        requiresAny: ["contacts.create"],
       },
       {
         key: "contacts.createFromVCard",
         label: "Create Contact From vCard",
         path: "/contacts/create-from-vcard",
         icon: "PlusOutlined",
-        requiresAny: ["CONTACTS.CREATE_FROM_VCARD"],
+        requiresAny: ["contacts.create_FROM_VCARD"],
       },
       {
         key: "contacts.view",
@@ -193,9 +193,9 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
       {
         key: "leads.view",
         label: "View Leads",
-        path: "/leads",
+        path: "/leads/view",
         icon: "EyeOutlined",
-        requiresAny: ["LEADS.VIEW"],
+        requiresAny: ["leads.view"],
       },
       {
         key: "leads.import",
@@ -218,14 +218,14 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         label: "Create Opportunity",
         path: "/opportunities/create",
         icon: "PlusOutlined",
-        requiresAny: ["OPPORTUNITIES.CREATE"],
+        requiresAny: ["opportunities.create"],
       },
       {
         key: "opportunities.view",
         label: "View Opportunities",
         path: "/opportunities",
         icon: "EyeOutlined",
-        requiresAny: ["OPPORTUNITIES.VIEW"],
+        requiresAny: ["opportunities.view"],
       },
       {
         key: "opportunities.import",

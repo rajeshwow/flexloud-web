@@ -1,9 +1,12 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import AppShell from "../layouts/sidebar";
 import ContactsPage from "../pages/Contacts/contacts.page";
+import ContactForm from "../pages/Contacts/createContact";
 import Dashboard from "../pages/Dashboard";
-import LeadsPage from "../pages/LeadsPage";
+import LeadsPage from "../pages/leads/LeadsPage";
 import LoginPage from "../pages/LoginPage";
+import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
+import OpportunitiesPage from "../pages/Opportunities/OpportunitiesPage";
 import OrganizationCreate from "../pages/Organization/createOrg";
 import OrganizationGet from "../pages/Organization/getOrg";
 import ProtectedRoute from "./ProtectedRoutes";
@@ -23,14 +26,7 @@ export default function CrmRoutes() {
 
           <Route path="dashboard" element={<Dashboard />} />
 
-          <Route
-            path="leads"
-            element={
-              <ProtectedRoute required="LEADS.VIEW">
-                <LeadsPage />
-              </ProtectedRoute>
-            }
-          />
+
 
           <Route
             path="contacts"
@@ -63,7 +59,43 @@ export default function CrmRoutes() {
             path="contacts/create"
             element={
               <ProtectedRoute required="contacts.create">
-                <ContactsPage />
+                <ContactForm />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="opportunities"
+            element={
+              <ProtectedRoute required="opportunities.view">
+                <OpportunitiesPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* create opportunies */}
+          <Route
+            path="opportunities/create"
+            element={
+              <ProtectedRoute required="opportunities.create">
+                <CreateOpportunityPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="leads/create"
+            element={
+              <ProtectedRoute required="leads.create">
+                <LeadsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="leads/view"
+            element={
+              <ProtectedRoute required="leads.view">
+                <LeadsPage />
               </ProtectedRoute>
             }
           />

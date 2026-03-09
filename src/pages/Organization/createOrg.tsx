@@ -101,7 +101,7 @@ const OrganizationCreate: React.FC = () => {
             <Collapse defaultActiveKey={["overview"]}>
                 <Panel header="Overview" key="overview">
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item
                                 label="Name"
                                 name="name"
@@ -111,15 +111,12 @@ const OrganizationCreate: React.FC = () => {
                             </Form.Item>
                         </Col>
 
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item label="GST Number" name="gst">
                                 <Input />
                             </Form.Item>
                         </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item
                                 label="Email Address"
                                 name="email"
@@ -128,16 +125,17 @@ const OrganizationCreate: React.FC = () => {
                                 <Input />
                             </Form.Item>
                         </Col>
+                    </Row>
 
-                        <Col span={12}>
+                    <Row gutter={16}>
+
+
+                        <Col span={8}>
                             <Form.Item label="Next Followup Date" name="followup">
                                 <DatePicker style={{ width: "100%" }} showTime />
                             </Form.Item>
                         </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item label="Type" name="type">
                                 <Select placeholder="Select type">
                                     <Option value="customer">Customer</Option>
@@ -147,7 +145,7 @@ const OrganizationCreate: React.FC = () => {
                             </Form.Item>
                         </Col>
 
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item label="Industry" name="industry">
                                 <Select placeholder="Select industry">
                                     <Option value="health">Healthcare</Option>
@@ -158,8 +156,10 @@ const OrganizationCreate: React.FC = () => {
                         </Col>
                     </Row>
 
+
+
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item label="Assigned To" name="assignedTo">
                                 <Select placeholder="Assign user">
                                     <Option value="user1">User 1</Option>
