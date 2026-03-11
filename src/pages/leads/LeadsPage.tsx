@@ -1,24 +1,21 @@
 
 import {
     EditOutlined,
-    FilterOutlined,
     MailOutlined,
     MoreOutlined,
     PhoneOutlined,
-    PieChartOutlined,
-    SearchOutlined,
+    SearchOutlined
 } from "@ant-design/icons";
 import {
     Button,
     Input,
-    Progress,
     Select,
     Space,
     Table,
     Tag,
     Tooltip,
     Typography,
-    message,
+    message
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useMemo, useState } from "react";
@@ -58,33 +55,7 @@ function getLeadStatusColor(status?: string) {
     return "default";
 }
 
-function LeadInsightsCard({
-    title,
-    value,
-    total,
-}: {
-    title: string;
-    value: number;
-    total: number;
-}) {
-    return (
-        <div className="fl-insight-ring-card">
-            <Progress
-                type="circle"
-                percent={Number(value.toFixed(1))}
-                size={92}
-                strokeWidth={8}
-                format={(percent) => (
-                    <div className="fl-insight-progress-text">
-                        <div className="fl-insight-percent">{percent}%</div>
-                        <div className="fl-insight-label">{title}</div>
-                    </div>
-                )}
-            />
-            <div className="fl-insight-total">Total: {total.toLocaleString("en-IN")}</div>
-        </div>
-    );
-}
+
 
 export default function LeadsPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -253,39 +224,22 @@ export default function LeadsPage() {
 
     return (
         <div className="fl-page-wrap">
-            <div className="fl-page-header">
-                <div>
-                    <Text className="fl-page-title">Leads</Text>
-                </div>
-
-                <div className="fl-page-actions">
-                    <Input
-                        allowClear
-                        value={search}
-                        onChange={(e) => {
-                            setPage(1);
-                            setSearch(e.target.value);
-                        }}
-                        placeholder="Search by lead number, name, phone, email..."
-                        prefix={<SearchOutlined />}
-                        className="fl-leads-search"
-                    />
-
-                    <Button icon={<FilterOutlined />}>Filter</Button>
-
-                    <Button type="primary" icon={<PieChartOutlined />}>
-                        Insights
-                    </Button>
-                </div>
-            </div>
+            <Space style={{ marginBottom: 16 }}>
+                <Input
+                    allowClear
+                    placeholder="Search by name, mobile, email"
+                    prefix={<SearchOutlined />}
+                    value={search}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setPage(1);
+                    }}
+                    style={{ width: 320 }}
+                />
+            </Space>
 
             <div className="fl-leads-layout">
                 <div className="fl-table-card fl-leads-table-wrap">
-                    <div className="fl-table-topbar">
-                        <Text className="fl-table-count">
-                            {start} - {end} of {total || 0}
-                        </Text>
-                    </div>
 
                     <Table<LeadItem>
                         rowKey="id"
@@ -293,6 +247,7 @@ export default function LeadsPage() {
                         dataSource={leads || []}
                         loading={listLoading}
                         pagination={{
+                            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
                             current: page,
                             pageSize,
                             total: total || 0,

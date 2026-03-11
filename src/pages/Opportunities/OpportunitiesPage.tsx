@@ -182,32 +182,22 @@ export default function OpportunitiesPage() {
 
     return (
         <div className="fl-page-wrap">
-            <div className="fl-page-header">
-                <div>
-                    <Text className="fl-page-title">Opportunities</Text>
-                </div>
-
-                <div className="fl-page-actions">
-                    <Input
-                        allowClear
-                        value={search}
-                        onChange={(e) => {
-                            setPage(1);
-                            setSearch(e.target.value);
-                        }}
-                        placeholder="Search by opportunity number, name, phone..."
-                        prefix={<SearchOutlined />}
-                        className="fl-opportunity-search"
-                    />
-                </div>
-            </div>
+            <Space style={{ marginBottom: 16 }}>
+                <Input
+                    allowClear
+                    placeholder="Search by name, mobile, email"
+                    prefix={<SearchOutlined />}
+                    value={search}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setPage(1);
+                    }}
+                    style={{ width: 320 }}
+                />
+            </Space>
 
             <div className="fl-table-card">
-                <div className="fl-table-topbar">
-                    <Text className="fl-table-count">
-                        {start} - {end} of {total || 0}
-                    </Text>
-                </div>
+
 
                 <Table<OpportunityItem>
                     rowKey="id"
@@ -215,6 +205,7 @@ export default function OpportunitiesPage() {
                     dataSource={opportunities || []}
                     loading={listLoading}
                     pagination={{
+                        showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
                         current: page,
                         pageSize,
                         total: total || 0,

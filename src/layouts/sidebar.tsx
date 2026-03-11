@@ -33,7 +33,7 @@ import {
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Grid, Layout, Menu, Space, Switch, Tooltip, Typography } from "antd";
+import { Avatar, Button, Grid, Layout, Menu, Space, Switch, Typography } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAppTheme } from "../theme/ThemeProvider";
@@ -97,6 +97,32 @@ export default function AppShell({ children, user }: Props) {
 
   const [collapsed, setCollapsed] = useState(false);
 
+  const sanitizeKey = (key: string) => key.replace(/[^a-zA-Z0-9_-]/g, "_");
+
+
+
+  const findTopLevelKey = (items: any[], targetKey?: string): string | null => {
+    if (!targetKey) return null;
+
+    for (const item of items) {
+      if (item.key === targetKey) return item.key;
+
+      if (item.children?.length) {
+        const hasChild = (nodes: any[]): boolean => {
+          for (const n of nodes) {
+            if (n.key === targetKey) return true;
+            if (n.children?.length && hasChild(n.children)) return true;
+          }
+          return false;
+        };
+
+        if (hasChild(item.children)) return item.key;
+      }
+    }
+
+    return null;
+  };
+
   const isMobile = !screens.md;
   const base = `/${slug}`;
 
@@ -105,14 +131,13 @@ export default function AppShell({ children, user }: Props) {
   // localStorage.setItem("fl_permissions", JSON.stringify(["LEADS.VIEW","CONTACTS.VIEW"]))
   const permissions = useSelector((state: any) => state.auth?.permissions || []);
   const navItems = useMemo(() => {
-    // build tree using permissions + registry
     const raw = buildMenuTree(MENU_REGISTRY, permissions, base);
 
-    // attach icon components
     const attachIcons = (items: any[]): any[] =>
       items.map((i) => ({
         ...i,
-        icon: i.icon ? iconMap[i.icon] : i.icon, // if already node, keep
+        icon: i.icon ? iconMap[i.icon] : i.icon,
+        className: `fl-menu-node fl-menu-node-${sanitizeKey(String(i.key))}`,
         children: i.children ? attachIcons(i.children) : undefined,
       }));
 
@@ -146,6 +171,10 @@ export default function AppShell({ children, user }: Props) {
     return match ? [match] : [];
   }, [navItems, location.pathname, base]);
 
+  const activeTopLevelKey = useMemo(() => {
+    return findTopLevelKey(navItems, selectedKey[0]) || null;
+  }, [navItems, selectedKey]);
+
   // Animated active “pill” position
   const menuWrapRef = useRef<HTMLDivElement | null>(null);
   const [pillTop, setPillTop] = useState<number>(84);
@@ -153,37 +182,33 @@ export default function AppShell({ children, user }: Props) {
   useEffect(() => {
     const updatePill = () => {
       const el = menuWrapRef.current;
-      if (!el) return;
+      if (!el || !activeTopLevelKey) {
+        setPillTop(84);
+        return;
+      }
 
-      const selected = el.querySelector(
-        ".ant-menu-item-selected, .ant-menu-submenu-selected > .ant-menu-submenu-title"
-      ) as HTMLElement | null;
+      const className = `.fl-menu-node-${sanitizeKey(activeTopLevelKey)}`;
+      const target = el.querySelector(className) as HTMLElement | null;
 
-      if (!selected) {
+      if (!target) {
         setPillTop(84);
         return;
       }
 
       const wrapRect = el.getBoundingClientRect();
-      const itemRect = selected.getBoundingClientRect();
+      const itemRect = target.getBoundingClientRect();
 
       setPillTop(itemRect.top - wrapRect.top);
     };
 
-    // render ke baad calculate karo
-    const id = requestAnimationFrame(() => {
-      updatePill();
-    });
-
-    // resize/collapse ke case me thoda aur safe
-    const timeout = setTimeout(updatePill, 80);
+    const id = requestAnimationFrame(updatePill);
+    const timeout = setTimeout(updatePill, 120);
 
     return () => {
       cancelAnimationFrame(id);
       clearTimeout(timeout);
     };
-  }, [location.pathname, collapsed, dark, navItems]);
-
+  }, [activeTopLevelKey, collapsed, dark]);
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <style>{`
@@ -203,6 +228,12 @@ export default function AppShell({ children, user }: Props) {
   .fl-sider {
     background: var(--fl-bg) !important;
     border-right: 1px solid var(--fl-border);
+  }
+
+  .fl-sider .ant-layout-sider-children {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 
   .fl-brand {
@@ -229,6 +260,18 @@ export default function AppShell({ children, user }: Props) {
   .fl-menuWrap{
     position: relative;
     padding: 10px 8px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .fl-menuWrap::-webkit-scrollbar {
+    width: 5px;
+  }
+  
+  .fl-menuWrap::-webkit-scrollbar-thumb {
+    background-color: var(--fl-border);
+    border-radius: 4px;
   }
 
   .fl-pill{
@@ -237,12 +280,10 @@ export default function AppShell({ children, user }: Props) {
     right: 8px;
     height: 44px;
     border-radius: 14px;
-    top: ${pillTop}px;
     background: linear-gradient(135deg, rgba(22,119,255,0.95), rgba(105,177,255,0.55));
     box-shadow: 0 16px 34px rgba(22,119,255,0.25);
     transition: top .18s ease;
     pointer-events: none;
-    opacity: ${selectedKey.length ? 1 : 0};
     z-index: 0;
   }
 
@@ -395,23 +436,11 @@ export default function AppShell({ children, user }: Props) {
         </div>
 
         <div className="fl-menuWrap" ref={menuWrapRef}>
-          <div className="fl-pill" />
+          <div className="fl-pill" style={{ top: pillTop, opacity: selectedKey.length ? 1 : 0 }} />
           <Menu
             mode="inline"
             selectedKeys={selectedKey}
-            items={
-              (collapsed
-                ? navItems.map((i: any) => ({
-                  ...i,
-                  icon: (
-                    <Tooltip placement="right" title={i.label}>
-                      {i.icon}
-                    </Tooltip>
-                  ),
-                  label: null,
-                }))
-                : navItems) as any
-            }
+            items={navItems}
             onClick={(e) => {
               // ✅ only navigate leaf routes (they start with base + "/")
               if (typeof e.key === "string" && e.key.startsWith(base + "/")) navigate(e.key);
@@ -419,7 +448,7 @@ export default function AppShell({ children, user }: Props) {
           />
         </div>
 
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+        <div>
           <div className="fl-profile" style={{ justifyContent: collapsed ? "center" : "space-between" }}>
             <Space>
               <Avatar style={{ backgroundColor: "#1677ff" }}>
@@ -452,7 +481,7 @@ export default function AppShell({ children, user }: Props) {
           </div>
 
           <div style={{ padding: "0 10px 12px" }}>
-            <Button block icon={<LogoutOutlined />} onClick={() => onLogout?.()}>
+            <Button block icon={<LogoutOutlined />} onClick={onLogout}>
               {!collapsed ? "Logout" : null}
             </Button>
           </div>
