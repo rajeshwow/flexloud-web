@@ -2,7 +2,8 @@ import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import AppShell from "../layouts/sidebar";
 import ContactsPage from "../pages/Contacts/contacts.page";
 import ContactForm from "../pages/Contacts/createContact";
-import Dashboard from "../pages/Dashboard";
+import StunningDashboard from "../pages/Home/dashboard";
+import CreateLeadForm from "../pages/leads/CreateLeads";
 import LeadsPage from "../pages/leads/LeadsPage";
 import LoginPage from "../pages/LoginPage";
 import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
@@ -24,7 +25,8 @@ export default function CrmRoutes() {
 
           <Route index element={<Navigate to="dashboard" replace />} />
 
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="dashboard" element={<StunningDashboard />} />
+          <Route path="home" element={<StunningDashboard />} />
 
 
 
@@ -86,7 +88,7 @@ export default function CrmRoutes() {
             path="leads/create"
             element={
               <ProtectedRoute required="leads.create">
-                <LeadsPage />
+                <CreateLeadForm />
               </ProtectedRoute>
             }
           />

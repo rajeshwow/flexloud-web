@@ -25,6 +25,7 @@ import type { AppDispatch, RootState } from "../../redux/store";
 // import "./leads.css";
 
 // apne actual slice ke hisaab se import change kar lena
+import dayjs from "dayjs";
 import {
     fetchLeads,
     resetLeadsListState,
@@ -97,22 +98,44 @@ export default function LeadsPage() {
                 key: "lead_number",
                 width: 170,
                 render: (value: string, record) => (
-                    <Link onClick={() => navigate(`/leads/${record.id}`)}>{value || "-"}</Link>
+                    <Link onClick={() => navigate(`/leads/${record.id}`)}>
+                        {value || "-"}
+                    </Link>
                 ),
             },
             {
                 title: "Name",
-                dataIndex: "name",
                 key: "name",
-                width: 180,
-                render: (value?: string) => <Text strong>{value || "-"}</Text>,
+                width: 220,
+                render: (_: unknown, record) => {
+                    const fullName = [record.first_name, record.last_name]
+                        .filter(Boolean)
+                        .join(" ");
+                    return <Text strong>{fullName || "-"}</Text>;
+                },
+            },
+            {
+                title: "Mobile",
+                dataIndex: "mobile",
+                key: "mobile",
+                width: 150,
+                render: (value?: string) => value || "-",
             },
             {
                 title: "Status",
                 dataIndex: "status",
                 key: "status",
                 width: 140,
-                render: (value?: string) => <Tag color={getLeadStatusColor(value)}>{value || "-"}</Tag>,
+                render: (value?: string) => (
+                    <Tag color={getLeadStatusColor(value)}>{value || "-"}</Tag>
+                ),
+            },
+            {
+                title: "Priority",
+                dataIndex: "priority",
+                key: "priority",
+                width: 130,
+                render: (value?: string) => value || "-",
             },
             {
                 title: "Organization Name",
@@ -122,88 +145,98 @@ export default function LeadsPage() {
                 render: (value?: string) => value || "-",
             },
             {
-                title: "Office Phone",
-                dataIndex: "office_phone",
-                key: "office_phone",
-                width: 150,
-                render: (value?: string) => value || "-",
-            },
-            {
                 title: "Email",
-                dataIndex: "email",
                 key: "email",
-                width: 220,
+                width: 240,
+                render: (_: unknown, record) => {
+                    const primaryEmail =
+                        record.emails?.find((item: any) => item?.primary)?.email ||
+                        record.emails?.[0]?.email;
+                    return primaryEmail || "-";
+                },
+            },
+            {
+                title: "Assigned To",
+                dataIndex: "assigned_to_name",
+                key: "assigned_to_name",
+                width: 180,
                 render: (value?: string) => value || "-",
             },
             {
-                title: "User",
-                dataIndex: "user_name",
-                key: "user_name",
-                width: 180,
+                title: "Lead Source",
+                dataIndex: "lead_source",
+                key: "lead_source",
+                width: 160,
                 render: (value?: string) => value || "-",
             },
             {
                 title: "Next Followup",
                 dataIndex: "next_followup",
                 key: "next_followup",
-                width: 180,
-                render: (value?: string) => value || "-",
+                width: 190,
+                render: (value?: string) => value ? dayjs(value).format("DD MMM YYYY hh:mm A") : "-",
             },
             {
                 title: "Date Created",
                 dataIndex: "created_at",
                 key: "created_at",
                 width: 180,
-                render: (value?: string) => value || "-",
+                render: (value?: string) => value ? dayjs(value).format("DD MMM YYYY") : "-",
             },
             {
                 title: "Actions",
                 key: "actions",
                 width: 150,
                 fixed: "right",
-                render: (_: unknown, record) => (
-                    <Space size="small">
-                        <Tooltip title="Edit">
-                            <Button
-                                type="text"
-                                icon={<EditOutlined />}
-                                onClick={() => navigate(`/leads/${record.id}/edit`)}
-                            />
-                        </Tooltip>
+                render: (_: unknown, record) => {
+                    const primaryEmail =
+                        record.emails?.find((item: any) => item?.primary)?.email ||
+                        record.emails?.[0]?.email;
 
-                        <Tooltip title="Call">
-                            <Button
-                                type="text"
-                                icon={<PhoneOutlined />}
-                                onClick={() => {
-                                    if (record.office_phone) {
-                                        window.location.href = `tel:${record.office_phone}`;
-                                    } else {
-                                        message.info("Phone number not available");
-                                    }
-                                }}
-                            />
-                        </Tooltip>
+                    return (
+                        <Space size="small">
+                            <Tooltip title="Edit">
+                                <Button
+                                    type="text"
+                                    icon={<EditOutlined />}
+                                    onClick={() => navigate(`/leads/${record.id}/edit`)}
+                                />
+                            </Tooltip>
 
-                        <Tooltip title="Email">
-                            <Button
-                                type="text"
-                                icon={<MailOutlined />}
-                                onClick={() => {
-                                    if (record.email) {
-                                        window.location.href = `mailto:${record.email}`;
-                                    } else {
-                                        message.info("Email not available");
-                                    }
-                                }}
-                            />
-                        </Tooltip>
+                            <Tooltip title="Call">
+                                <Button
+                                    type="text"
+                                    icon={<PhoneOutlined />}
+                                    onClick={() => {
+                                        if (record.mobile) {
+                                            window.location.href = `tel:${record.mobile}`;
+                                        } else {
+                                            message.info("Mobile number not available");
+                                        }
+                                    }}
+                                />
+                            </Tooltip>
 
-                        <Tooltip title="More">
-                            <Button type="text" icon={<MoreOutlined />} />
-                        </Tooltip>
-                    </Space>
-                ),
+                            <Tooltip title="Email">
+                                <Button
+                                    type="text"
+                                    icon={<MailOutlined />}
+                                    onClick={() => {
+                                        if (primaryEmail) {
+                                            window.location.href = `mailto:${primaryEmail}`;
+                                        } else {
+                                            message.info("Email not available");
+                                        }
+                                    }}
+                                />
+                            </Tooltip>
+
+                            <Tooltip title="More">
+                                <Button type="text" icon={<MoreOutlined />} />
+                            </Tooltip>
+                        </Space>
+                    );
+                },
             },
         ],
         [navigate]

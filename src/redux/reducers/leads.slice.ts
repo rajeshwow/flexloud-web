@@ -13,27 +13,25 @@ export type LeadStatus =
 
 export type LeadItem = {
   id: string;
-  tenant_id?: string;
-
-  lead_number: string;
-  name: string;
-  status?: LeadStatus | null;
-
-  organization_name?: string | null;
-  office_phone?: string | null;
-  email?: string | null;
-  user_id?: string | null;
-  user_name?: string | null;
-
-  next_followup?: string | null;
+  lead_number?: string;
+  first_name?: string;
+  last_name?: string;
+  mobile?: string;
+  office_phone?: string;
+  organization_name?: string;
+  status?: string;
+  priority?: string;
+  lead_source?: string;
+  next_followup?: string;
   created_at?: string;
-  updated_at?: string;
-
-  // extra detail fields
-  mobile?: string | null;
-  company?: string | null;
-  source?: string | null;
-  description?: string | null;
+  assigned_to?: string;
+  assigned_to_name?: string;
+  emails?: {
+    email: string;
+    primary?: boolean;
+    opt_out?: boolean;
+    invalid?: boolean;
+  }[];
 };
 
 export type LeadsInsightItem = {

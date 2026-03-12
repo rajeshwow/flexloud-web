@@ -181,7 +181,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         label: "Create Lead",
         path: "/leads/create",
         icon: "PlusOutlined",
-        requiresAny: ["LEADS.CREATE"],
+        requiresAny: ["leads.create"],
       },
       {
         key: "leads.createFromCard",

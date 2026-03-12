@@ -28,6 +28,8 @@ export default defineConfig([
       "@typescript-eslint/no-unsafe-return": "off", // ✅ allow unsafe returns
       "@typescript-eslint/no-unsafe-argument": "off", // ✅ allow unsafe arguments
       "@typescript-eslint/no-unsafe-optional-chaining": "off", // ✅ allow unsafe optional chaining
+      //no debugger
+      "no-debugger": "off",
     },
   },
 ]);
