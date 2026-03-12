@@ -34,7 +34,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Avatar, Button, Grid, Layout, Menu, Space, Switch, Typography } from "antd";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAppTheme } from "../theme/ThemeProvider";
 
@@ -130,19 +130,7 @@ export default function AppShell({ children, user }: Props) {
   // Put permissions in localStorage like:
   // localStorage.setItem("fl_permissions", JSON.stringify(["LEADS.VIEW","CONTACTS.VIEW"]))
   const permissions = useSelector((state: any) => state.auth?.permissions || []);
-  const navItems = useMemo(() => {
-    const raw = buildMenuTree(MENU_REGISTRY, permissions, base);
 
-    const attachIcons = (items: any[]): any[] =>
-      items.map((i) => ({
-        ...i,
-        icon: i.icon ? iconMap[i.icon] : i.icon,
-        className: `fl-menu-node fl-menu-node-${sanitizeKey(String(i.key))}`,
-        children: i.children ? attachIcons(i.children) : undefined,
-      }));
-
-    return attachIcons(raw);
-  }, [permissions, base]);
 
   const onLogout = () => {
     // Clear tokens
@@ -152,6 +140,32 @@ export default function AppShell({ children, user }: Props) {
     navigate(`/${slug}/login`); // slug ke saath
   };
 
+  const findParentKeys = (items: any[], targetKey?: string): string[] => {
+    if (!targetKey) return [];
+
+    const dfs = (nodes: any[], parents: string[] = []): string[] | null => {
+      for (const node of nodes) {
+        if (node.key === targetKey) return parents;
+
+        if (node.children?.length) {
+          const found = dfs(node.children, [...parents, node.key]);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    return dfs(items) || [];
+  };
+
+
+  const rawMenu = useMemo(() => {
+    return buildMenuTree(MENU_REGISTRY, permissions, base);
+  }, [permissions, base]);
+
+  const rawNavItems = useMemo(() => {
+    return buildMenuTree(MENU_REGISTRY, permissions, base);
+  }, [permissions, base]);
 
   // ✅ selectedKey supports nested leaf routes
   const selectedKey = useMemo(() => {
@@ -164,66 +178,72 @@ export default function AppShell({ children, user }: Props) {
         else if (typeof n.key === "string" && n.key.startsWith(base + "/")) leafKeys.push(n.key);
       });
     };
-    walk(navItems);
+    walk(rawNavItems);
 
     leafKeys.sort((a, b) => b.length - a.length);
     const match = leafKeys.find((k) => path.startsWith(k));
     return match ? [match] : [];
-  }, [navItems, location.pathname, base]);
+  }, [rawNavItems, location.pathname, base]);
 
   const activeTopLevelKey = useMemo(() => {
-    return findTopLevelKey(navItems, selectedKey[0]) || null;
-  }, [navItems, selectedKey]);
+    return findTopLevelKey(rawNavItems, selectedKey[0]) || null;
+  }, [rawNavItems, selectedKey]);
 
-  // Animated active “pill” position
-  const menuWrapRef = useRef<HTMLDivElement | null>(null);
-  const [pillTop, setPillTop] = useState<number>(84);
+  const parentKeys = useMemo(() => {
+    return findParentKeys(rawNavItems, selectedKey[0]);
+  }, [rawNavItems, selectedKey]);
+
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   useEffect(() => {
-    const updatePill = () => {
-      const el = menuWrapRef.current;
-      if (!el || !activeTopLevelKey) {
-        setPillTop(84);
-        return;
-      }
+    setOpenKeys(parentKeys);
+  }, [parentKeys]);
 
-      const className = `.fl-menu-node-${sanitizeKey(activeTopLevelKey)}`;
-      const target = el.querySelector(className) as HTMLElement | null;
 
-      if (!target) {
-        setPillTop(84);
-        return;
-      }
 
-      const wrapRect = el.getBoundingClientRect();
-      const itemRect = target.getBoundingClientRect();
+  const navItems = useMemo(() => {
+    const attachIcons = (items: any[], level = 0): any[] =>
+      items.map((i) => {
+        const isActiveTop = level === 0 && activeTopLevelKey === i.key;
 
-      setPillTop(itemRect.top - wrapRect.top);
-    };
+        return {
+          ...i,
+          icon: i.icon ? iconMap[i.icon] : i.icon,
+          className: [
+            `fl-menu-node fl-menu-node-${sanitizeKey(String(i.key))}`,
+            level === 0 ? "fl-menu-top" : "fl-menu-child",
+            isActiveTop ? "fl-menu-top-active" : "",
+          ]
+            .filter(Boolean)
+            .join(" "),
+          children: i.children ? attachIcons(i.children, level + 1) : undefined,
+        };
+      });
 
-    const id = requestAnimationFrame(updatePill);
-    const timeout = setTimeout(updatePill, 120);
+    return attachIcons(rawNavItems);
+  }, [rawNavItems, activeTopLevelKey]);
 
-    return () => {
-      cancelAnimationFrame(id);
-      clearTimeout(timeout);
-    };
-  }, [activeTopLevelKey, collapsed, dark]);
+
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <style>{`
   :root{
-    --fl-bg: ${dark ? "#0b1220" : "#ffffff"};
-    --fl-panel: ${dark ? "rgba(255,255,255,0.06)" : "#ffffff"};
-    --fl-border: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"};
-    --fl-text: ${dark ? "rgba(255,255,255,0.90)" : "rgba(15,23,42,0.92)"};
-    --fl-text2: ${dark ? "rgba(255,255,255,0.68)" : "rgba(15,23,42,0.58)"};
-    --fl-cardbg: ${dark ? "rgba(255,255,255,0.06)" : "#ffffff"};
-    --fl-content: ${dark ? "#0b1220" : "#f5f7fb"};
-    --fl-shadow: ${dark ? "0 16px 40px rgba(0,0,0,0.35)" : "0 10px 24px rgba(15,23,42,0.06)"};
-    --fl-active-text: ${dark ? "#ffffff" : "#1677ff"};
---fl-active-submenu-bg: ${dark ? "rgba(255,255,255,0.10)" : "rgba(22,119,255,0.10)"};
-  }
+  --fl-bg: ${dark ? "#0b1220" : "#ffffff"};
+  --fl-panel: ${dark ? "rgba(255,255,255,0.06)" : "#ffffff"};
+  --fl-border: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"};
+  --fl-text: ${dark ? "rgba(255,255,255,0.90)" : "rgba(15,23,42,0.92)"};
+  --fl-text2: ${dark ? "rgba(255,255,255,0.68)" : "rgba(15,23,42,0.58)"};
+  --fl-cardbg: ${dark ? "rgba(255,255,255,0.06)" : "#ffffff"};
+  --fl-content: ${dark ? "#0b1220" : "#f5f7fb"};
+  --fl-shadow: ${dark ? "0 16px 40px rgba(0,0,0,0.35)" : "0 10px 24px rgba(15,23,42,0.06)"};
+
+  --fl-active-bg: ${dark ? "#1668dc" : "#1677ff"};
+  --fl-active-text: #ffffff;
+  --fl-hover-bg: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"};
+  --fl-child-selected-bg: ${dark ? "rgba(255,255,255,0.10)" : "rgba(22,119,255,0.10)"};
+  --fl-child-selected-text: ${dark ? "#ffffff" : "#1677ff"};
+}
 
   .fl-sider {
     background: var(--fl-bg) !important;
@@ -257,13 +277,12 @@ export default function AppShell({ children, user }: Props) {
     font-weight: 900;
   }
 
-  .fl-menuWrap{
-    position: relative;
-    padding: 10px 8px;
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
+ .fl-menuWrap{
+  padding: 10px 8px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 
   .fl-menuWrap::-webkit-scrollbar {
     width: 5px;
@@ -293,45 +312,35 @@ export default function AppShell({ children, user }: Props) {
   }
 
   .fl-sider .ant-menu{
-    background: transparent !important;
-    border-inline-end: none !important;
-  }
+  background: transparent !important;
+  border-inline-end: none !important;
+}
 
-  /* top level items + submenu titles */
-  .fl-sider .ant-menu-item,
-  .fl-sider .ant-menu-submenu-title{
-    border-radius: 14px !important;
-    margin: 6px 6px !important;
-    min-height: 44px !important;
-    line-height: 44px !important;
-    color: var(--fl-text2) !important;
-    transition: all .18s ease;
-  }
+.fl-sider .ant-menu-item,
+.fl-sider .ant-menu-submenu-title{
+  border-radius: 14px !important;
+  margin: 6px 6px !important;
+  min-height: 44px !important;
+  line-height: 44px !important;
+  color: var(--fl-text2) !important;
+  transition: all .18s ease;
+}
 
   /* hover */
-  .fl-sider .ant-menu-item:hover,
-  .fl-sider .ant-menu-submenu-title:hover{
-    background: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"} !important;
-    color: var(--fl-text) !important;
-  }
+ .fl-sider .ant-menu-item:hover,
+.fl-sider .ant-menu-submenu-title:hover{
+  background: var(--fl-hover-bg) !important;
+  color: var(--fl-text) !important; 
+}
 
-  /* selected top-level leaf */
-  .fl-sider .ant-menu-item-selected{
-    background: transparent !important;
-    color: var(--fl-active-text) !important;
-    font-weight: 700;
-  }
-
-  .fl-sider .ant-menu-item-selected::after{
-    border-right: none !important;
-  }
+ 
 
   /* parent submenu open / selected */
   .fl-sider .ant-menu-submenu-selected > .ant-menu-submenu-title,
   .fl-sider .ant-menu-submenu-open > .ant-menu-submenu-title{
-    background: transparent !important;
-    color: var(--fl-active-text) !important;
-    font-weight: 700;
+   background: transparent !important;
+  color: var(--fl-text) !important;
+  font-weight: 600 !important;
   }
 
   /* submenu wrappers */
@@ -341,32 +350,32 @@ export default function AppShell({ children, user }: Props) {
   }
 
   /* nested submenu items */
-  .fl-sider .ant-menu-sub .ant-menu-item{
-    min-height: 40px !important;
-    line-height: 40px !important;
-    margin: 4px 6px 4px 18px !important;
-    border-radius: 12px !important;
-    color: var(--fl-text2) !important;
-    background: transparent !important;
-  }
+ .fl-sider .ant-menu-sub .ant-menu-item{
+  min-height: 40px !important;
+  line-height: 40px !important;
+  margin: 4px 8px 4px 18px !important;
+  border-radius: 12px !important;
+  color: var(--fl-text2) !important;
+  background: transparent !important;
+}
 
   /* nested submenu hover */
-  .fl-sider .ant-menu-sub .ant-menu-item:hover{
-    background: ${dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.035)"} !important;
-    color: var(--fl-text) !important;
-  }
+ .fl-sider .ant-menu-sub .ant-menu-item:hover{
+  background: var(--fl-hover-bg) !important;
+  color: var(--fl-text) !important;
+}
 
   /* nested submenu selected */
-  .fl-sider .ant-menu-sub .ant-menu-item-selected{
-    background: ${dark ? "rgba(255,255,255,0.10)" : "rgba(22,119,255,0.10)"} !important;
-    color: ${dark ? "#ffffff" : "#1677ff"} !important;
-    font-weight: 600;
-  }
+ .fl-sider .ant-menu-sub .ant-menu-item-selected{
+  background: var(--fl-child-selected-bg) !important;
+  color: var(--fl-child-selected-text) !important;
+  font-weight: 600 !important;
+}
 
   /* arrow */
-  .fl-sider .ant-menu-submenu-arrow{
-    color: var(--fl-text2) !important;
-  }
+ .fl-sider .ant-menu-submenu-arrow{
+  color: inherit !important;
+}
 
   .fl-sider .ant-menu-submenu-selected > .ant-menu-submenu-title .ant-menu-submenu-arrow,
   .fl-sider .ant-menu-submenu-open > .ant-menu-submenu-title .ant-menu-submenu-arrow{
@@ -414,6 +423,18 @@ export default function AppShell({ children, user }: Props) {
     align-items: center;
     gap: 10px;
   }
+    .fl-sider .fl-menu-top-active.ant-menu-item,
+.fl-sider .fl-menu-top-active > .ant-menu-submenu-title{
+  background: var(--fl-active-bg) !important;
+  color: var(--fl-active-text) !important;
+  font-weight: 700 !important;
+}
+
+.fl-sider .fl-menu-top-active.ant-menu-submenu > .ant-menu-submenu-title{
+  background: var(--fl-active-bg) !important;
+  color: var(--fl-active-text) !important;
+  font-weight: 700 !important;
+}
 `}</style>
 
       <Sider
@@ -435,11 +456,12 @@ export default function AppShell({ children, user }: Props) {
           )}
         </div>
 
-        <div className="fl-menuWrap" ref={menuWrapRef}>
-          <div className="fl-pill" style={{ top: pillTop, opacity: selectedKey.length ? 1 : 0 }} />
+        <div className="fl-menuWrap" >
           <Menu
             mode="inline"
             selectedKeys={selectedKey}
+            openKeys={openKeys}
+            onOpenChange={(keys) => setOpenKeys(keys as string[])}
             items={navItems}
             onClick={(e) => {
               // ✅ only navigate leaf routes (they start with base + "/")
