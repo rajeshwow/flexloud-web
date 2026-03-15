@@ -1,5 +1,6 @@
 import {
     Button,
+    Card,
     Checkbox,
     Col,
     Collapse,
@@ -10,8 +11,9 @@ import {
     Row,
     Select,
     Space,
+    Switch,
 } from "antd";
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import {
     createOrganization,
@@ -24,35 +26,66 @@ const { Option } = Select;
 
 const OrganizationCreate: React.FC = () => {
     const [form] = Form.useForm();
-    const [copyAddress, setCopyAddress] = useState(false);
-
     const dispatch = useDispatch<AppDispatch>();
 
-    const copyBillingAddress = (checked: boolean) => {
-        setCopyAddress(checked);
+    const copyRegisteredToBranchBilling = (branchIndex: number, checked: boolean) => {
+        if (!checked) return;
+
+        const values = form.getFieldsValue();
+        const registered = values.registeredAddress || {};
+
+        const branches = [...(values.branches || [])];
+        branches[branchIndex] = {
+            ...(branches[branchIndex] || {}),
+            billingStreet: registered.street || "",
+            billingArea: registered.area || "",
+            billingPostal: registered.postal || "",
+            billingCity: registered.city || "",
+            billingState: registered.state || "",
+            billingCountry: registered.country || "",
+        };
+
+        form.setFieldsValue({ branches });
+    };
+
+    const copyBillingToShipping = (branchIndex: number, checked: boolean) => {
+        const values = form.getFieldsValue();
+        const branches = [...(values.branches || [])];
+        const currentBranch = branches[branchIndex] || {};
 
         if (checked) {
-            const billing = form.getFieldsValue([
-                "billingStreet",
-                "billingArea",
-                "billingPostal",
-                "billingCity",
-                "billingState",
-                "billingCountry",
-            ]);
-
-            form.setFieldsValue({
-                shippingStreet: billing.billingStreet,
-                shippingArea: billing.billingArea,
-                shippingPostal: billing.billingPostal,
-                shippingCity: billing.billingCity,
-                shippingState: billing.billingState,
-                shippingCountry: billing.billingCountry,
-            });
+            branches[branchIndex] = {
+                ...currentBranch,
+                shippingStreet: currentBranch.billingStreet || "",
+                shippingArea: currentBranch.billingArea || "",
+                shippingPostal: currentBranch.billingPostal || "",
+                shippingCity: currentBranch.billingCity || "",
+                shippingState: currentBranch.billingState || "",
+                shippingCountry: currentBranch.billingCountry || "",
+                isShippingSameAsBilling: true,
+            };
+        } else {
+            branches[branchIndex] = {
+                ...currentBranch,
+                isShippingSameAsBilling: false,
+            };
         }
+
+        form.setFieldsValue({ branches });
     };
 
     const onFinish = async (values: any) => {
+        const headOfficeBranches =
+            values?.branches?.filter((b: any) => b?.isHeadOffice) || [];
+
+        if (!values?.branches?.length) {
+            return message.error("At least one branch is required");
+        }
+
+        if (headOfficeBranches.length > 1) {
+            return message.error("Only one head office branch is allowed");
+        }
+
         const payload: CreateOrganizationPayload = {
             name: values.name,
             gst_number: values.gst || null,
@@ -61,31 +94,64 @@ const OrganizationCreate: React.FC = () => {
 
             type: values.type || null,
             industry: values.industry || null,
+
             assigned_to: null,
 
-            billing_street: values.billingStreet,
-            billing_area: values.billingArea,
-            billing_postal_code: values.billingPostal,
-            billing_city: values.billingCity,
-            billing_state: values.billingState,
-            billing_country: values.billingCountry,
+            registered_address: {
+                street: values.registeredAddress?.street || null,
+                area: values.registeredAddress?.area || null,
+                postal_code: values.registeredAddress?.postal || null,
+                city: values.registeredAddress?.city || null,
+                state: values.registeredAddress?.state || null,
+                country: values.registeredAddress?.country || null,
+            },
 
-            shipping_street: values.shippingStreet || null,
-            shipping_area: values.shippingArea || null,
-            shipping_postal_code: values.shippingPostal || null,
-            shipping_city: values.shippingCity || null,
-            shipping_state: values.shippingState || null,
-            shipping_country: values.shippingCountry || null,
+            branches: (values.branches || []).map((branch: any) => ({
+                name: branch.name,
+                code: branch.code || null,
+                is_head_office: !!branch.isHeadOffice,
 
-            is_shipping_same_as_billing: copyAddress,
+                contact_person: branch.contactPerson || null,
+                phone: branch.phone || null,
+                email: branch.email || null,
+                gst_number: branch.gst || null,
+
+                assigned_to: null,
+
+                billing_street: branch.billingStreet || null,
+                billing_area: branch.billingArea || null,
+                billing_postal_code: branch.billingPostal || null,
+                billing_city: branch.billingCity || null,
+                billing_state: branch.billingState || null,
+                billing_country: branch.billingCountry || null,
+
+                shipping_street: branch.shippingStreet || null,
+                shipping_area: branch.shippingArea || null,
+                shipping_postal_code: branch.shippingPostal || null,
+                shipping_city: branch.shippingCity || null,
+                shipping_state: branch.shippingState || null,
+                shipping_country: branch.shippingCountry || null,
+
+                is_shipping_same_as_billing: !!branch.isShippingSameAsBilling,
+                status: branch.status || "active",
+            })),
         };
 
         try {
             await dispatch(createOrganization(payload)).unwrap();
             message.success("Organization created successfully");
             form.resetFields();
-            setCopyAddress(false);
-            console.log("payload", payload);
+
+            form.setFieldsValue({
+                branches: [
+                    {
+                        name: "Head Office",
+                        isHeadOffice: true,
+                        status: "active",
+                        isShippingSameAsBilling: false,
+                    },
+                ],
+            });
         } catch (error: any) {
             message.error(error || "Failed to create organization");
         }
@@ -97,15 +163,25 @@ const OrganizationCreate: React.FC = () => {
             form={form}
             onFinish={onFinish}
             style={{ padding: 20 }}
+            initialValues={{
+                branches: [
+                    {
+                        name: "Head Office",
+                        isHeadOffice: true,
+                        status: "active",
+                        isShippingSameAsBilling: false,
+                    },
+                ],
+            }}
         >
-            <Collapse defaultActiveKey={["overview"]}>
+            <Collapse defaultActiveKey={["overview", "registered", "branches"]}>
                 <Panel header="Overview" key="overview">
                     <Row gutter={16}>
                         <Col span={8}>
                             <Form.Item
-                                label="Name"
+                                label="Organization Name"
                                 name="name"
-                                rules={[{ required: true, message: "Name is required" }]}
+                                rules={[{ required: true, message: "Organization name is required" }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -116,6 +192,7 @@ const OrganizationCreate: React.FC = () => {
                                 <Input />
                             </Form.Item>
                         </Col>
+
                         <Col span={8}>
                             <Form.Item
                                 label="Email Address"
@@ -128,13 +205,12 @@ const OrganizationCreate: React.FC = () => {
                     </Row>
 
                     <Row gutter={16}>
-
-
                         <Col span={8}>
                             <Form.Item label="Next Followup Date" name="followup">
                                 <DatePicker style={{ width: "100%" }} showTime />
                             </Form.Item>
                         </Col>
+
                         <Col span={8}>
                             <Form.Item label="Type" name="type">
                                 <Select placeholder="Select type">
@@ -156,12 +232,10 @@ const OrganizationCreate: React.FC = () => {
                         </Col>
                     </Row>
 
-
-
                     <Row gutter={16}>
                         <Col span={8}>
                             <Form.Item label="Assigned To" name="assignedTo">
-                                <Select placeholder="Assign user">
+                                <Select placeholder="Assign user" allowClear>
                                     <Option value="user1">User 1</Option>
                                     <Option value="user2">User 2</Option>
                                 </Select>
@@ -170,99 +244,301 @@ const OrganizationCreate: React.FC = () => {
                     </Row>
                 </Panel>
 
-                <Panel header="Address Information" key="address">
+                <Panel header="Registered Address" key="registered">
                     <Row gutter={24}>
                         <Col span={12}>
-                            <h3>Billing Address</h3>
-
-                            <Form.Item
-                                label="Billing Street"
-                                name="billingStreet"
-                                rules={[{ required: true, message: "Billing street is required" }]}
-                            >
+                            <Form.Item label="Street" name={["registeredAddress", "street"]}>
                                 <Input.TextArea rows={2} />
-                            </Form.Item>
-
-                            <Form.Item
-                                label="Billing Area"
-                                name="billingArea"
-                                rules={[{ required: true, message: "Billing area is required" }]}
-                            >
-                                <Input />
-                            </Form.Item>
-
-                            <Form.Item
-                                label="Billing Postal Code"
-                                name="billingPostal"
-                                rules={[
-                                    { required: true, message: "Billing postal code is required" },
-                                    { pattern: /^[0-9]+$/, message: "Must be number" },
-                                ]}
-                            >
-                                <Input />
-                            </Form.Item>
-
-                            <Form.Item
-                                label="Billing City"
-                                name="billingCity"
-                                rules={[{ required: true, message: "Billing city is required" }]}
-                            >
-                                <Input />
-                            </Form.Item>
-
-                            <Form.Item
-                                label="Billing State"
-                                name="billingState"
-                                rules={[{ required: true, message: "Billing state is required" }]}
-                            >
-                                <Input />
-                            </Form.Item>
-
-                            <Form.Item
-                                label="Billing Country"
-                                name="billingCountry"
-                                rules={[{ required: true, message: "Billing country is required" }]}
-                            >
-                                <Input />
                             </Form.Item>
                         </Col>
 
                         <Col span={12}>
-                            <h3>Shipping Address</h3>
-
-                            <Form.Item label="Shipping Street" name="shippingStreet">
-                                <Input.TextArea rows={2} />
-                            </Form.Item>
-
-                            <Form.Item label="Shipping Area" name="shippingArea">
+                            <Form.Item label="Area" name={["registeredAddress", "area"]}>
                                 <Input />
                             </Form.Item>
+                        </Col>
 
+                        <Col span={8}>
                             <Form.Item
-                                label="Shipping Postal Code"
-                                name="shippingPostal"
+                                label="Postal Code"
+                                name={["registeredAddress", "postal"]}
                                 rules={[{ pattern: /^[0-9]+$/, message: "Must be number" }]}
                             >
                                 <Input />
                             </Form.Item>
+                        </Col>
 
-                            <Form.Item label="Shipping City" name="shippingCity">
+                        <Col span={8}>
+                            <Form.Item label="City" name={["registeredAddress", "city"]}>
                                 <Input />
                             </Form.Item>
+                        </Col>
 
-                            <Form.Item label="Shipping State" name="shippingState">
+                        <Col span={8}>
+                            <Form.Item label="State" name={["registeredAddress", "state"]}>
                                 <Input />
                             </Form.Item>
+                        </Col>
 
-                            <Form.Item label="Shipping Country" name="shippingCountry">
+                        <Col span={8}>
+                            <Form.Item label="Country" name={["registeredAddress", "country"]}>
                                 <Input />
                             </Form.Item>
-
-                            <Checkbox onChange={(e) => copyBillingAddress(e.target.checked)}>
-                                Copy Address from Left
-                            </Checkbox>
                         </Col>
                     </Row>
+                </Panel>
+
+                <Panel header="Branches" key="branches">
+                    <Form.List name="branches">
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map(({ key, name, ...restField }, index) => (
+                                    <Card
+                                        key={key}
+                                        title={`Branch ${index + 1}`}
+                                        style={{ marginBottom: 16 }}
+                                        extra={
+                                            fields.length > 1 ? (
+                                                <Button danger onClick={() => remove(name)}>
+                                                    Remove
+                                                </Button>
+                                            ) : null
+                                        }
+                                    >
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label="Branch Name"
+                                                    name={[name, "name"]}
+                                                    rules={[{ required: true, message: "Branch name is required" }]}
+                                                >
+                                                    <Input placeholder="Enter branch name" />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item {...restField} label="Branch Code" name={[name, "code"]}>
+                                                    <Input placeholder="Enter branch code" />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label="Status"
+                                                    name={[name, "status"]}
+                                                    initialValue="active"
+                                                >
+                                                    <Select>
+                                                        <Option value="active">Active</Option>
+                                                        <Option value="inactive">Inactive</Option>
+                                                    </Select>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+
+                                        <Row gutter={16}>
+                                            <Col span={6}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label="Head Office"
+                                                    name={[name, "isHeadOffice"]}
+                                                    valuePropName="checked"
+                                                >
+                                                    <Switch />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={6}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label="Use Registered Address"
+                                                    name={[name, "useRegisteredAsBilling"]}
+                                                    valuePropName="checked"
+                                                >
+                                                    <Checkbox
+                                                        onChange={(e) =>
+                                                            copyRegisteredToBranchBilling(index, e.target.checked)
+                                                        }
+                                                    >
+                                                        Copy
+                                                    </Checkbox>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label="Contact Person"
+                                                    name={[name, "contactPerson"]}
+                                                >
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label="Phone"
+                                                    name={[name, "phone"]}
+                                                    rules={[{ pattern: /^[0-9]*$/, message: "Must be number" }]}
+                                                >
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label="Email"
+                                                    name={[name, "email"]}
+                                                    rules={[{ type: "email", message: "Invalid email" }]}
+                                                >
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item {...restField} label="GST Number" name={[name, "gst"]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item {...restField} label="Assigned To" name={[name, "assignedTo"]}>
+                                                    <Select placeholder="Assign user" allowClear>
+                                                        <Option value="user1">User 1</Option>
+                                                        <Option value="user2">User 2</Option>
+                                                    </Select>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+
+                                        <h3 style={{ marginTop: 8 }}>Billing Address</h3>
+                                        <Row gutter={16}>
+                                            <Col span={12}>
+                                                <Form.Item {...restField} label="Street" name={[name, "billingStreet"]}>
+                                                    <Input.TextArea rows={2} />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={12}>
+                                                <Form.Item {...restField} label="Area" name={[name, "billingArea"]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label="Postal Code"
+                                                    name={[name, "billingPostal"]}
+                                                    rules={[{ pattern: /^[0-9]*$/, message: "Must be number" }]}
+                                                >
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item {...restField} label="City" name={[name, "billingCity"]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item {...restField} label="State" name={[name, "billingState"]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item {...restField} label="Country" name={[name, "billingCountry"]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+
+                                        <h3 style={{ marginTop: 8 }}>Shipping Address</h3>
+
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, "isShippingSameAsBilling"]}
+                                            valuePropName="checked"
+                                        >
+                                            <Checkbox
+                                                onChange={(e) => copyBillingToShipping(index, e.target.checked)}
+                                            >
+                                                Same as billing
+                                            </Checkbox>
+                                        </Form.Item>
+
+                                        <Row gutter={16}>
+                                            <Col span={12}>
+                                                <Form.Item {...restField} label="Street" name={[name, "shippingStreet"]}>
+                                                    <Input.TextArea rows={2} />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={12}>
+                                                <Form.Item {...restField} label="Area" name={[name, "shippingArea"]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label="Postal Code"
+                                                    name={[name, "shippingPostal"]}
+                                                    rules={[{ pattern: /^[0-9]*$/, message: "Must be number" }]}
+                                                >
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item {...restField} label="City" name={[name, "shippingCity"]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item {...restField} label="State" name={[name, "shippingState"]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={8}>
+                                                <Form.Item {...restField} label="Country" name={[name, "shippingCountry"]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+                                    </Card>
+                                ))}
+
+                                <Button
+                                    type="dashed"
+                                    onClick={() =>
+                                        add({
+                                            name: "",
+                                            isHeadOffice: false,
+                                            status: "active",
+                                            isShippingSameAsBilling: false,
+                                        })
+                                    }
+                                    block
+                                >
+                                    + Add Branch
+                                </Button>
+                            </>
+                        )}
+                    </Form.List>
                 </Panel>
             </Collapse>
 
@@ -274,7 +550,16 @@ const OrganizationCreate: React.FC = () => {
                 <Button
                     onClick={() => {
                         form.resetFields();
-                        setCopyAddress(false);
+                        form.setFieldsValue({
+                            branches: [
+                                {
+                                    name: "Head Office",
+                                    isHeadOffice: true,
+                                    status: "active",
+                                    isShippingSameAsBilling: false,
+                                },
+                            ],
+                        });
                     }}
                 >
                     Cancel

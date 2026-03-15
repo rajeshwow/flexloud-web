@@ -10,6 +10,7 @@ import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
 import OpportunitiesPage from "../pages/Opportunities/OpportunitiesPage";
 import OrganizationCreate from "../pages/Organization/createOrg";
 import OrganizationGet from "../pages/Organization/getOrg";
+import UserGet from "../pages/Users/UserGet";
 import ProtectedRoute from "./ProtectedRoutes";
 
 export default function CrmRoutes() {
@@ -27,6 +28,15 @@ export default function CrmRoutes() {
 
           <Route path="dashboard" element={<StunningDashboard />} />
           <Route path="home" element={<StunningDashboard />} />
+
+          <Route
+            path="users"
+            element={
+              <ProtectedRoute required="users.view">
+                <UserGet />
+              </ProtectedRoute>
+            }
+          />
 
 
 

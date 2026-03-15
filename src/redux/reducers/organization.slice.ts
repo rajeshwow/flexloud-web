@@ -2,21 +2,23 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { Client } from "../../shared/Utils/api-client";
 import { withTenant } from "../../shared/Utils/utils";
 
-export type CreateOrganizationPayload = {
+export type OrganizationBranchPayload = {
   name: string;
-  gst_number?: string | null;
+  code?: string | null;
+  is_head_office?: boolean;
+
+  contact_person?: string | null;
+  phone?: string | null;
   email?: string | null;
-  next_followup_at?: string | null;
-  type?: string | null;
-  industry?: string | null;
+  gst_number?: string | null;
   assigned_to?: string | null;
 
-  billing_street: string;
-  billing_area: string;
-  billing_postal_code: string;
-  billing_city: string;
-  billing_state: string;
-  billing_country: string;
+  billing_street?: string | null;
+  billing_area?: string | null;
+  billing_postal_code?: string | null;
+  billing_city?: string | null;
+  billing_state?: string | null;
+  billing_country?: string | null;
 
   shipping_street?: string | null;
   shipping_area?: string | null;
@@ -26,6 +28,29 @@ export type CreateOrganizationPayload = {
   shipping_country?: string | null;
 
   is_shipping_same_as_billing?: boolean;
+  status?: "active" | "inactive";
+};
+
+export type CreateOrganizationPayload = {
+  name: string;
+  gst_number?: string | null;
+  email?: string | null;
+  next_followup_at?: string | null;
+
+  type?: string | null;
+  industry?: string | null;
+  assigned_to?: string | null;
+
+  registered_address?: {
+    street?: string | null;
+    area?: string | null;
+    postal_code?: string | null;
+    city?: string | null;
+    state?: string | null;
+    country?: string | null;
+  } | null;
+
+  branches: OrganizationBranchPayload[];
 };
 
 export type OrganizationItem = {
@@ -38,6 +63,8 @@ export type OrganizationItem = {
   industry: string | null;
   assigned_to: string | null;
   assigned_to_name?: string | null;
+  branch_count?: number;
+  head_office_name?: string | null;
   created_at: string;
   updated_at: string;
 };

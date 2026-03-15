@@ -537,7 +537,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         label: "View Users",
         path: "/users",
         icon: "EyeOutlined",
-        requiresAny: ["USERS.VIEW"],
+        requiresAny: ["users.view"],
       },
       {
         key: "users.import",
