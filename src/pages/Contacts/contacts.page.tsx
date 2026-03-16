@@ -8,7 +8,7 @@ import type { AppDispatch, RootState } from "../../redux/store";
 
 export default function ContactsList() {
     const dispatch = useDispatch<AppDispatch>();
-    const { list, listLoading, pagination } = useSelector(
+    const { contactList, listLoading, pagination } = useSelector(
         (state: RootState) => state.contacts,
     );
 
@@ -88,7 +88,7 @@ export default function ContactsList() {
             <Table
                 rowKey="id"
                 columns={columns}
-                dataSource={list || []}
+                dataSource={contactList || []}
                 loading={listLoading}
                 bordered
                 pagination={{

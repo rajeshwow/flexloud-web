@@ -16,9 +16,11 @@ import {
     theme,
 } from "antd";
 import dayjs from "dayjs";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import AddressSection from "../../layouts/addressSection";
 import { createLead } from "../../redux/reducers/leads.slice";
+import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch } from "../../redux/store";
 
 const { TextArea } = Input;
@@ -64,19 +66,19 @@ type CreateLeadFormValues = {
 
     primary_address_street?: string;
     primary_address_area?: string;
-    primary_address_postalcode?: string;
+    primary_address_postal_code?: string;
     primary_address_city?: string;
     primary_address_state?: string;
     primary_address_country?: string;
 
-    alt_address_street?: string;
-    alt_address_area?: string;
-    alt_address_postalcode?: string;
-    alt_address_city?: string;
-    alt_address_state?: string;
-    alt_address_country?: string;
+    alternate_address_street?: string;
+    alternate_address_area?: string;
+    alternate_address_postal_code?: string;
+    alternate_address_city?: string;
+    alternate_address_state?: string;
+    alternate_address_country?: string;
 
-    copy_address_from_primary?: boolean;
+    copy_address?: boolean;
 };
 
 
@@ -154,6 +156,40 @@ export default function CreateLeadForm() {
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
 
+    const [copyAddress, setCopyAddress] = useState(false);
+
+
+    const users = useSelector((state: any) => state.users?.userList);
+
+    useEffect(() => {
+        dispatch(getUsers());
+    }, [dispatch]);
+
+
+    const handleCopyAddressChange = (checked: boolean) => {
+        setCopyAddress(checked);
+
+        if (checked) {
+            form.setFieldsValue({
+                alternate_address_street: form.getFieldValue("primary_address_street"),
+                alternate_address_area: form.getFieldValue("primary_address_area"),
+                alternate_address_postal_code: form.getFieldValue("primary_address_postal_code"),
+                alternate_address_city: form.getFieldValue("primary_address_city"),
+                alternate_address_state: form.getFieldValue("primary_address_state"),
+                alternate_address_country: form.getFieldValue("primary_address_country"),
+            });
+        } else {
+            form.setFieldsValue({
+                alternate_address_street: "",
+                alternate_address_area: "",
+                alternate_address_postal_code: "",
+                alternate_address_city: "",
+                alternate_address_state: "",
+                alternate_address_country: "",
+            });
+        }
+    };
+
     const handleFinish = async (values: CreateLeadFormValues) => {
         setLoading(true);
 
@@ -212,20 +248,20 @@ export default function CreateLeadForm() {
 
                 primary_address_street: values.primary_address_street?.trim() || undefined,
                 primary_address_area: values.primary_address_area?.trim() || undefined,
-                primary_address_postalcode:
-                    values.primary_address_postalcode?.trim() || undefined,
+                primary_address_postal_code:
+                    values.primary_address_postal_code?.trim() || undefined,
                 primary_address_city: values.primary_address_city?.trim() || undefined,
                 primary_address_state: values.primary_address_state?.trim() || undefined,
                 primary_address_country:
                     values.primary_address_country?.trim() || undefined,
 
-                alt_address_street: values.alt_address_street?.trim() || undefined,
-                alt_address_area: values.alt_address_area?.trim() || undefined,
-                alt_address_postalcode:
-                    values.alt_address_postalcode?.trim() || undefined,
-                alt_address_city: values.alt_address_city?.trim() || undefined,
-                alt_address_state: values.alt_address_state?.trim() || undefined,
-                alt_address_country: values.alt_address_country?.trim() || undefined,
+                alternate_address_street: values.alternate_address_street?.trim() || undefined,
+                alternate_address_area: values.alternate_address_area?.trim() || undefined,
+                alternate_address_postal_code:
+                    values.alternate_address_postal_code?.trim() || undefined,
+                alternate_address_city: values.alternate_address_city?.trim() || undefined,
+                alternate_address_state: values.alternate_address_state?.trim() || undefined,
+                alternate_address_country: values.alternate_address_country?.trim() || undefined,
             } as any;
 
             const response = await dispatch(createLead(payload)).unwrap();
@@ -233,6 +269,7 @@ export default function CreateLeadForm() {
             if (response?.data) {
                 message.success("Lead created successfully", 2);
                 form.resetFields();
+                setCopyAddress(false);
                 form.setFieldsValue({
                     status: "new",
                     sales_stage: "qualification",
@@ -254,18 +291,7 @@ export default function CreateLeadForm() {
         }
     };
 
-    const copyPrimaryAddress = (checked: boolean) => {
-        if (!checked) return;
 
-        form.setFieldsValue({
-            alt_address_street: form.getFieldValue("primary_address_street"),
-            alt_address_area: form.getFieldValue("primary_address_area"),
-            alt_address_postalcode: form.getFieldValue("primary_address_postalcode"),
-            alt_address_city: form.getFieldValue("primary_address_city"),
-            alt_address_state: form.getFieldValue("primary_address_state"),
-            alt_address_country: form.getFieldValue("primary_address_country"),
-        });
-    };
 
     const sectionCardStyle: React.CSSProperties = {
         borderRadius: 16,
@@ -599,7 +625,10 @@ export default function CreateLeadForm() {
                                     <Form.Item label="Assigned To" name="assigned_to">
                                         <Select
                                             placeholder="Select assignee"
-                                            options={assignedToOptions}
+                                            options={users?.map((user: any) => ({
+                                                value: user.id,
+                                                label: user.name,
+                                            }))}
                                             allowClear
                                         />
                                     </Form.Item>
@@ -672,128 +701,10 @@ export default function CreateLeadForm() {
                         <Card style={sectionCardStyle}>
                             <div style={sectionTitleStyle}>Address Information</div>
 
-                            <Row gutter={[16, 4]}>
-                                <Col xs={24} xl={12}>
-                                    <Card
-                                        size="small"
-                                        title="Primary Address"
-                                        style={{
-                                            borderRadius: 14,
-                                            background: token.colorFillAlter,
-                                            border: `1px solid ${token.colorBorderSecondary}`,
-                                        }}
-                                    >
-                                        <Row gutter={[12, 0]}>
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    label="Primary Address Street"
-                                                    name="primary_address_street"
-                                                >
-                                                    <TextArea rows={3} placeholder="Enter primary street" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item label="Primary Address Area" name="primary_address_area">
-                                                    <Input placeholder="Enter primary area" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    label="Primary Address Postalcode"
-                                                    name="primary_address_postalcode"
-                                                >
-                                                    <Input placeholder="Enter primary postal code" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item label="Primary Address City" name="primary_address_city">
-                                                    <Input placeholder="Enter primary city" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item label="Primary Address State" name="primary_address_state">
-                                                    <Input placeholder="Enter primary state" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    label="Primary Address Country"
-                                                    name="primary_address_country"
-                                                >
-                                                    <Input placeholder="Enter primary country" />
-                                                </Form.Item>
-                                            </Col>
-                                        </Row>
-                                    </Card>
-                                </Col>
-
-                                <Col xs={24} xl={12}>
-                                    <Card
-                                        size="small"
-                                        title="Other Address"
-                                        style={{
-                                            borderRadius: 14,
-                                            background: token.colorFillAlter,
-                                            border: `1px solid ${token.colorBorderSecondary}`,
-                                        }}
-                                    >
-                                        <Row gutter={[12, 0]}>
-                                            <Col span={24}>
-                                                <Form.Item label="Alt Address Street" name="alt_address_street">
-                                                    <TextArea rows={3} placeholder="Enter alternate street" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item label="Alternate Address Area" name="alt_address_area">
-                                                    <Input placeholder="Enter alternate area" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item label="Alt Address Postalcode" name="alt_address_postalcode">
-                                                    <Input placeholder="Enter alternate postal code" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item label="Alt Address City" name="alt_address_city">
-                                                    <Input placeholder="Enter alternate city" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item label="Alt Address State" name="alt_address_state">
-                                                    <Input placeholder="Enter alternate state" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item label="Alt Address Country" name="alt_address_country">
-                                                    <Input placeholder="Enter alternate country" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    name="copy_address_from_primary"
-                                                    valuePropName="checked"
-                                                    style={{ marginBottom: 0 }}
-                                                >
-                                                    <Checkbox onChange={(e) => copyPrimaryAddress(e.target.checked)}>
-                                                        Copy Address from Primary
-                                                    </Checkbox>
-                                                </Form.Item>
-                                            </Col>
-                                        </Row>
-                                    </Card>
-                                </Col>
-                            </Row>
+                            <AddressSection
+                                copyAddress={copyAddress}
+                                onCopyAddressChange={handleCopyAddressChange}
+                            />
                         </Card>
 
                         {/* Footer Actions */}

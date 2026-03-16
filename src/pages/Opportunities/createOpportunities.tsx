@@ -21,7 +21,7 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchContacts } from "../../redux/reducers/contacts.slice";
 import {
@@ -29,6 +29,7 @@ import {
     resetOpportunitiesState,
 } from "../../redux/reducers/opportunities.slice";
 import { getOrganization, type OrganizationItem } from "../../redux/reducers/organization.slice";
+import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch } from "../../redux/store";
 // import "./create-opportunity.css";
 
@@ -110,9 +111,12 @@ export default function CreateOpportunityPage() {
     const [organization, setOrganization] = useState<OrganizationItem[]>([]);
     const [contactOptions, setContactOptions] = useState<Array<{ label: string; value: string }>>([]);
 
+    const users = useSelector((state: any) => state.users?.userList);
+
     useEffect(() => {
         fetchOrganizations();
         fetchContactsFn();
+        dispatch(getUsers());
     }, []);
 
     const fetchContactsFn = async () => {
@@ -738,7 +742,10 @@ export default function CreateOpportunityPage() {
 
                         <Col xs={24} md={8}>
                             <Form.Item label="Assigned To" name="assigned_to">
-                                <Select placeholder="Select assignee" allowClear showSearch />
+                                <Select placeholder="Select assignee" allowClear showSearch options={users?.map((user: any) => ({
+                                    value: user.id,
+                                    label: user.name,
+                                }))} />
                             </Form.Item>
                         </Col>
 

@@ -89,7 +89,7 @@ type OrganizationState = {
 
   listLoading: boolean;
   listError: string | null;
-  list: OrganizationItem[];
+  orgList: OrganizationItem[];
   pagination: PaginationState;
 };
 
@@ -100,7 +100,7 @@ const initialState: OrganizationState = {
 
   listLoading: false,
   listError: null,
-  list: [],
+  orgList: [],
   pagination: {
     page: 1,
     limit: 10,
@@ -168,7 +168,7 @@ const organizationSlice = createSlice({
     resetOrganizationListState: (state) => {
       state.listLoading = false;
       state.listError = null;
-      state.list = [];
+      state.orgList = [];
       state.pagination = {
         page: 1,
         limit: 10,
@@ -198,7 +198,7 @@ const organizationSlice = createSlice({
       })
       .addCase(getOrganization.fulfilled, (state, action) => {
         state.listLoading = false;
-        state.list = action.payload.data;
+        state.orgList = action.payload.data;
         state.pagination = action.payload.pagination;
       })
       .addCase(getOrganization.rejected, (state, action) => {

@@ -14,7 +14,7 @@ const { Option } = Select;
 
 export default function UserGet() {
     const dispatch = useDispatch<AppDispatch>();
-    const { list, listLoading, pagination } = useSelector(
+    const { userList, listLoading, pagination } = useSelector(
         (state: RootState) => state.users
     );
 
@@ -182,7 +182,7 @@ export default function UserGet() {
             <Table
                 rowKey="id"
                 columns={columns}
-                dataSource={list}
+                dataSource={userList}
                 loading={listLoading}
                 bordered
                 pagination={{

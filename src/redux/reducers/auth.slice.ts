@@ -37,6 +37,7 @@ export const auth = createSlice({
     // ✅ NEW
     permissions: [] as string[],
     permissionsLoading: false,
+    permissionsLoaded: false,
   },
   reducers: {
     reset: (state) => {
@@ -88,10 +89,12 @@ export const auth = createSlice({
       })
       .addCase(fetchMyPermissions.fulfilled, (state, action) => {
         state.permissionsLoading = false;
+        state.permissionsLoaded = true;
         state.permissions = action?.payload?.data?.permissions || [];
       })
       .addCase(fetchMyPermissions.rejected, (state) => {
         state.permissionsLoading = false;
+        state.permissionsLoaded = true;
         state.permissions = [];
       });
   },

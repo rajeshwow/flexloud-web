@@ -29,6 +29,7 @@ export type ContactItem = {
   assigned_to_name?: string | null;
   created_at: string;
   updated_at: string;
+  statusCode?: number;
 };
 
 export type GetContactsParams = {
@@ -51,7 +52,7 @@ type ContactsState = {
 
   listLoading: boolean;
   listError: string | null;
-  list: ContactItem[];
+  contactList: ContactItem[];
   pagination: PaginationState;
 };
 
@@ -62,7 +63,7 @@ const initialState: ContactsState = {
 
   listLoading: false,
   listError: null,
-  list: [],
+  contactList: [],
   pagination: {
     page: 1,
     limit: 10,
@@ -78,7 +79,7 @@ export const createContact = createAsyncThunk<
 >("contacts/createContact", async (payload, thunkAPI) => {
   try {
     const response = await Client.post(withTenant("/contacts"), payload);
-    return response.data?.data;
+    return response.data;
   } catch (error: any) {
     return thunkAPI.rejectWithValue(
       error?.data?.message || error?.message || "Failed to create contact",
@@ -126,7 +127,7 @@ const contactsSlice = createSlice({
     resetContactsListState: (state) => {
       state.listLoading = false;
       state.listError = null;
-      state.list = [];
+      state.contactList = [];
       state.pagination = {
         page: 1,
         limit: 10,
@@ -156,7 +157,7 @@ const contactsSlice = createSlice({
       })
       .addCase(fetchContacts.fulfilled, (state, action) => {
         state.listLoading = false;
-        state.list = action.payload.data;
+        state.contactList = action.payload.data;
         state.pagination = action.payload.pagination;
       })
       .addCase(fetchContacts.rejected, (state, action) => {

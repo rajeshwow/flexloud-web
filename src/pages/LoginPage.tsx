@@ -39,7 +39,7 @@ export default function LoginPage() {
             await dispatch(fetchMyPermissions({ slug } as any))
 
             navigate(`/${slug}/dashboard`, { replace: true })
-            message.success("Login successful")
+            message.success(`Welcome to ${slug} CRM, ${user?.name} `)
         } else {
             message.error(res.payload?.message || "Invalid email or password");
         }

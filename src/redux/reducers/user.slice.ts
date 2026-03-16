@@ -95,7 +95,7 @@ type UserState = {
 
   listLoading: boolean;
   listError: string | null;
-  list: UserItem[];
+  userList: UserItem[];
   pagination: PaginationState;
 };
 
@@ -106,7 +106,7 @@ const initialState: UserState = {
 
   listLoading: false,
   listError: null,
-  list: [],
+  userList: [],
   pagination: {
     page: 1,
     limit: 10,
@@ -178,7 +178,7 @@ const userSlice = createSlice({
     resetUsersListState: (state) => {
       state.listLoading = false;
       state.listError = null;
-      state.list = [];
+      state.userList = [];
       state.pagination = {
         page: 1,
         limit: 10,
@@ -211,7 +211,7 @@ const userSlice = createSlice({
       })
       .addCase(getUsers.fulfilled, (state, action) => {
         state.listLoading = false;
-        state.list = action.payload.data;
+        state.userList = action.payload.data;
         state.pagination = action.payload.pagination;
       })
       .addCase(getUsers.rejected, (state, action) => {

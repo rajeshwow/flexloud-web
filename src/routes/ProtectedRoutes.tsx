@@ -1,3 +1,4 @@
+import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
@@ -25,18 +26,16 @@ export default function ProtectedRoute({
     const token = useSelector((s: any) => s.auth?.token || "");
     const permissions: string[] = useSelector((s: any) => s.auth?.permissions || []);
     const loadingPerms = useSelector((s: any) => s.auth?.permissionsLoading || false);
-
+    const permissionsLoaded = useSelector((s: any) => s.auth?.permissionsLoaded || false);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (!slug) return;
-        if (!token) return;
+        if (!slug || !token) return;
 
-        // refresh/deeplink pe permissions empty honge -> fetch
-        if (!loadingPerms && (!permissions || permissions.length === 0)) {
+        if (!loadingPerms && !permissionsLoaded) {
             dispatch(fetchMyPermissions({ slug }) as any);
         }
-    }, [dispatch, slug, token, loadingPerms]);
+    }, [dispatch, slug, token, loadingPerms, permissionsLoaded]);
 
     // 1) auth check
     if (!token) {
@@ -52,17 +51,27 @@ export default function ProtectedRoute({
     // 2) while permissions loading: avoid wrong redirects
     if (loadingPerms) return null; // or return <Spinner />
 
-    const hasAny = (req?: string[]) =>
-        !req?.length || req.some((p) => permissions.includes(p));
-    const hasAll = (req?: string[]) =>
-        !req?.length || req.every((p) => permissions.includes(p));
-
     const requiredArr =
         typeof required === "string"
             ? [required]
             : Array.isArray(required)
                 ? required
                 : undefined;
+
+    const needsPermissionCheck =
+        !!requiredArr?.length || !!anyOf?.length || !!allOf?.length;
+
+    // important: permission based route pe tab tak wait karo jab tak permissions fetch na ho jaye
+    if (needsPermissionCheck && (!permissionsLoaded || loadingPerms)) {
+        return <Loading3QuartersOutlined />; // loader bhi dikha sakte ho
+    }
+
+    const hasAny = (req?: string[]) =>
+        !req?.length || req.some((p) => permissions.includes(p));
+    const hasAll = (req?: string[]) =>
+        !req?.length || req.every((p) => permissions.includes(p));
+
+
 
     const allowed =
         (requiredArr ? hasAny(requiredArr) : true) &&

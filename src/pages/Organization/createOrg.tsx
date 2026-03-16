@@ -13,12 +13,13 @@ import {
     Space,
     Switch,
 } from "antd";
-import React from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
     createOrganization,
     type CreateOrganizationPayload,
 } from "../../redux/reducers/organization.slice";
+import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch } from "../../redux/store";
 
 const { Panel } = Collapse;
@@ -27,6 +28,12 @@ const { Option } = Select;
 const OrganizationCreate: React.FC = () => {
     const [form] = Form.useForm();
     const dispatch = useDispatch<AppDispatch>();
+
+    const users = useSelector((state: any) => state.users?.userList);
+
+    useEffect(() => {
+        dispatch(getUsers());
+    }, [dispatch]);
 
     const copyRegisteredToBranchBilling = (branchIndex: number, checked: boolean) => {
         if (!checked) return;
@@ -95,7 +102,7 @@ const OrganizationCreate: React.FC = () => {
             type: values.type || null,
             industry: values.industry || null,
 
-            assigned_to: null,
+            assigned_to: values.assignedTo || null,
 
             registered_address: {
                 street: values.registeredAddress?.street || null,
@@ -116,7 +123,7 @@ const OrganizationCreate: React.FC = () => {
                 email: branch.email || null,
                 gst_number: branch.gst || null,
 
-                assigned_to: null,
+                assigned_to: branch.assignedTo || null,
 
                 billing_street: branch.billingStreet || null,
                 billing_area: branch.billingArea || null,
@@ -236,8 +243,11 @@ const OrganizationCreate: React.FC = () => {
                         <Col span={8}>
                             <Form.Item label="Assigned To" name="assignedTo">
                                 <Select placeholder="Assign user" allowClear>
-                                    <Option value="user1">User 1</Option>
-                                    <Option value="user2">User 2</Option>
+                                    {users?.map((user: any) => (
+                                        <Option key={user.id} value={user.id}>
+                                            {user.name}
+                                        </Option>
+                                    ))}
                                 </Select>
                             </Form.Item>
                         </Col>
@@ -412,8 +422,11 @@ const OrganizationCreate: React.FC = () => {
                                             <Col span={8}>
                                                 <Form.Item {...restField} label="Assigned To" name={[name, "assignedTo"]}>
                                                     <Select placeholder="Assign user" allowClear>
-                                                        <Option value="user1">User 1</Option>
-                                                        <Option value="user2">User 2</Option>
+                                                        {users?.map((user: any) => (
+                                                            <Option key={user.id} value={user.id}>
+                                                                {user.name}
+                                                            </Option>
+                                                        ))}
                                                     </Select>
                                                 </Form.Item>
                                             </Col>
