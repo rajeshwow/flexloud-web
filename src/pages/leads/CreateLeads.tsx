@@ -5,6 +5,7 @@ import {
     Checkbox,
     Col,
     DatePicker,
+    Divider,
     Form,
     Input,
     InputNumber,
@@ -296,7 +297,7 @@ export default function CreateLeadForm() {
     const sectionCardStyle: React.CSSProperties = {
         borderRadius: 16,
         border: `1px solid ${token.colorBorderSecondary}`,
-        background: token.colorBgContainer,
+        // background: token.colorBgContainer,
         boxShadow: token.boxShadowTertiary,
     };
 
@@ -309,11 +310,11 @@ export default function CreateLeadForm() {
 
     return (
         <div
-            style={{
-                background: token.colorBgLayout,
-                padding: 16,
-                borderRadius: 18,
-            }}
+        // style={{
+        //     background: token.colorBgLayout,
+        //     padding: 16,
+        //     borderRadius: 18,
+        // }}
         >
             <Space
                 orientation="vertical"
@@ -324,10 +325,10 @@ export default function CreateLeadForm() {
                     <Title level={4} style={{ margin: 0 }}>
                         Create Lead
                     </Title>
-                    <Text type="secondary">
-                        Add lead details, opportunity info, and address information.
-                    </Text>
+
                 </div>
+
+                <Divider />
 
                 <Form<CreateLeadFormValues>
                     form={form}
@@ -345,379 +346,382 @@ export default function CreateLeadForm() {
                         style={{ width: "100%" }}
                     >
                         {/* Basic Details */}
-                        <Card style={sectionCardStyle}>
-                            <div style={sectionTitleStyle}>Basic Details</div>
+                        {/* <Card style={sectionCardStyle}> */}
+                        <div style={sectionTitleStyle}>Basic Details</div>
 
-                            <Row gutter={[16, 4]}>
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Lead Number" name="lead_number">
-                                        <Input placeholder="Enter lead number" />
-                                    </Form.Item>
-                                </Col>
+                        <Row gutter={[16, 4]}>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Lead Number" name="lead_number">
+                                    <Input placeholder="Enter lead number" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item
-                                        label="First Name"
-                                        name="first_name"
-                                        rules={[{ required: true, message: "First name is required" }]}
-                                    >
-                                        <Input placeholder="Enter first name" />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item
+                                    label="First Name"
+                                    name="first_name"
+                                    rules={[{ required: true, message: "First name is required" }]}
+                                >
+                                    <Input placeholder="Enter first name" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Last Name" name="last_name">
-                                        <Input placeholder="Enter last name" />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Last Name" name="last_name">
+                                    <Input placeholder="Enter last name" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Designation" name="designation">
-                                        <Input placeholder="Enter designation" />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Designation" name="designation">
+                                    <Input placeholder="Enter designation" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Industry" name="industry">
-                                        <Select
-                                            placeholder="Select industry"
-                                            options={industryOptions}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Industry" name="industry">
+                                    <Select
+                                        placeholder="Select industry"
+                                        options={industryOptions}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item
-                                        label="Mobile"
-                                        name="mobile"
-                                        rules={[{ required: true, message: "Mobile is required" }]}
-                                    >
-                                        <Input placeholder="Enter mobile number" />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item
+                                    label="Mobile"
+                                    name="mobile"
+                                    rules={[{ required: true, message: "Mobile is required" }]}
+                                >
+                                    <Input placeholder="Enter mobile number" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Office Phone" name="office_phone">
-                                        <Input placeholder="Enter office phone" />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Office Phone" name="office_phone">
+                                    <Input placeholder="Enter office phone" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Organization Name" name="organization_name">
-                                        <Input placeholder="Enter organization name" />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Organization Name" name="organization_name">
+                                    <Input placeholder="Enter organization name" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24}>
-                                    <Form.List name="emails">
-                                        {(fields, { add, remove }) => (
-                                            <>
-                                                <div style={{ marginBottom: 12, fontWeight: 600 }}>
-                                                    Email Addresses
-                                                </div>
+                            <Col xs={24}>
+                                <Form.List name="emails">
+                                    {(fields, { add, remove }) => (
+                                        <>
+                                            <div style={{ marginBottom: 12, fontWeight: 600 }}>
+                                                Email Addresses
+                                            </div>
 
-                                                {fields.map((field, index) => (
-                                                    <Card
-                                                        key={field.key}
-                                                        size="small"
-                                                        style={{
-                                                            marginBottom: 12,
-                                                            borderRadius: 12,
-                                                            background: token.colorFillAlter,
-                                                            border: `1px solid ${token.colorBorderSecondary}`,
-                                                        }}
-                                                    >
-                                                        <Row gutter={[12, 0]} align="middle">
-                                                            <Col xs={24} md={10} xl={8}>
-                                                                <Form.Item
-                                                                    {...field}
-                                                                    label={index === 0 ? "Email Address" : `Email ${index + 1}`}
-                                                                    name={[field.name, "email"]}
-                                                                    rules={[
-                                                                        { required: true, message: "Email is required" },
-                                                                        { type: "email", message: "Enter valid email" },
-                                                                    ]}
-                                                                    style={{ marginBottom: 0 }}
-                                                                >
-                                                                    <Input placeholder="Enter email address" />
-                                                                </Form.Item>
-                                                            </Col>
-
-                                                            <Col xs={8} md={4} xl={3}>
-                                                                <Form.Item
-                                                                    {...field}
-                                                                    label="Primary"
-                                                                    name={[field.name, "primary"]}
-                                                                    valuePropName="checked"
-                                                                    style={{ marginBottom: 0 }}
-                                                                >
-                                                                    <Checkbox />
-                                                                </Form.Item>
-                                                            </Col>
-
-                                                            <Col xs={8} md={4} xl={3}>
-                                                                <Form.Item
-                                                                    {...field}
-                                                                    label="Opt Out"
-                                                                    name={[field.name, "opt_out"]}
-                                                                    valuePropName="checked"
-                                                                    style={{ marginBottom: 0 }}
-                                                                >
-                                                                    <Checkbox />
-                                                                </Form.Item>
-                                                            </Col>
-
-                                                            <Col xs={8} md={4} xl={3}>
-                                                                <Form.Item
-                                                                    {...field}
-                                                                    label="Invalid"
-                                                                    name={[field.name, "invalid"]}
-                                                                    valuePropName="checked"
-                                                                    style={{ marginBottom: 0 }}
-                                                                >
-                                                                    <Checkbox />
-                                                                </Form.Item>
-                                                            </Col>
-
-                                                            <Col xs={24} md={2} xl={2}>
-                                                                {fields.length > 1 && (
-                                                                    <Button
-                                                                        danger
-                                                                        type="text"
-                                                                        icon={<MinusCircleOutlined />}
-                                                                        onClick={() => remove(field.name)}
-                                                                    />
-                                                                )}
-                                                            </Col>
-                                                        </Row>
-                                                    </Card>
-                                                ))}
-
-                                                <Button
-                                                    type="dashed"
-                                                    icon={<PlusOutlined />}
-                                                    onClick={() =>
-                                                        add({
-                                                            email: "",
-                                                            primary: false,
-                                                            opt_out: false,
-                                                            invalid: false,
-                                                        })
-                                                    }
+                                            {fields.map((field, index) => (
+                                                <Card
+                                                    key={field.key}
+                                                    size="small"
+                                                    style={{
+                                                        marginBottom: 12,
+                                                        borderRadius: 12,
+                                                        background: token.colorFillAlter,
+                                                        border: `1px solid ${token.colorBorderSecondary}`,
+                                                    }}
                                                 >
-                                                    Add Email
-                                                </Button>
-                                            </>
-                                        )}
-                                    </Form.List>
-                                </Col>
-                            </Row>
-                        </Card>
+                                                    <Row gutter={[12, 0]} align="middle">
+                                                        <Col xs={24} md={10} xl={8}>
+                                                            <Form.Item
+                                                                {...field}
+                                                                label={index === 0 ? "Email Address" : `Email ${index + 1}`}
+                                                                name={[field.name, "email"]}
+                                                                rules={[
+                                                                    { required: true, message: "Email is required" },
+                                                                    { type: "email", message: "Enter valid email" },
+                                                                ]}
+                                                                style={{ marginBottom: 0 }}
+                                                            >
+                                                                <Input placeholder="Enter email address" />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={8} md={4} xl={3}>
+                                                            <Form.Item
+                                                                {...field}
+                                                                label="Primary"
+                                                                name={[field.name, "primary"]}
+                                                                valuePropName="checked"
+                                                                style={{ marginBottom: 0 }}
+                                                            >
+                                                                <Checkbox />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={8} md={4} xl={3}>
+                                                            <Form.Item
+                                                                {...field}
+                                                                label="Opt Out"
+                                                                name={[field.name, "opt_out"]}
+                                                                valuePropName="checked"
+                                                                style={{ marginBottom: 0 }}
+                                                            >
+                                                                <Checkbox />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={8} md={4} xl={3}>
+                                                            <Form.Item
+                                                                {...field}
+                                                                label="Invalid"
+                                                                name={[field.name, "invalid"]}
+                                                                valuePropName="checked"
+                                                                style={{ marginBottom: 0 }}
+                                                            >
+                                                                <Checkbox />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={24} md={2} xl={2}>
+                                                            {fields.length > 1 && (
+                                                                <Button
+                                                                    danger
+                                                                    type="text"
+                                                                    icon={<MinusCircleOutlined />}
+                                                                    onClick={() => remove(field.name)}
+                                                                />
+                                                            )}
+                                                        </Col>
+                                                    </Row>
+                                                </Card>
+                                            ))}
+
+                                            <Button
+                                                type="dashed"
+                                                icon={<PlusOutlined />}
+                                                onClick={() =>
+                                                    add({
+                                                        email: "",
+                                                        primary: false,
+                                                        opt_out: false,
+                                                        invalid: false,
+                                                    })
+                                                }
+                                            >
+                                                Add Email
+                                            </Button>
+                                        </>
+                                    )}
+                                </Form.List>
+                            </Col>
+                        </Row>
+                        {/* </Card> */}
 
                         {/* Lead Details */}
-                        <Card style={sectionCardStyle}>
-                            <div style={sectionTitleStyle}>Lead Details</div>
+                        {/* <Card style={sectionCardStyle}> */}
+                        <Divider />
+                        <div style={sectionTitleStyle}>Lead Details</div>
 
-                            <Row gutter={[16, 4]}>
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Dealer Organization" name="dealer_organization">
-                                        <Select
-                                            placeholder="Select dealer organization"
-                                            options={dealerOrganizationOptions}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </Col>
+                        <Row gutter={[16, 4]}>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Dealer Organization" name="dealer_organization">
+                                    <Select
+                                        placeholder="Select dealer organization"
+                                        options={dealerOrganizationOptions}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item
-                                        label="Priority"
-                                        name="priority"
-                                        rules={[{ required: true, message: "Priority is required" }]}
-                                    >
-                                        <Select
-                                            placeholder="Select priority"
-                                            options={priorityOptions}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item
+                                    label="Priority"
+                                    name="priority"
+                                    rules={[{ required: true, message: "Priority is required" }]}
+                                >
+                                    <Select
+                                        placeholder="Select priority"
+                                        options={priorityOptions}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Status" name="status">
-                                        <Select
-                                            placeholder="Select status"
-                                            options={statusOptions}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Status" name="status">
+                                    <Select
+                                        placeholder="Select status"
+                                        options={statusOptions}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item
-                                        label="Product Category"
-                                        name="product_category"
-                                        rules={[
-                                            { required: true, message: "Product category is required" },
-                                        ]}
-                                    >
-                                        <Select
-                                            placeholder="Select product category"
-                                            options={productCategoryOptions}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item
+                                    label="Product Category"
+                                    name="product_category"
+                                    rules={[
+                                        { required: true, message: "Product category is required" },
+                                    ]}
+                                >
+                                    <Select
+                                        placeholder="Select product category"
+                                        options={productCategoryOptions}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={16}>
-                                    <Form.Item label="Requirements" name="requirements">
-                                        <TextArea rows={4} placeholder="Enter requirements" />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={16}>
+                                <Form.Item label="Requirements" name="requirements">
+                                    <TextArea rows={4} placeholder="Enter requirements" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item
-                                        label="Next Followup"
-                                        name="next_followup"
-                                        rules={[{ required: true, message: "Next followup is required" }]}
-                                    >
-                                        <DatePicker
-                                            showTime
-                                            format="DD/MM/YYYY hh:mm a"
-                                            style={{ width: "100%" }}
-                                            placeholder="Select next followup"
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item
+                                    label="Next Followup"
+                                    name="next_followup"
+                                    rules={[{ required: true, message: "Next followup is required" }]}
+                                >
+                                    <DatePicker
+                                        showTime
+                                        format="DD/MM/YYYY hh:mm a"
+                                        style={{ width: "100%" }}
+                                        placeholder="Select next followup"
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Followup" name="followup">
-                                        <Select
-                                            placeholder="Select followup"
-                                            options={followupOptions}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Followup" name="followup">
+                                    <Select
+                                        placeholder="Select followup"
+                                        options={followupOptions}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Followup Type" name="followup_type">
-                                        <Select
-                                            placeholder="Select followup type"
-                                            options={followupTypeOptions}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Followup Type" name="followup_type">
+                                    <Select
+                                        placeholder="Select followup type"
+                                        options={followupTypeOptions}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Lead Source" name="lead_source">
-                                        <Select
-                                            placeholder="Select lead source"
-                                            options={leadSourceOptions}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Lead Source" name="lead_source">
+                                    <Select
+                                        placeholder="Select lead source"
+                                        options={leadSourceOptions}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Assigned To" name="assigned_to">
-                                        <Select
-                                            placeholder="Select assignee"
-                                            options={users?.map((user: any) => ({
-                                                value: user.id,
-                                                label: user.name,
-                                            }))}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Assigned To" name="assigned_to">
+                                    <Select
+                                        placeholder="Select assignee"
+                                        options={users?.map((user: any) => ({
+                                            value: user.id,
+                                            label: user.name,
+                                        }))}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Referred By" name="referred_by">
-                                        <Input placeholder="Enter referred by" />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Referred By" name="referred_by">
+                                    <Input placeholder="Enter referred by" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={12}>
-                                    <Form.Item label="Add Description" name="add_description">
-                                        <TextArea rows={5} placeholder="Enter additional description" />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={12}>
+                                <Form.Item label="Add Description" name="add_description">
+                                    <TextArea rows={5} placeholder="Enter additional description" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={12}>
-                                    <Form.Item label="Description" name="description">
-                                        <TextArea rows={5} placeholder="Enter description" />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Card>
+                            <Col xs={24} md={12} xl={12}>
+                                <Form.Item label="Description" name="description">
+                                    <TextArea rows={5} placeholder="Enter description" />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        {/* </Card> */}
 
                         {/* Opportunity Details */}
-                        <Card style={sectionCardStyle}>
-                            <div style={sectionTitleStyle}>Opportunity Details</div>
+                        {/* <Card style={sectionCardStyle}> */}
+                        <Divider />
+                        <div style={sectionTitleStyle}>Opportunity Details</div>
 
-                            <Row gutter={[16, 4]}>
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Opportunity Name" name="opportunity_name">
-                                        <Input placeholder="Enter opportunity name" />
-                                    </Form.Item>
-                                </Col>
+                        <Row gutter={[16, 4]}>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Opportunity Name" name="opportunity_name">
+                                    <Input placeholder="Enter opportunity name" />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Opportunity Amount" name="opportunity_amount">
-                                        <InputNumber
-                                            style={{ width: "100%" }}
-                                            placeholder="Enter opportunity amount"
-                                            min={0}
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Opportunity Amount" name="opportunity_amount">
+                                    <InputNumber
+                                        style={{ width: "100%" }}
+                                        placeholder="Enter opportunity amount"
+                                        min={0}
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Expected Close Date" name="expected_close_date">
-                                        <DatePicker
-                                            style={{ width: "100%" }}
-                                            format="DD/MM/YYYY"
-                                            placeholder="Select expected close date"
-                                        />
-                                    </Form.Item>
-                                </Col>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Expected Close Date" name="expected_close_date">
+                                    <DatePicker
+                                        style={{ width: "100%" }}
+                                        format="DD/MM/YYYY"
+                                        placeholder="Select expected close date"
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                                <Col xs={24} md={12} xl={8}>
-                                    <Form.Item label="Sales Stage" name="sales_stage">
-                                        <Select
-                                            placeholder="Select sales stage"
-                                            options={salesStageOptions}
-                                            allowClear
-                                        />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Card>
+                            <Col xs={24} md={12} xl={8}>
+                                <Form.Item label="Sales Stage" name="sales_stage">
+                                    <Select
+                                        placeholder="Select sales stage"
+                                        options={salesStageOptions}
+                                        allowClear
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Divider />
+                        {/* </Card> */}
 
                         {/* Address Information */}
-                        <Card style={sectionCardStyle}>
-                            <div style={sectionTitleStyle}>Address Information</div>
+                        {/* <Card style={sectionCardStyle}> */}
+                        <div style={sectionTitleStyle}>Address Information</div>
 
-                            <AddressSection
-                                copyAddress={copyAddress}
-                                onCopyAddressChange={handleCopyAddressChange}
-                            />
-                        </Card>
+                        <AddressSection
+                            copyAddress={copyAddress}
+                            onCopyAddressChange={handleCopyAddressChange}
+                        />
+                        {/* </Card> */}
 
                         {/* Footer Actions */}
-                        <Card style={sectionCardStyle}>
-                            <Row justify="end">
-                                <Space wrap>
-                                    <Button htmlType="button">Cancel</Button>
-                                    <Button type="primary" htmlType="submit" loading={loading}>
-                                        Create Lead
-                                    </Button>
-                                </Space>
-                            </Row>
-                        </Card>
+                        {/* <Card style={sectionCardStyle}> */}
+                        <Row justify="end">
+                            <Space wrap>
+                                <Button htmlType="button">Cancel</Button>
+                                <Button type="primary" htmlType="submit" loading={loading}>
+                                    Create Lead
+                                </Button>
+                            </Space>
+                        </Row>
+                        {/* </Card> */}
                     </Space>
                 </Form>
             </Space>

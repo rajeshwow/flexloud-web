@@ -616,6 +616,29 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         requiresAny: ["LOCATIONS.IMPORT"],
       },
 
+      // Products
+      {
+        key: "products.create",
+        label: "Create Product",
+        path: "/products/create",
+        icon: "PlusOutlined",
+        requiresAny: ["products.create"],
+      },
+      {
+        key: "products.view",
+        label: "View Products",
+        path: "/products",
+        icon: "EyeOutlined",
+        requiresAny: ["products.view"],
+      },
+      {
+        key: "products.import",
+        label: "Import",
+        path: "/products/import",
+        icon: "ImportOutlined",
+        requiresAny: ["products.import"],
+      },
+
       // Product Categories
       {
         key: "productCategories.create",

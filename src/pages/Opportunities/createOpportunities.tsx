@@ -5,9 +5,9 @@ import {
 } from "@ant-design/icons";
 import {
     Button,
-    Card,
     Col,
     DatePicker,
+    Divider,
     Form,
     Input,
     InputNumber,
@@ -16,7 +16,7 @@ import {
     Space,
     Table,
     Typography,
-    message,
+    message
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -489,12 +489,10 @@ export default function CreateOpportunityPage() {
             <div className="op-create-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 
                 <div>
-                    <Title level={2} className="op-create-title">
+                    <Title level={4} className="op-create-title">
                         Create Opportunity
                     </Title>
-                    <Text className="op-create-subtitle">
-                        Add opportunity details, line items and extra info.
-                    </Text>
+
                 </div>
 
                 <Space>
@@ -504,6 +502,7 @@ export default function CreateOpportunityPage() {
                     </Button>
                 </Space>
             </div>
+            <Divider />
 
             <Form<FormValues>
                 form={form}
@@ -515,253 +514,253 @@ export default function CreateOpportunityPage() {
                     create_quote: "No",
                 }}
             >
-                <Card className="op-card" title="Opportunity Information">
-                    <Row gutter={[20, 6]}>
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Opportunity Number" name="opportunity_number">
-                                <Input placeholder="Enter opportunity number" />
-                            </Form.Item>
-                        </Col>
+                {/* <Card className="op-card" title="Opportunity Information"> */}
+                <Row gutter={[20, 6]}>
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Opportunity Number" name="opportunity_number">
+                            <Input placeholder="Enter opportunity number" />
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item
-                                label="Opportunity Name"
-                                name="opportunity_name"
-                                rules={[{ required: true, message: "Please enter opportunity name" }]}
-                            >
-                                <Input placeholder="Enter opportunity name" />
-                            </Form.Item>
-                        </Col>
-                        <Col xs={24} md={8}>
-                            <Form.Item
-                                label="Contact Name"
-                                name="contact_name"
-                                rules={[{ required: true, message: "Please select contact" }]}
-                            >
-                                <Select onChange={handleContactChange}
-                                    onClear={() => {
-                                        form.setFieldsValue({
-                                            contact_name: undefined,
-                                            contact_number: undefined,
-                                            contact_email: undefined,
-                                        });
-                                    }} placeholder="Select contact" allowClear showSearch options={contactOptions?.map((contact: any) => ({
-                                        label: contact.first_name + " " + contact.last_name,
-                                        value: contact.id,
-                                    }))} />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} md={8}>
-                            <Form.Item
-                                label="Organization Name"
-                                name="organization_name"
-                                rules={[{ required: true, message: "Please select organization" }]}
-                            >
-                                <Select
-                                    showSearch
-                                    allowClear
-                                    // loading={orgLoading}
-                                    placeholder="Select organization"
-                                    optionFilterProp="label"
-                                    options={organization.map((org) => ({
-                                        label: org.name,
-                                        value: org.id,
-                                    }))}
-                                />                            </Form.Item>
-                        </Col>
-
-
-
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Contact Number" name="contact_number">
-                                <Input placeholder="Enter contact number" />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Contact Email" name="contact_email">
-                                <Input placeholder="Enter contact email" />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Lead Source" name="lead_source">
-                                <Input placeholder="Enter lead source" />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} md={8}>
-                            <Form.Item
-                                label="Product Category"
-                                name="product_category"
-                                rules={[{ required: true, message: "Please select product category" }]}
-                            >
-                                <Select placeholder="Select product category" allowClear showSearch options={productCategory.map((category) => ({
-                                    label: category.name,
-                                    value: category.id,
+                    <Col xs={24} md={8}>
+                        <Form.Item
+                            label="Opportunity Name"
+                            name="opportunity_name"
+                            rules={[{ required: true, message: "Please enter opportunity name" }]}
+                        >
+                            <Input placeholder="Enter opportunity name" />
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item
+                            label="Contact Name"
+                            name="contact_name"
+                            rules={[{ required: true, message: "Please select contact" }]}
+                        >
+                            <Select onChange={handleContactChange}
+                                onClear={() => {
+                                    form.setFieldsValue({
+                                        contact_name: undefined,
+                                        contact_number: undefined,
+                                        contact_email: undefined,
+                                    });
+                                }} placeholder="Select contact" allowClear showSearch options={contactOptions?.map((contact: any) => ({
+                                    label: contact.first_name + " " + contact.last_name,
+                                    value: contact.id,
                                 }))} />
-                            </Form.Item>
-                        </Col>
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item
-                                label="Company"
-                                name="company"
-                                rules={[{ required: true, message: "Please enter company" }]}
-                            >
-                                <Input placeholder="Enter company" />
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item
+                            label="Organization Name"
+                            name="organization_name"
+                            rules={[{ required: true, message: "Please select organization" }]}
+                        >
+                            <Select
+                                showSearch
+                                allowClear
+                                // loading={orgLoading}
+                                placeholder="Select organization"
+                                optionFilterProp="label"
+                                options={organization.map((org) => ({
+                                    label: org.name,
+                                    value: org.id,
+                                }))}
+                            />                            </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Probability (%)" name="probability">
-                                <InputNumber min={0} max={100} style={{ width: "100%" }} />
-                            </Form.Item>
-                        </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item
-                                label="Sales Stage"
-                                name="sales_stage"
-                                rules={[{ required: true, message: "Please select sales stage" }]}
-                            >
-                                <Select placeholder="Select sales stage">
-                                    {salesStageOptions.map((item) => (
-                                        <Option key={item} value={item}>
-                                            {item}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Next Step" name="next_step">
-                                <Input placeholder="Enter next step" />
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Contact Number" name="contact_number">
+                            <Input placeholder="Enter contact number" />
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Type" name="type">
-                                <Select placeholder="Select type" allowClear>
-                                    <Option value="New Business">New Business</Option>
-                                    <Option value="Existing Business">Existing Business</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Contact Email" name="contact_email">
+                            <Input placeholder="Enter contact email" />
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Dealer Contact" name="dealer_contact">
-                                <Select placeholder="Select dealer contact" allowClear showSearch />
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Lead Source" name="lead_source">
+                            <Input placeholder="Enter lead source" />
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Dealer Organization" name="dealer_organization">
-                                <Select placeholder="Select dealer organization" allowClear showSearch />
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item
+                            label="Product Category"
+                            name="product_category"
+                            rules={[{ required: true, message: "Please select product category" }]}
+                        >
+                            <Select placeholder="Select product category" allowClear showSearch options={productCategory.map((category) => ({
+                                label: category.name,
+                                value: category.id,
+                            }))} />
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item
-                                label="Expected Close Date"
-                                name="expected_close_date"
-                                rules={[{ required: true, message: "Please select expected close date" }]}
-                            >
-                                <DatePicker
-                                    style={{ width: "100%" }}
-                                    format="DD/MM/YYYY"
-                                    suffixIcon={<CalendarOutlined />}
-                                />
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item
+                            label="Company"
+                            name="company"
+                            rules={[{ required: true, message: "Please enter company" }]}
+                        >
+                            <Input placeholder="Enter company" />
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Opportunity Amount">
-                                <Input.Group compact>
-                                    <Form.Item name="opportunity_amount_currency" noStyle>
-                                        <Select style={{ width: "28%" }}>
-                                            {currencyOptions.map((item) => (
-                                                <Option key={item} value={item}>
-                                                    {item}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Probability (%)" name="probability">
+                            <InputNumber min={0} max={100} style={{ width: "100%" }} />
+                        </Form.Item>
+                    </Col>
 
-                                    <Form.Item name="opportunity_amount" noStyle>
-                                        <InputNumber
-                                            min={0}
-                                            style={{ width: "72%" }}
-                                            placeholder="Enter amount"
-                                        />
-                                    </Form.Item>
-                                </Input.Group>
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item
+                            label="Sales Stage"
+                            name="sales_stage"
+                            rules={[{ required: true, message: "Please select sales stage" }]}
+                        >
+                            <Select placeholder="Select sales stage">
+                                {salesStageOptions.map((item) => (
+                                    <Option key={item} value={item}>
+                                        {item}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item
-                                label="Next Followup"
-                                name="next_followup"
-                                rules={[{ required: true, message: "Please select next followup" }]}
-                            >
-                                <DatePicker
-                                    showTime={{ format: "hh:mm a", use12Hours: true }}
-                                    style={{ width: "100%" }}
-                                    format="DD/MM/YYYY hh:mm a"
-                                    suffixIcon={<CalendarOutlined />}
-                                />
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Next Step" name="next_step">
+                            <Input placeholder="Enter next step" />
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Followup Type" name="followup_type">
-                                <Select placeholder="Select followup type" allowClear>
-                                    {followupTypeOptions.map((item) => (
-                                        <Option key={item} value={item}>
-                                            {item}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Type" name="type">
+                            <Select placeholder="Select type" allowClear>
+                                <Option value="New Business">New Business</Option>
+                                <Option value="Existing Business">Existing Business</Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Add Description" name="add_description">
-                                <TextArea rows={5} placeholder="Enter additional description" />
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Dealer Contact" name="dealer_contact">
+                            <Select placeholder="Select dealer contact" allowClear showSearch />
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Description" name="description">
-                                <TextArea rows={5} placeholder="Enter description" />
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Dealer Organization" name="dealer_organization">
+                            <Select placeholder="Select dealer organization" allowClear showSearch />
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Assigned To" name="assigned_to">
-                                <Select placeholder="Select assignee" allowClear showSearch options={users?.map((user: any) => ({
-                                    value: user.id,
-                                    label: user.name,
-                                }))} />
-                            </Form.Item>
-                        </Col>
+                    <Col xs={24} md={8}>
+                        <Form.Item
+                            label="Expected Close Date"
+                            name="expected_close_date"
+                            rules={[{ required: true, message: "Please select expected close date" }]}
+                        >
+                            <DatePicker
+                                style={{ width: "100%" }}
+                                format="DD/MM/YYYY"
+                                suffixIcon={<CalendarOutlined />}
+                            />
+                        </Form.Item>
+                    </Col>
 
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Close Date" name="close_date">
-                                <DatePicker
-                                    style={{ width: "100%" }}
-                                    format="DD/MM/YYYY"
-                                    suffixIcon={<CalendarOutlined />}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Card>
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Opportunity Amount">
+                            <Input.Group compact>
+                                <Form.Item name="opportunity_amount_currency" noStyle>
+                                    <Select style={{ width: "28%" }}>
+                                        {currencyOptions.map((item) => (
+                                            <Option key={item} value={item}>
+                                                {item}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
 
-                <Card
+                                <Form.Item name="opportunity_amount" noStyle>
+                                    <InputNumber
+                                        min={0}
+                                        style={{ width: "72%" }}
+                                        placeholder="Enter amount"
+                                    />
+                                </Form.Item>
+                            </Input.Group>
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={8}>
+                        <Form.Item
+                            label="Next Followup"
+                            name="next_followup"
+                            rules={[{ required: true, message: "Please select next followup" }]}
+                        >
+                            <DatePicker
+                                showTime={{ format: "hh:mm a", use12Hours: true }}
+                                style={{ width: "100%" }}
+                                format="DD/MM/YYYY hh:mm a"
+                                suffixIcon={<CalendarOutlined />}
+                            />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Followup Type" name="followup_type">
+                            <Select placeholder="Select followup type" allowClear>
+                                {followupTypeOptions.map((item) => (
+                                    <Option key={item} value={item}>
+                                        {item}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Add Description" name="add_description">
+                            <TextArea rows={5} placeholder="Enter additional description" />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Description" name="description">
+                            <TextArea rows={5} placeholder="Enter description" />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Assigned To" name="assigned_to">
+                            <Select placeholder="Select assignee" allowClear showSearch options={users?.map((user: any) => ({
+                                value: user.id,
+                                label: user.name,
+                            }))} />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Close Date" name="close_date">
+                            <DatePicker
+                                style={{ width: "100%" }}
+                                format="DD/MM/YYYY"
+                                suffixIcon={<CalendarOutlined />}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                {/* </Card> */}
+
+                {/* <Card
                     className="op-card"
                     title="Line Items"
                     extra={
@@ -769,7 +768,15 @@ export default function CreateOpportunityPage() {
                             Add Item
                         </Button>
                     }
-                >
+                > */}
+                <Divider />
+                <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                        <Title level={5}>Line Items</Title>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={addLineItem}>
+                            Add Item
+                        </Button>
+                    </div>
                     <Table<LineItem>
                         rowKey="key"
                         columns={columns}
@@ -778,9 +785,15 @@ export default function CreateOpportunityPage() {
                         scroll={{ x: 1400 }}
                         className="op-line-table"
                     />
-                </Card>
+                </div>
 
-                <Card className="op-card" title="Other Details">
+                <Divider />
+
+                {/* </Card> */}
+
+                {/* <Card className="op-card" title="Other Details"> */}
+                <div>
+                    <Title level={5}>Other Details</Title>
                     <Row gutter={[20, 6]}>
                         <Col xs={24} md={8}>
                             <Form.Item label="Campaign" name="campaign">
@@ -824,7 +837,9 @@ export default function CreateOpportunityPage() {
                             </Form.Item>
                         </Col>
                     </Row>
-                </Card>
+                </div>
+
+                {/* </Card> */}
             </Form>
         </div>
     );

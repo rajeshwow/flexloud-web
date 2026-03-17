@@ -4,6 +4,7 @@ import contactsReducer from "./reducers/contacts.slice";
 import leadsReducer from "./reducers/leads.slice";
 import opportunitiesReducer from "./reducers/opportunities.slice";
 import organizationReducer from "./reducers/organization.slice";
+import productsReducer from "./reducers/products.slice";
 import tenantReducer from "./reducers/tenant.slice";
 import usersReducer from "./reducers/user.slice";
 
@@ -16,6 +17,7 @@ export const store = configureStore({
     opportunities: opportunitiesReducer,
     leads: leadsReducer,
     users: usersReducer,
+    products: productsReducer,
   },
 });
 

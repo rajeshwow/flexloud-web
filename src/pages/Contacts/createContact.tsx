@@ -270,6 +270,8 @@ export default function ContactForm({
                 </Space>
             </div>
 
+            <Divider />
+
             <Form<ContactFormValues>
                 form={form}
                 layout="vertical"

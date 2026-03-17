@@ -10,6 +10,8 @@ import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
 import OpportunitiesPage from "../pages/Opportunities/OpportunitiesPage";
 import OrganizationCreate from "../pages/Organization/createOrg";
 import OrganizationGet from "../pages/Organization/getOrg";
+import CreateProductPage from "../pages/Products/CreateProductPage";
+import ProductListPage from "../pages/Products/ProductListPage";
 import UserGet from "../pages/Users/UserGet";
 import ProtectedRoute from "./ProtectedRoutes";
 
@@ -108,6 +110,24 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="leads.view">
                 <LeadsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="products"
+            element={
+              <ProtectedRoute required="products.view">
+                <ProductListPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="products/create"
+            element={
+              <ProtectedRoute required="products.create">
+                <CreateProductPage />
               </ProtectedRoute>
             }
           />

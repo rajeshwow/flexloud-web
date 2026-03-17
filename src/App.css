@@ -40,3 +40,38 @@
 .read-the-docs {
   color: #888;
 }
+
+@keyframes floatGlow {
+  0% {
+    transform: translateY(0px) translateX(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-12px) translateX(8px) scale(1.04);
+  }
+  100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+  }
+}
+
+/* AntD inputs inside custom dark card */
+.ant-input,
+.ant-input-password,
+.ant-input-affix-wrapper {
+  box-shadow: none !important;
+}
+
+.ant-input-affix-wrapper input {
+  background: transparent !important;
+  color: #fff !important;
+}
+
+.ant-input::placeholder,
+.ant-input-password input::placeholder {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.ant-input-affix-wrapper:hover,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: rgba(59, 130, 246, 0.55) !important;
+}
