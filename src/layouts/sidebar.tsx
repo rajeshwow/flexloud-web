@@ -19,6 +19,7 @@ import {
   // optional extra icons (safe to keep)
   HomeOutlined,
   ImportOutlined,
+  LoginOutlined,
   LogoutOutlined,
   MailOutlined,
   MenuFoldOutlined,
@@ -33,16 +34,18 @@ import {
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Grid, Layout, Menu, Space, Switch, Typography } from "antd";
+import { Avatar, Button, Grid, Layout, Menu, message, Popover, Space, Switch, Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAppTheme } from "../theme/ThemeProvider";
 
 
 // ✅ your registry + builder
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { buildMenuTree } from "../menu/buildMenu";
 import { MENU_REGISTRY } from "../menu/menuRegistry";
+import { clockInAttendance, clockOutAttendance, getTodayAttendance } from "../redux/reducers/attendance.slice";
+import type { AppDispatch, RootState } from "../redux/store";
 
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
@@ -87,6 +90,293 @@ const iconMap: Record<string, React.ReactNode> = {
   HistoryOutlined: <HistoryOutlined />,
 };
 
+type AttendanceWatchProps = {
+  dark: boolean;
+};
+
+function AttendanceWatch({ dark }: AttendanceWatchProps) {
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const currentTime = new Date();
+  const [now, setNow] = useState(currentTime.getTime());
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const {
+    todayAttendance,
+    todayAttendanceLoading,
+    clockInLoading,
+    clockOutLoading,
+  } = useSelector((state: RootState) => state.attendance);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    dispatch(getTodayAttendance());
+  }, [dispatch]);
+
+  const handleClockIn = async () => {
+    try {
+      await dispatch(
+        clockInAttendance({
+          remarks: "Started work",
+          source: "web",
+        })
+      ).unwrap();
+
+      message.success("Clock-in successful");
+      await dispatch(getTodayAttendance()).unwrap();
+    } catch (error: any) {
+      message.error(error || "Clock-in failed");
+    }
+  };
+
+  const handleClockOut = async () => {
+    try {
+      await dispatch(
+        clockOutAttendance({
+          remarks: "Work completed",
+        })
+      ).unwrap();
+
+      message.success("Clock-out successful");
+      await dispatch(getTodayAttendance()).unwrap();
+    } catch (error: any) {
+      message.error(error || "Clock-out failed");
+    }
+  };
+
+  const currentDate = new Date(now);
+
+  const formattedDate = currentDate.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    weekday: "long",
+  });
+
+  const activeSession = todayAttendance?.active_session;
+  const latestSession =
+    activeSession ||
+    (todayAttendance?.today_sessions?.length
+      ? todayAttendance.today_sessions[0]
+      : null);
+
+  const clockInTimeText = todayAttendance?.today_sessions?.length
+    ? new Date(todayAttendance.today_sessions[todayAttendance?.today_sessions?.length - 1].clock_in_at).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    })
+    : "--:--:--";
+
+  const clockOutTimeText = latestSession?.clock_out_at
+    ? new Date(latestSession.clock_out_at).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    })
+    : "--:--:--";
+
+  const rightSideTimeText = todayAttendance?.is_clocked_in
+    ? new Date(now).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    })
+    : latestSession?.clock_out_at
+      ? clockOutTimeText
+      : "--:--:--";
+
+  const formatDuration = (totalSeconds: number) => {
+    const safeSeconds = Math.max(0, totalSeconds);
+
+    const hours = Math.floor(safeSeconds / 3600);
+    const minutes = Math.floor((safeSeconds % 3600) / 60);
+    const seconds = safeSeconds % 60;
+
+    return [hours, minutes, seconds]
+      .map((unit) => String(unit).padStart(2, "0"))
+      .join(":");
+  };
+
+  const workedSeconds =
+    latestSession?.clock_in_at && todayAttendance?.is_clocked_in
+      ? Math.floor((now - new Date(latestSession.clock_in_at).getTime()) / 1000)
+      : (todayAttendance?.total_worked_minutes_today || 0) * 60;
+
+  const workedDurationText = formatDuration(workedSeconds);
+
+  const shiftMinutes = 9 * 60;
+  const workedMinutes =
+    latestSession?.clock_in_at && todayAttendance?.is_clocked_in
+      ? Math.floor(workedSeconds / 60)
+      : todayAttendance?.total_worked_minutes_today || 0;
+
+  const progressPercent = Math.min((workedMinutes / shiftMinutes) * 100, 100);
+
+  const popoverContent = (
+    <div
+      style={{
+        width: 320,
+        borderRadius: 14,
+      }}
+    >
+      <div
+        style={{
+          border: "1px solid #1677ff",
+          borderRadius: 14,
+          padding: 16,
+          background: dark ? "#111827" : "#ffffff",
+          boxShadow: dark
+            ? "0 10px 30px rgba(0,0,0,0.35)"
+            : "0 10px 30px rgba(0,0,0,0.08)",
+        }}
+      >
+        <div
+          style={{
+            fontWeight: 500,
+            fontSize: 22,
+            color: dark ? "#f5f5f5" : "#111827",
+            marginBottom: 12,
+          }}
+        >
+          Let&apos;s Get the Ball Rolling
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 8,
+          }}
+        >
+          <span
+            style={{
+              color: dark ? "rgba(255,255,255,0.75)" : "#666",
+              fontSize: 14,
+            }}
+          >
+            {formattedDate}
+          </span>
+
+          <span
+            style={{
+              color: dark ? "#fff" : "#111",
+              fontWeight: 700,
+              fontSize: 16,
+              lineHeight: 1,
+            }}
+          >
+            {workedDurationText}
+          </span>
+        </div>
+
+        <div
+          style={{
+            height: 6,
+            background: dark ? "rgba(255,255,255,0.12)" : "#e5e7eb",
+            borderRadius: 999,
+            marginBottom: 12,
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              width: `${progressPercent}%`,
+              height: "100%",
+              background: "#bfbfbf",
+              transition: "width 0.3s ease",
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            color: dark ? "rgba(255,255,255,0.75)" : "#666",
+            fontSize: 14,
+            marginBottom: 10,
+
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, }}>
+            <ClockCircleOutlined />
+            <span>{clockInTimeText}</span>
+          </div>
+
+          <span style={{ fontSize: 12, }}>{rightSideTimeText}</span>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 16,
+            fontSize: 14,
+          }}
+        >
+          <span style={{ color: dark ? "#e5e7eb" : "#222" }}>
+            Shift: 09:30 AM - 06:30 PM
+          </span>
+
+          <Button type="link" size="small" style={{ padding: 0 }}>
+            View Policies
+          </Button>
+        </div>
+
+        <Button
+          block
+          // size="large"
+          type="primary"
+          icon={todayAttendance?.is_clocked_in ? <LogoutOutlined /> : <LoginOutlined />}
+          loading={clockInLoading || clockOutLoading}
+          onClick={todayAttendance?.is_clocked_in ? handleClockOut : handleClockIn}
+
+        >
+          {todayAttendance?.is_clocked_in ? "Clockout" : "Clockin"}
+        </Button>
+      </div>
+    </div>
+  );
+
+
+
+  return (
+    <Popover
+      content={popoverContent}
+      trigger={["hover"]}
+      placement="bottomRight"
+      open={popoverOpen}
+      onOpenChange={setPopoverOpen}
+      overlayInnerStyle={{
+        padding: 0,
+        background: "transparent",
+        boxShadow: "none",
+      }}
+    >
+      <Button
+        type="default"
+        icon={todayAttendance?.is_clocked_in ? <LogoutOutlined /> : <LoginOutlined />}
+        style={{ minWidth: 110 }}
+      >
+        {todayAttendance?.is_clocked_in ? "Clock Out" : "Clock In"}
+      </Button>
+    </Popover>
+  );
+}
+
 export default function AppShell({ children, user }: Props) {
   const { dark, setDark } = useAppTheme();
 
@@ -95,9 +385,14 @@ export default function AppShell({ children, user }: Props) {
   const navigate = useNavigate();
   const screens = Grid.useBreakpoint();
 
+  const dispatch = useDispatch<AppDispatch>();
+
   const [collapsed, setCollapsed] = useState(false);
 
   const sanitizeKey = (key: string) => key.replace(/[^a-zA-Z0-9_-]/g, "_");
+
+
+
 
 
 
@@ -526,8 +821,12 @@ export default function AppShell({ children, user }: Props) {
             onClick={() => setCollapsed((v) => !v)}
           />
           <Text style={{ fontWeight: 800, fontSize: 16, color: "var(--fl-text)" }}>CRM</Text>
+
           <div style={{ marginLeft: "auto" }} />
-          <Space>
+
+          <Space size={12}>
+            <AttendanceWatch dark={dark} />
+
             <BulbOutlined style={{ color: "var(--fl-text2)" }} />
             <Switch checked={dark} onChange={setDark} />
           </Space>

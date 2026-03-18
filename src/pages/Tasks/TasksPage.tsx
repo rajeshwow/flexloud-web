@@ -144,7 +144,7 @@ export default function TasksPage() {
                         height: "auto",
                         textAlign: "left",
                         whiteSpace: "normal",
-                        color: token.colorError,
+                        // color: token.colorError,
                         fontWeight: 600,
                     }}
                     onClick={() => navigate(`/${slug}/tasks/${record.id}/edit`)}
@@ -198,7 +198,7 @@ export default function TasksPage() {
             render: (value) => (
                 <Text
                     style={{
-                        color: token.colorError,
+                        // color: token.colorError,
                         fontWeight: 600,
                     }}
                 >

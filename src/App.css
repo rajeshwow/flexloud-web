@@ -75,3 +75,11 @@
 .ant-input-affix-wrapper-focused {
   border-color: rgba(59, 130, 246, 0.55) !important;
 }
+
+.ant-btn-primary {
+  color: #fff !important;
+}
+
+.ant-btn-primary .anticon {
+  color: #fff !important;
+}

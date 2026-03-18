@@ -39,7 +39,6 @@ body {
 .ant-table,
 .ant-form,
 .ant-input,
-.ant-select,
-.ant-btn {
+.ant-select {
   color: var(--text);
 }
