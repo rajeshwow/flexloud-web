@@ -1,16 +1,21 @@
-import { SearchOutlined } from "@ant-design/icons";
-import { Input, Space, Table } from "antd";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Input, Space, Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { fetchContacts, type ContactItem } from "../../redux/reducers/contacts.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+const { Title } = Typography;
 
 export default function ContactsList() {
     const dispatch = useDispatch<AppDispatch>();
     const { contactList, listLoading, pagination } = useSelector(
         (state: RootState) => state.contacts,
     );
+    const { slug = "" } = useParams();
+    const navigate = useNavigate();
+
 
     const [searchText, setSearchText] = useState("");
     const [page, setPage] = useState(1);
@@ -71,19 +76,45 @@ export default function ContactsList() {
 
     return (
         <div style={{ padding: 16 }}>
-            <Space style={{ marginBottom: 16 }}>
-                <Input
-                    allowClear
-                    placeholder="Search by name, mobile, email"
-                    prefix={<SearchOutlined />}
-                    value={searchText}
-                    onChange={(e) => {
-                        setSearchText(e.target.value);
-                        setPage(1);
-                    }}
-                    style={{ width: 320 }}
-                />
-            </Space>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 12,
+                    marginBottom: 16,
+                    flexWrap: "wrap",
+                }}
+            >
+                <Title level={4} style={{ margin: 0 }}>
+                    Contacts
+                </Title>
+
+                <Space wrap>
+                    <Input
+                        allowClear
+                        placeholder="Search by name, mobile, email"
+                        prefix={<SearchOutlined />}
+                        value={searchText}
+                        onChange={(e) => {
+                            setSearchText(e.target.value);
+                            setPage(1);
+                        }}
+                        style={{ width: 320 }}
+                    />
+
+
+
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => navigate(`/${slug}/contacts/create`)}
+                    >
+                        Create Contact
+                    </Button>
+                </Space>
+            </div>
+
 
             <Table
                 rowKey="id"

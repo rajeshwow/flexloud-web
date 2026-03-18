@@ -46,16 +46,16 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
     label: "Organization",
     icon: "BankOutlined",
     children: [
-      {
-        key: "organization.create",
-        label: "Create Organization",
-        path: "/organization/create",
-        icon: "PlusOutlined",
-        requiresAny: ["org.create"],
-      },
+      // {
+      //   key: "organization.create",
+      //   label: "Create Organization",
+      //   path: "/organization/create",
+      //   icon: "PlusOutlined",
+      //   requiresAny: ["org.create"],
+      // },
       {
         key: "organization.view",
-        label: "View Organization",
+        label: "Organization",
         path: "/organization/view",
         icon: "EyeOutlined",
         requiresAny: ["ORG.VIEW"],
@@ -139,13 +139,13 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
     icon: "TeamOutlined",
     children: [
       // Contacts
-      {
-        key: "contacts.create",
-        label: "Create Contact",
-        path: "/contacts/create",
-        icon: "PlusOutlined",
-        requiresAny: ["contacts.create"],
-      },
+      // {
+      //   key: "contacts.create",
+      //   label: "Create Contact",
+      //   path: "/contacts/create",
+      //   icon: "PlusOutlined",
+      //   requiresAny: ["contacts.create"],
+      // },
       {
         key: "contacts.createFromVCard",
         label: "Create Contact From vCard",
@@ -155,7 +155,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
       },
       {
         key: "contacts.view",
-        label: "View Contacts",
+        label: "Contacts",
         path: "/contacts",
         icon: "EyeOutlined",
         requiresAny: ["CONTACTS.VIEW"],
@@ -176,13 +176,13 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
       },
 
       // Leads
-      {
-        key: "leads.create",
-        label: "Create Lead",
-        path: "/leads/create",
-        icon: "PlusOutlined",
-        requiresAny: ["leads.create"],
-      },
+      // {
+      //   key: "leads.create",
+      //   label: "Create Lead",
+      //   path: "/leads/create",
+      //   icon: "PlusOutlined",
+      //   requiresAny: ["leads.create"],
+      // },
       {
         key: "leads.createFromCard",
         label: "Create Lead From Card",
@@ -192,7 +192,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
       },
       {
         key: "leads.view",
-        label: "View Leads",
+        label: "Leads",
         path: "/leads/view",
         icon: "EyeOutlined",
         requiresAny: ["leads.view"],
@@ -212,17 +212,17 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         requiresAny: ["LEADS.RECENT"],
       },
 
-      // Opportunities
-      {
-        key: "opportunities.create",
-        label: "Create Opportunity",
-        path: "/opportunities/create",
-        icon: "PlusOutlined",
-        requiresAny: ["opportunities.create"],
-      },
+      // // Opportunities
+      // {
+      //   key: "opportunities.create",
+      //   label: "Create Opportunity",
+      //   path: "/opportunities/create",
+      //   icon: "PlusOutlined",
+      //   requiresAny: ["opportunities.create"],
+      // },
       {
         key: "opportunities.view",
-        label: "View Opportunities",
+        label: " Opportunities",
         path: "/opportunities",
         icon: "EyeOutlined",
         requiresAny: ["opportunities.view"],
@@ -304,6 +304,13 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "ImportOutlined",
         requiresAny: ["CALLS.IMPORT"],
       },
+      {
+        key: "products.view",
+        label: "Products",
+        path: "/products",
+        icon: "EyeOutlined",
+        requiresAny: ["products.view"],
+      },
 
       // Meetings
       {
@@ -329,19 +336,19 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
       },
 
       // Tasks
-      {
-        key: "tasks.create",
-        label: "Create Task",
-        path: "/tasks/create",
-        icon: "PlusOutlined",
-        requiresAny: ["TASKS.CREATE"],
-      },
+      // {
+      //   key: "tasks.create",
+      //   label: "Create Task",
+      //   path: "/tasks/create",
+      //   icon: "PlusOutlined",
+      //   requiresAny: ["tasks.create"],
+      // },
       {
         key: "tasks.view",
-        label: "View Tasks",
+        label: "Tasks",
         path: "/tasks",
         icon: "EyeOutlined",
-        requiresAny: ["TASKS.VIEW"],
+        requiresAny: ["tasks.view"],
       },
       {
         key: "tasks.import",
@@ -534,7 +541,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
       },
       {
         key: "users.view",
-        label: "View Users",
+        label: " Users",
         path: "/users",
         icon: "EyeOutlined",
         requiresAny: ["users.view"],
@@ -617,20 +624,20 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
       },
 
       // Products
-      {
-        key: "products.create",
-        label: "Create Product",
-        path: "/products/create",
-        icon: "PlusOutlined",
-        requiresAny: ["products.create"],
-      },
-      {
-        key: "products.view",
-        label: "View Products",
-        path: "/products",
-        icon: "EyeOutlined",
-        requiresAny: ["products.view"],
-      },
+      // {
+      //   key: "products.create",
+      //   label: "Create Product",
+      //   path: "/products/create",
+      //   icon: "PlusOutlined",
+      //   requiresAny: ["products.create"],
+      // },
+      // {
+      //   key: "products.view",
+      //   label: "View Products",
+      //   path: "/products",
+      //   icon: "EyeOutlined",
+      //   requiresAny: ["products.view"],
+      // },
       {
         key: "products.import",
         label: "Import",

@@ -47,7 +47,6 @@ export default function CreateProductPage() {
             qty_to_be_invoiced_shipped: values.qty_to_be_invoiced_shipped || 0,
             qty_to_be_received_billed: values.qty_to_be_received_billed || 0,
         };
-        debugger
         const res = await dispatch(createProduct(payload));
 
         if (res.payload.statusCode === 201) {

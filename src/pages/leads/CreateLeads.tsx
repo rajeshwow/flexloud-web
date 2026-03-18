@@ -310,11 +310,7 @@ export default function CreateLeadForm() {
 
     return (
         <div
-        // style={{
-        //     background: token.colorBgLayout,
-        //     padding: 16,
-        //     borderRadius: 18,
-        // }}
+
         >
             <Space
                 orientation="vertical"

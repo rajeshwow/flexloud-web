@@ -1,23 +1,28 @@
-import { SearchOutlined } from "@ant-design/icons";
-import { Input, Space, Table, Tag } from "antd";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Input, Space, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import {
     getOrganization,
     type OrganizationItem,
 } from "../../redux/reducers/organization.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+const { Title } = Typography;
 
 export default function OrganizationGet() {
     const dispatch = useDispatch<AppDispatch>();
-    const { list, listLoading, pagination } = useSelector(
+    const { orgList, listLoading, pagination } = useSelector(
         (state: RootState) => state.organization
     );
 
     const [searchText, setSearchText] = useState("");
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+
+    const navigate = useNavigate();
+    const { slug = "" } = useParams();
 
     useEffect(() => {
         dispatch(
@@ -105,24 +110,46 @@ export default function OrganizationGet() {
 
     return (
         <div style={{ padding: 16 }}>
-            <Space style={{ marginBottom: 16 }}>
-                <Input
-                    allowClear
-                    placeholder="Search by name, email, type, industry"
-                    prefix={<SearchOutlined />}
-                    value={searchText}
-                    onChange={(e) => {
-                        setSearchText(e.target.value);
-                        setPage(1);
-                    }}
-                    style={{ width: 320 }}
-                />
-            </Space>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 12,
+                    marginBottom: 16,
+                    flexWrap: "wrap",
+                }}
+            >
+
+                <Title level={4}>Organizations</Title>
+                <Space style={{ marginBottom: 16 }}>
+                    <Input
+                        allowClear
+                        placeholder="Search by name, email, type, industry"
+                        prefix={<SearchOutlined />}
+                        value={searchText}
+                        onChange={(e) => {
+                            setSearchText(e.target.value);
+                            setPage(1);
+                        }}
+                        style={{ width: 320 }}
+                    />
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => navigate(`/${slug}/organization/create`)}
+                    >
+                        Add Organization
+                    </Button>
+                </Space>
+
+            </div>
+
 
             <Table
                 rowKey="id"
                 columns={columns}
-                dataSource={list}
+                dataSource={orgList}
                 loading={listLoading}
                 bordered
                 pagination={{

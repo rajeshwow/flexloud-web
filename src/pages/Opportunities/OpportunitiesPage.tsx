@@ -3,6 +3,7 @@ import {
     EditOutlined,
     MailOutlined,
     PhoneOutlined,
+    PlusOutlined,
     SearchOutlined,
     UnorderedListOutlined,
 } from "@ant-design/icons";
@@ -10,7 +11,7 @@ import { Button, Input, Space, Table, Tag, Tooltip, Typography, message } from "
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
     fetchOpportunities,
     resetOpportunitiesListState,
@@ -18,7 +19,7 @@ import {
 } from "../../redux/reducers/opportunities.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
 
-const { Text, Link } = Typography;
+const { Text, Link, Title } = Typography;
 
 function getStageTagColor(stage?: string) {
     const value = (stage || "").toLowerCase();
@@ -179,22 +180,44 @@ export default function OpportunitiesPage() {
 
     const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
     const end = Math.min(page * pageSize, total || 0);
+    const { slug = "" } = useParams();
 
     return (
         <div className="fl-page-wrap">
-            <Space style={{ marginBottom: 16 }}>
-                <Input
-                    allowClear
-                    placeholder="Search by name, mobile, email"
-                    prefix={<SearchOutlined />}
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        setPage(1);
-                    }}
-                    style={{ width: 320 }}
-                />
-            </Space>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 12,
+                    marginBottom: 16,
+                    flexWrap: "wrap",
+                }}
+            >
+                <Title level={5}>Opportunities</Title>
+                <Space wrap>
+                    <Input
+                        allowClear
+                        placeholder="Search by name, mobile, email"
+                        prefix={<SearchOutlined />}
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            setPage(1);
+                        }}
+                        style={{ width: 320 }}
+                    />
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => navigate(`/${slug}/opportunities/create`)}
+                    >
+                        Create Opportunity
+                    </Button>
+                </Space>
+
+            </div>
+
 
             <div className="fl-table-card">
 

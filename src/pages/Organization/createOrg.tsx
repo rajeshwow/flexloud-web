@@ -5,6 +5,7 @@ import {
     Col,
     Collapse,
     DatePicker,
+    Divider,
     Form,
     Input,
     message,
@@ -12,6 +13,7 @@ import {
     Select,
     Space,
     Switch,
+    Typography,
 } from "antd";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +26,7 @@ import type { AppDispatch } from "../../redux/store";
 
 const { Panel } = Collapse;
 const { Option } = Select;
+const { Title } = Typography;
 
 const OrganizationCreate: React.FC = () => {
     const [form] = Form.useForm();
@@ -165,24 +168,38 @@ const OrganizationCreate: React.FC = () => {
     };
 
     return (
-        <Form
-            layout="vertical"
-            form={form}
-            onFinish={onFinish}
-            style={{ padding: 20 }}
-            initialValues={{
-                branches: [
-                    {
-                        name: "Head Office",
-                        isHeadOffice: true,
-                        status: "active",
-                        isShippingSameAsBilling: false,
-                    },
-                ],
-            }}
-        >
-            <Collapse defaultActiveKey={["overview", "registered", "branches"]}>
-                <Panel header="Overview" key="overview">
+        <Space orientation="vertical"
+            size={16}
+            style={{ width: "100%" }}>
+            <div>
+                <Title level={4} style={{ margin: 0 }}>
+                    Create Organization
+                </Title>
+
+            </div>
+
+            <Divider />
+            <Form
+                layout="vertical"
+                form={form}
+                onFinish={onFinish}
+                style={{ padding: 20 }}
+                initialValues={{
+                    branches: [
+                        {
+                            name: "Head Office",
+                            isHeadOffice: true,
+                            status: "active",
+                            isShippingSameAsBilling: false,
+                        },
+                    ],
+                }}
+            >
+                <div>
+                    <Title level={4} style={{ marginBottom: 16 }}>
+                        Overview
+                    </Title>
+
                     <Row gutter={16}>
                         <Col span={8}>
                             <Form.Item
@@ -252,9 +269,15 @@ const OrganizationCreate: React.FC = () => {
                             </Form.Item>
                         </Col>
                     </Row>
-                </Panel>
+                </div>
 
-                <Panel header="Registered Address" key="registered">
+                <Divider />
+
+                <div>
+                    <Title level={4} style={{ marginBottom: 16 }}>
+                        Registered Address
+                    </Title>
+
                     <Row gutter={24}>
                         <Col span={12}>
                             <Form.Item label="Street" name={["registeredAddress", "street"]}>
@@ -296,9 +319,15 @@ const OrganizationCreate: React.FC = () => {
                             </Form.Item>
                         </Col>
                     </Row>
-                </Panel>
+                </div>
 
-                <Panel header="Branches" key="branches">
+                <Divider />
+
+                <div>
+                    <Title level={4} style={{ marginBottom: 16 }}>
+                        Branches
+                    </Title>
+
                     <Form.List name="branches">
                         {(fields, { add, remove }) => (
                             <>
@@ -432,7 +461,10 @@ const OrganizationCreate: React.FC = () => {
                                             </Col>
                                         </Row>
 
-                                        <h3 style={{ marginTop: 8 }}>Billing Address</h3>
+                                        <Title level={5} style={{ marginTop: 8, marginBottom: 12 }}>
+                                            Billing Address
+                                        </Title>
+
                                         <Row gutter={16}>
                                             <Col span={12}>
                                                 <Form.Item {...restField} label="Street" name={[name, "billingStreet"]}>
@@ -476,7 +508,9 @@ const OrganizationCreate: React.FC = () => {
                                             </Col>
                                         </Row>
 
-                                        <h3 style={{ marginTop: 8 }}>Shipping Address</h3>
+                                        <Title level={5} style={{ marginTop: 8, marginBottom: 12 }}>
+                                            Shipping Address
+                                        </Title>
 
                                         <Form.Item
                                             {...restField}
@@ -552,33 +586,35 @@ const OrganizationCreate: React.FC = () => {
                             </>
                         )}
                     </Form.List>
-                </Panel>
-            </Collapse>
+                </div>
 
-            <Space style={{ marginTop: 20 }}>
-                <Button type="primary" htmlType="submit">
-                    Save
-                </Button>
+                <Space style={{ marginTop: 20 }}>
+                    <Button type="primary" htmlType="submit">
+                        Save
+                    </Button>
 
-                <Button
-                    onClick={() => {
-                        form.resetFields();
-                        form.setFieldsValue({
-                            branches: [
-                                {
-                                    name: "Head Office",
-                                    isHeadOffice: true,
-                                    status: "active",
-                                    isShippingSameAsBilling: false,
-                                },
-                            ],
-                        });
-                    }}
-                >
-                    Cancel
-                </Button>
-            </Space>
-        </Form>
+                    <Button
+                        onClick={() => {
+                            form.resetFields();
+                            form.setFieldsValue({
+                                branches: [
+                                    {
+                                        name: "Head Office",
+                                        isHeadOffice: true,
+                                        status: "active",
+                                        isShippingSameAsBilling: false,
+                                    },
+                                ],
+                            });
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                </Space>
+            </Form>
+
+        </Space>
+
     );
 };
 

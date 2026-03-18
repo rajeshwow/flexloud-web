@@ -12,6 +12,9 @@ import OrganizationCreate from "../pages/Organization/createOrg";
 import OrganizationGet from "../pages/Organization/getOrg";
 import CreateProductPage from "../pages/Products/CreateProductPage";
 import ProductListPage from "../pages/Products/ProductListPage";
+import CreateTask from "../pages/Tasks/CreateTask";
+import EditTask from "../pages/Tasks/EditTask";
+import TasksPage from "../pages/Tasks/TasksPage";
 import UserGet from "../pages/Users/UserGet";
 import ProtectedRoute from "./ProtectedRoutes";
 
@@ -128,6 +131,33 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="products.create">
                 <CreateProductPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="tasks"
+            element={
+              <ProtectedRoute required="tasks.view">
+                <TasksPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="tasks/create"
+            element={
+              <ProtectedRoute required="tasks.create">
+                <CreateTask />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="tasks/edit/:id"
+            element={
+              <ProtectedRoute required="tasks.edit">
+                <EditTask />
               </ProtectedRoute>
             }
           />

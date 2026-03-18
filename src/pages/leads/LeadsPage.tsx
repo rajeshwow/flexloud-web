@@ -4,6 +4,7 @@ import {
     MailOutlined,
     MoreOutlined,
     PhoneOutlined,
+    PlusOutlined,
     SearchOutlined
 } from "@ant-design/icons";
 import {
@@ -20,8 +21,9 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
+const { Title } = Typography;
 // import "./leads.css";
 
 // apne actual slice ke hisaab se import change kar lena
@@ -65,6 +67,7 @@ export default function LeadsPage() {
     const { leads, listLoading, total, insights } = useSelector(
         (state: RootState) => state.leads
     );
+    const { slug = "" } = useParams();
     console.log(listLoading, 'listLoading')
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
@@ -257,49 +260,66 @@ export default function LeadsPage() {
 
     return (
         <div className="fl-page-wrap">
-            <Space style={{ marginBottom: 16 }}>
-                <Input
-                    allowClear
-                    placeholder="Search by name, mobile, email"
-                    prefix={<SearchOutlined />}
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        setPage(1);
-                    }}
-                    style={{ width: 320 }}
-                />
-            </Space>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 12,
+                    marginBottom: 16,
+                    flexWrap: "wrap",
+                }}
+            >
+                <Title level={4} style={{ margin: 0 }}>
+                    Leads
+                </Title>
 
-            <div className="fl-leads-layout">
-                <div className="fl-table-card fl-leads-table-wrap">
-
-                    <Table<LeadItem>
-                        rowKey="id"
-                        columns={columns}
-                        dataSource={leads || []}
-                        loading={listLoading}
-                        pagination={{
-                            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-                            current: page,
-                            pageSize,
-                            total: total || 0,
-                            showSizeChanger: true,
-                            pageSizeOptions: ["10", "20", "50", "100"],
-                            onChange: (nextPage, nextPageSize) => {
-                                setPage(nextPage);
-                                setPageSize(nextPageSize);
-                            },
+                <Space wrap>
+                    <Input
+                        allowClear
+                        placeholder="Search by name, mobile, email"
+                        prefix={<SearchOutlined />}
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            setPage(1);
                         }}
-                        scroll={{ x: 1500 }}
-                        bordered={false}
-                        size="middle"
-                        rowClassName={() => "fl-table-row"}
+                        style={{ width: 320 }}
                     />
-                </div>
 
-
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => navigate(`/${slug}/leads/create`)}
+                    >
+                        Create Lead
+                    </Button>
+                </Space>
             </div>
+            <Table<LeadItem>
+                rowKey="id"
+                columns={columns}
+                dataSource={leads || []}
+                loading={listLoading}
+                pagination={{
+                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+                    current: page,
+                    pageSize,
+                    total: total || 0,
+                    showSizeChanger: true,
+                    pageSizeOptions: ["10", "20", "50", "100"],
+                    onChange: (nextPage, nextPageSize) => {
+                        setPage(nextPage);
+                        setPageSize(nextPageSize);
+                    },
+                }}
+                scroll={{ x: 1500 }}
+                bordered={false}
+                size="middle"
+                rowClassName={() => "fl-table-row"}
+            />
+
+
         </div>
     );
 }
