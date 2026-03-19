@@ -1,5 +1,6 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import AppShell from "../layouts/sidebar";
+import AttendanceView from "../pages/Attendance/AttendanceView";
 import ContactsPage from "../pages/Contacts/contacts.page";
 import ContactForm from "../pages/Contacts/createContact";
 import StunningDashboard from "../pages/Home/dashboard";
@@ -158,6 +159,15 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="tasks.edit">
                 <EditTask />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="attendance"
+            element={
+              <ProtectedRoute required="attendance.view">
+                <AttendanceView />
               </ProtectedRoute>
             }
           />

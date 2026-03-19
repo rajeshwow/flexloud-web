@@ -76,19 +76,19 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
       },
 
       // Attendance (screenshots me org section ke paas hi hai)
-      {
-        key: "attendance.create",
-        label: "Create Attendance",
-        path: "/attendance/create",
-        icon: "PlusOutlined",
-        requiresAny: ["ATTENDANCE.CREATE"],
-      },
+      // {
+      //   key: "attendance.create",
+      //   label: "Create Attendance",
+      //   path: "/attendance/create",
+      //   icon: "PlusOutlined",
+      //   requiresAny: ["attendance.create"],
+      // },
       {
         key: "attendance.view",
-        label: "View Attendance",
+        label: " Attendance",
         path: "/attendance",
         icon: "EyeOutlined",
-        requiresAny: ["ATTENDANCE.VIEW"],
+        requiresAny: ["attendance.view"],
       },
 
       // Tags

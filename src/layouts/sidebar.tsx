@@ -242,10 +242,10 @@ function AttendanceWatch({ dark }: AttendanceWatchProps) {
       >
         <div
           style={{
-            fontWeight: 500,
-            fontSize: 22,
+            fontWeight: 400,
+            fontSize: 16,
             color: dark ? "#f5f5f5" : "#111827",
-            marginBottom: 12,
+            marginBottom: 16,
           }}
         >
           Let&apos;s Get the Ball Rolling
@@ -306,7 +306,7 @@ function AttendanceWatch({ dark }: AttendanceWatchProps) {
             alignItems: "center",
             color: dark ? "rgba(255,255,255,0.75)" : "#666",
             fontSize: 14,
-            marginBottom: 10,
+            marginBottom: 18,
 
           }}
         >
