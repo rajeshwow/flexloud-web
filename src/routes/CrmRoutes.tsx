@@ -6,6 +6,7 @@ import ContactForm from "../pages/Contacts/createContact";
 import StunningDashboard from "../pages/Home/dashboard";
 import CreateLeadForm from "../pages/leads/CreateLeads";
 import LeadsPage from "../pages/leads/LeadsPage";
+import LeaveListPage from "../pages/Leaves/LeaveListPage";
 import LoginPage from "../pages/LoginPage";
 import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
 import OpportunitiesPage from "../pages/Opportunities/OpportunitiesPage";
@@ -168,6 +169,15 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="attendance.view">
                 <AttendanceView />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="leaves"
+            element={
+              <ProtectedRoute required="leaves.view">
+                <LeaveListPage />
               </ProtectedRoute>
             }
           />

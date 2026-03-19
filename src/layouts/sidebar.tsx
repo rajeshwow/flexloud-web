@@ -166,22 +166,22 @@ function AttendanceWatch({ dark }: AttendanceWatchProps) {
       ? todayAttendance.today_sessions[0]
       : null);
 
-  const clockInTimeText = todayAttendance?.today_sessions?.length
-    ? new Date(todayAttendance.today_sessions[todayAttendance?.today_sessions?.length - 1].clock_in_at).toLocaleTimeString("en-US", {
+  const clockInTimeText: any = todayAttendance?.today_sessions?.length
+    ? new Date(todayAttendance.today_sessions[todayAttendance?.today_sessions?.length - 1].clock_in_at as any).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
       hour12: true,
-    })
+    } as any)
     : "--:--:--";
 
   const clockOutTimeText = latestSession?.clock_out_at
-    ? new Date(latestSession.clock_out_at).toLocaleTimeString("en-US", {
+    ? new Date(latestSession.clock_out_at as any).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
       hour12: true,
-    })
+    } as any)
     : "--:--:--";
 
   const rightSideTimeText = todayAttendance?.is_clocked_in

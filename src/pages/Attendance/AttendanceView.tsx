@@ -25,6 +25,7 @@ import isToday from "dayjs/plugin/isToday";
 import weekday from "dayjs/plugin/weekday";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import {
     getAttendanceCalendar,
     getAttendanceMetrics,
@@ -109,12 +110,14 @@ function getStatusView(day?: AttendanceCalendarDay, cellDate?: Dayjs, token?: an
 export default function AttendanceViewPage() {
     const dispatch = useDispatch<AppDispatch>();
     const { token } = theme.useToken();
-
+    const { slug } = useParams();
     const [currentMonth, setCurrentMonth] = useState(dayjs());
 
     const { calendarData, calendarLoading, metrics, metricsLoading } = useSelector(
         (state: RootState) => state.attendance
     );
+
+    const navigate = useNavigate();
 
     const month = currentMonth.month() + 1;
     const year = currentMonth.year();
@@ -141,14 +144,14 @@ export default function AttendanceViewPage() {
 
     const requestMenuItems: MenuProps["items"] = [
         { key: "leave", label: "Leave" },
-        { key: "attendance_adjustment", label: "Attendance Adjustment" },
-        { key: "out_duty", label: "Out Duty" },
-        { key: "shift_change", label: "Shift Change and Attendance" },
-        { key: "clockin", label: "Clockin" },
+        // { key: "attendance_adjustment", label: "Attendance Adjustment" },
+        // { key: "out_duty", label: "Out Duty" },
+        // { key: "shift_change", label: "Shift Change and Attendance" },
+        // { key: "clockin", label: "Clockin" },
     ];
 
     const handleRequestClick: MenuProps["onClick"] = ({ key }) => {
-        message.info(`${String(key).replaceAll("_", " ")} modal next step me banayenge`);
+        navigate(`/${slug}/leaves`); //redirect to leave list page
     };
 
     return (
@@ -318,13 +321,13 @@ export default function AttendanceViewPage() {
 
                                     {!isFutureDate && attendance?.request_label ? (
                                         <Tag color="green" style={{ marginBottom: 8 }}>
-                                            {attendance.request_label}
+                                            {attendance.request_label ? String(attendance.request_label) : ""}
                                         </Tag>
                                     ) : null}
 
                                     {!isFutureDate && attendance?.shift_label ? (
                                         <Text type="secondary" style={{ fontSize: 12 }}>
-                                            {attendance.shift_label}
+                                            {attendance.shift_label ? String(attendance.shift_label) : ""}
                                         </Text>
                                     ) : null}
                                 </div>

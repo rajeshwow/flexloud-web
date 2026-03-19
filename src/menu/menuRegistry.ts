@@ -91,6 +91,14 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         requiresAny: ["attendance.view"],
       },
 
+      {
+        key: "leaves.view",
+        label: "Leaves",
+        path: "/leaves",
+        icon: "CalendarOutlined",
+        requiresAny: ["leaves.view"],
+      },
+
       // Tags
       {
         key: "tag.create",
