@@ -278,6 +278,7 @@ export default function CreateLeadForm() {
                         { email: "", primary: true, opt_out: false, invalid: false },
                     ],
                 });
+
             } else {
                 message.error("Failed to create lead", 2);
             }

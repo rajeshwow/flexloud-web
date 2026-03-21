@@ -101,7 +101,7 @@ export default function LeadsPage() {
                 key: "lead_number",
                 width: 170,
                 render: (value: string, record) => (
-                    <Link onClick={() => navigate(`/leads/${record.id}`)}>
+                    <Link onClick={() => navigate(`/${slug}/leads/${record.id}`)}>
                         {value || "-"}
                     </Link>
                 ),
@@ -202,7 +202,7 @@ export default function LeadsPage() {
                                 <Button
                                     type="text"
                                     icon={<EditOutlined />}
-                                    onClick={() => navigate(`/leads/${record.id}/edit`)}
+                                    onClick={() => navigate(`/${slug}/leads/${record.id}/edit`)}
                                 />
                             </Tooltip>
 
@@ -242,21 +242,10 @@ export default function LeadsPage() {
                 },
             },
         ],
-        [navigate]
+        [navigate, slug]
     );
 
-    const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
-    const end = Math.min(page * pageSize, total || 0);
 
-    const chartData: ChartItem[] =
-        insights?.status_breakdown || [
-            { key: "new", label: "New", percent: 64.1, total: 1768 },
-            { key: "converted", label: "Converted", percent: 6.1, total: 169 },
-            { key: "recycled", label: "Recycled", percent: 0.7, total: 18 },
-            { key: "dead", label: "Dead", percent: 5.5, total: 151 },
-            { key: "in_process", label: "In Process", percent: 23.4, total: 644 },
-            { key: "assigned", label: "Assigned", percent: 0.3, total: 7 },
-        ];
 
     return (
         <div className="fl-page-wrap">

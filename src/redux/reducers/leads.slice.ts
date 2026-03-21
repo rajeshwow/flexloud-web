@@ -11,27 +11,60 @@ export type LeadStatus =
   | "Assigned"
   | string;
 
+export type LeadEmailItem = {
+  email: string;
+  primary?: boolean;
+  opt_out?: boolean;
+  invalid?: boolean;
+};
+
 export type LeadItem = {
   id: string;
   lead_number?: string;
+
+  name?: string;
   first_name?: string;
   last_name?: string;
+
   mobile?: string;
   office_phone?: string;
+  email?: string;
+
   organization_name?: string;
+  contact_name?: string;
+
   status?: string;
   priority?: string;
   lead_source?: string;
+  source?: string;
+
   next_followup?: string;
-  created_at?: string;
+  next_followup_date?: string;
+
   assigned_to?: string;
   assigned_to_name?: string;
-  emails?: {
-    email: string;
-    primary?: boolean;
-    opt_out?: boolean;
-    invalid?: boolean;
-  }[];
+  assigned_to_user_id?: string;
+
+  company?: string;
+  designation?: string;
+
+  address_line_1?: string;
+  address_line_2?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  zip_code?: string;
+
+  description?: string;
+  remarks?: string;
+  notes?: string;
+
+  created_at?: string;
+  updated_at?: string;
+  created_by_name?: string;
+  updated_by_name?: string;
+
+  emails?: LeadEmailItem[];
 };
 
 export type LeadsInsightItem = {
@@ -67,17 +100,41 @@ export type CreateLeadPayload = {
 export type UpdateLeadPayload = {
   id: string;
   lead_number?: string;
+
   name?: string;
+  first_name?: string;
+  last_name?: string;
+
   status?: string | null;
+  priority?: string | null;
+
   organization_name?: string | null;
   office_phone?: string | null;
   email?: string | null;
+
   user_id?: string | null;
+  assigned_to_user_id?: string | null;
+
   next_followup?: string | null;
+  next_followup_date?: string | null;
+
   mobile?: string | null;
   company?: string | null;
+  designation?: string | null;
+
   source?: string | null;
+  lead_source?: string | null;
+
   description?: string | null;
+  remarks?: string | null;
+  notes?: string | null;
+
+  address_line_1?: string | null;
+  address_line_2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  zip_code?: string | null;
 };
 
 type FetchLeadsResponse = {
@@ -408,5 +465,9 @@ const leadsSlice = createSlice({
 
 export const { resetLeadsState, resetLeadsListState, resetLeadDetailsState } =
   leadsSlice.actions;
+
+// aliases for details page readability
+export const fetchLeadDetails = fetchLeadById;
+export const clearLeadDetails = resetLeadDetailsState;
 
 export default leadsSlice.reducer;

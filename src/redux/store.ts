@@ -1,4 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
+import activityReducer from "./reducers/activity.slice";
 import attendanceReducer from "./reducers/attendance.slice";
 import authReducer from "./reducers/auth.slice";
 import contactsReducer from "./reducers/contacts.slice";
@@ -28,6 +29,7 @@ export const store = configureStore({
     leaves: leavesReducer,
     imports: importsReducer,
     visits: visitsReducer,
+    activity: activityReducer,
   },
 });
 
