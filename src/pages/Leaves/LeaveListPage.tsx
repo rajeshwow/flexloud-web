@@ -217,7 +217,7 @@ export default function LeaveListPage() {
                             <Title level={4} style={{ margin: 0 }}>
                                 Leave Management
                             </Title>
-                            <Text type="secondary">Apply and track your leave requests</Text>
+                            {/* <Text type="secondary">Apply and track your leave requests</Text> */}
                         </Space>
                     </Col>
 

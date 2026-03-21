@@ -108,6 +108,7 @@ type AttendanceState = {
 
   clockInLoading: boolean;
   clockOutLoading: boolean;
+  refreshKey: number;
 
   historyList: AttendanceSession[];
   historyLoading: boolean;
@@ -135,6 +136,7 @@ const initialState: AttendanceState = {
 
   clockInLoading: false,
   clockOutLoading: false,
+  refreshKey: 0,
 
   historyList: [],
   historyLoading: false,
@@ -325,6 +327,7 @@ const attendanceSlice = createSlice({
       })
       .addCase(clockInAttendance.fulfilled, (state) => {
         state.clockInLoading = false;
+        state.refreshKey = Date.now();
       })
       .addCase(clockInAttendance.rejected, (state, action) => {
         state.clockInLoading = false;
@@ -338,6 +341,7 @@ const attendanceSlice = createSlice({
       })
       .addCase(clockOutAttendance.fulfilled, (state) => {
         state.clockOutLoading = false;
+        state.refreshKey = Date.now();
       })
       .addCase(clockOutAttendance.rejected, (state, action) => {
         state.clockOutLoading = false;

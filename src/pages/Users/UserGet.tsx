@@ -1,5 +1,5 @@
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Select, Space, Table, Tag } from "antd";
+import { Button, Input, Select, Space, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,6 +11,7 @@ import type { AppDispatch, RootState } from "../../redux/store";
 import UserCreateModal from "./UserCreate";
 
 const { Option } = Select;
+const { Title } = Typography;
 
 export default function UserGet() {
     const dispatch = useDispatch<AppDispatch>();
@@ -131,6 +132,9 @@ export default function UserGet() {
                 }}
                 wrap
             >
+                <Title level={4} style={{ margin: 0 }}>
+                    Users
+                </Title>
                 <Space wrap>
                     <Input
                         allowClear
@@ -172,11 +176,12 @@ export default function UserGet() {
                         <Option value="true">Active</Option>
                         <Option value="false">Inactive</Option>
                     </Select>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpenCreate(true)}>
+                        Create User
+                    </Button>
                 </Space>
 
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpenCreate(true)}>
-                    Create User
-                </Button>
+
             </Space>
 
             <Table

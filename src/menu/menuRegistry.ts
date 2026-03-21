@@ -562,6 +562,29 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         requiresAny: ["USERS.IMPORT"],
       },
 
+      // Imports
+      {
+        key: "imports.create",
+        label: "Create Import",
+        path: "/imports/create",
+        icon: "PlusOutlined",
+        requiresAny: ["imports.create"],
+      },
+      {
+        key: "imports.view",
+        label: "View Imports",
+        path: "/imports",
+        icon: "EyeOutlined",
+        requiresAny: ["imports.view"],
+      },
+      {
+        key: "imports.import",
+        label: "Import",
+        path: "/imports/import",
+        icon: "ImportOutlined",
+        requiresAny: ["imports.import"],
+      },
+
       // Roles
       {
         key: "roles.create",

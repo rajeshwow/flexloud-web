@@ -113,7 +113,7 @@ export default function AttendanceViewPage() {
     const { slug } = useParams();
     const [currentMonth, setCurrentMonth] = useState(dayjs());
 
-    const { calendarData, calendarLoading, metrics, metricsLoading } = useSelector(
+    const { calendarData, calendarLoading, metrics, metricsLoading, refreshKey } = useSelector(
         (state: RootState) => state.attendance
     );
 
@@ -130,7 +130,7 @@ export default function AttendanceViewPage() {
         dispatch(getAttendanceMetrics({ month, year }))
             .unwrap()
             .catch((err) => message.error(err || "Failed to load attendance metrics"));
-    }, [dispatch, month, year]);
+    }, [dispatch, month, year, refreshKey]);
 
     const attendanceMap = useMemo(() => {
         const map = new Map<string, AttendanceCalendarDay>();

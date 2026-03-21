@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import attendanceReducer from "./reducers/attendance.slice";
 import authReducer from "./reducers/auth.slice";
 import contactsReducer from "./reducers/contacts.slice";
+import importsReducer from "./reducers/imports.slice";
 import leadsReducer from "./reducers/leads.slice";
 import leavesReducer from "./reducers/leave.slice";
 import opportunitiesReducer from "./reducers/opportunities.slice";
@@ -24,6 +25,7 @@ export const store = configureStore({
     tasks: tasksReducer,
     attendance: attendanceReducer,
     leaves: leavesReducer,
+    imports: importsReducer,
   },
 });
 

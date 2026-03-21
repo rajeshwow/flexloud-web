@@ -133,9 +133,12 @@ export default function ProductListPage() {
                     flexWrap: "wrap",
                 }}
             >
-
+                <Title level={4} style={{ margin: 0 }}>
+                    Products
+                </Title>
 
                 <Space wrap>
+
                     <Input
                         allowClear
                         placeholder="Search by name, HSN, category, manufacturer..."

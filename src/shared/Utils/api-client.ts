@@ -9,6 +9,7 @@ type RequestConfig = {
   baseUrl?: string;
   shouldHideError?: boolean;
   isFormData?: boolean; // if true, body is FormData
+  responseType?: "json" | "blob" | "arraybuffer" | "text";
 };
 
 function buildQuery(params?: Record<string, any>) {
@@ -74,8 +75,29 @@ async function request(
   }
 
   let data: any = null;
+
   try {
-    data = await res.json();
+    switch (config.responseType) {
+      case "blob":
+        data = await res.blob();
+        break;
+      case "arraybuffer":
+        data = await res.arrayBuffer();
+        break;
+      case "text":
+        data = await res.text();
+        break;
+      case "json":
+      default: {
+        const contentType = res.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          data = await res.json();
+        } else {
+          data = await res.text();
+        }
+        break;
+      }
+    }
   } catch {
     data = null;
   }
