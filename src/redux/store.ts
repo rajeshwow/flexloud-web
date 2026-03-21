@@ -11,6 +11,7 @@ import productsReducer from "./reducers/products.slice";
 import tasksReducer from "./reducers/tasks.slice";
 import tenantReducer from "./reducers/tenant.slice";
 import usersReducer from "./reducers/user.slice";
+import visitsReducer from "./reducers/visits.slice";
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     attendance: attendanceReducer,
     leaves: leavesReducer,
     imports: importsReducer,
+    visits: visitsReducer,
   },
 });
 

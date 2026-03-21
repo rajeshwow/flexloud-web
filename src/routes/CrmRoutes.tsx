@@ -19,6 +19,8 @@ import CreateTask from "../pages/Tasks/CreateTask";
 import EditTask from "../pages/Tasks/EditTask";
 import TasksPage from "../pages/Tasks/TasksPage";
 import UserGet from "../pages/Users/UserGet";
+import VisitFormPage from "../pages/Visits/VisitFormPage";
+import VisitListPage from "../pages/Visits/VisitListPage";
 import ProtectedRoute from "./ProtectedRoutes";
 
 export default function CrmRoutes() {
@@ -188,6 +190,33 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="imports.view">
                 <ImportDataPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="visits"
+            element={
+              <ProtectedRoute required="visits.view">
+                <VisitListPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="visits/create"
+            element={
+              <ProtectedRoute required="visits.create">
+                <VisitFormPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="visits/edit/:id"
+            element={
+              <ProtectedRoute required="visits.edit">
+                <VisitFormPage />
               </ProtectedRoute>
             }
           />

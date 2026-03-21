@@ -412,20 +412,20 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         requiresAny: ["CASES.IMPORT"],
       },
 
-      // Visit
-      {
-        key: "visit.create",
-        label: "Create Visit",
-        path: "/visit/create",
-        icon: "PlusOutlined",
-        requiresAny: ["VISIT.CREATE"],
-      },
+      // // Visit
+      // {
+      //   key: "visit.create",
+      //   label: "Create Visit",
+      //   path: "/visits/create",
+      //   icon: "PlusOutlined",
+      //   requiresAny: ["visits.create"],
+      // },
       {
         key: "visit.view",
-        label: "View Visit",
-        path: "/visit",
+        label: "Visits",
+        path: "/visits",
         icon: "EyeOutlined",
-        requiresAny: ["VISIT.VIEW"],
+        requiresAny: ["visits.view"],
       },
       {
         key: "visit.import",
