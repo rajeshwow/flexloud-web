@@ -97,8 +97,8 @@ export default function LeadsPage() {
         () => [
             {
                 title: "Lead Number",
-                dataIndex: "lead_number",
-                key: "lead_number",
+                dataIndex: "lead_display_id",
+                key: "lead_display_id",
                 width: 170,
                 render: (value: string, record) => (
                     <Link onClick={() => navigate(`/${slug}/leads/${record.id}`)}>

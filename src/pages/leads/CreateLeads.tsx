@@ -347,11 +347,11 @@ export default function CreateLeadForm() {
                         <div style={sectionTitleStyle}>Basic Details</div>
 
                         <Row gutter={[16, 4]}>
-                            <Col xs={24} md={12} xl={8}>
+                            {/* <Col xs={24} md={12} xl={8}>
                                 <Form.Item label="Lead Number" name="lead_number">
                                     <Input placeholder="Enter lead number" />
                                 </Form.Item>
-                            </Col>
+                            </Col> */}
 
                             <Col xs={24} md={12} xl={8}>
                                 <Form.Item

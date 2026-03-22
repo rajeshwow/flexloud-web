@@ -1,8 +1,8 @@
 import { DatePicker, Input, Select } from "antd";
+import { formatDateTime } from "../../../shared/Utils/utils";
 import DetailsField from "../../Details-page/DetailsField";
 import DetailsGrid from "../../Details-page/DetailsGrid";
 import DetailsSectionCard from "../../Details-page/DetailsSectionCard";
-
 
 type Props = {
     details?: any;
@@ -27,9 +27,19 @@ export default function LeadDetailsContent({
                 <DetailsGrid>
                     <DetailsGrid.Item>
                         <DetailsField
-                            label="Lead Name"
-                            name="name"
-                            value={details?.first_name + " " + details?.last_name}
+                            label="First Name"
+                            name="first_name"
+                            value={details?.first_name}
+                            isEditing={isEditing}
+                            input={<Input />}
+                        />
+                    </DetailsGrid.Item>
+
+                    <DetailsGrid.Item>
+                        <DetailsField
+                            label="Last Name"
+                            name="last_name"
+                            value={details?.last_name}
                             isEditing={isEditing}
                             input={<Input />}
                         />
@@ -58,8 +68,8 @@ export default function LeadDetailsContent({
                     <DetailsGrid.Item>
                         <DetailsField
                             label="Source"
-                            name="source"
-                            value={details?.source}
+                            name="lead_source"
+                            value={details?.lead_source}
                             isEditing={isEditing}
                             input={<Select options={sourceOptions} placeholder="Select source" />}
                         />
@@ -69,7 +79,7 @@ export default function LeadDetailsContent({
                         <DetailsField
                             label="Email"
                             name="email"
-                            value={details?.email}
+                            value={details?.emails?.[0]?.email || ""}
                             isEditing={isEditing}
                             input={<Input />}
                         />
@@ -89,9 +99,13 @@ export default function LeadDetailsContent({
                         <DetailsField
                             label="Assigned To"
                             name="assigned_to"
-                            value={details?.assigned_to_name || details?.assigned_to}
+                            value={
+                                details?.assigned_to_name ||
+                                assignedUserOptions?.find((item) => item.value === details?.assigned_to)?.label ||
+                                "-"
+                            }
                             isEditing={isEditing}
-                            input={<Select options={assignedUserOptions} placeholder="Select user" />}
+                            input={<Select options={assignedUserOptions} placeholder="Select user" allowClear />}
                         />
                     </DetailsGrid.Item>
 
@@ -99,7 +113,7 @@ export default function LeadDetailsContent({
                         <DetailsField
                             label="Next Followup"
                             name="next_followup_date"
-                            value={details?.next_followup}
+                            value={formatDateTime(details?.next_followup)}
                             isEditing={isEditing}
                             input={
                                 <DatePicker
@@ -112,6 +126,7 @@ export default function LeadDetailsContent({
                     </DetailsGrid.Item>
                 </DetailsGrid>
             </DetailsSectionCard>
+            <div style={{ height: 16 }} />
 
             <DetailsSectionCard title="Additional Information">
                 <DetailsGrid>

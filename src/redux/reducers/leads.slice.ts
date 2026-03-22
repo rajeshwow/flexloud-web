@@ -21,14 +21,13 @@ export type LeadEmailItem = {
 export type LeadItem = {
   id: string;
   lead_number?: string;
+  lead_display_id?: string;
 
-  name?: string;
   first_name?: string;
   last_name?: string;
 
   mobile?: string;
   office_phone?: string;
-  email?: string;
 
   organization_name?: string;
   contact_name?: string;
@@ -36,16 +35,13 @@ export type LeadItem = {
   status?: string;
   priority?: string;
   lead_source?: string;
-  source?: string;
 
   next_followup?: string;
   next_followup_date?: string;
 
   assigned_to?: string;
   assigned_to_name?: string;
-  assigned_to_user_id?: string;
 
-  company?: string;
   designation?: string;
 
   address_line_1?: string;
@@ -89,7 +85,6 @@ export type CreateLeadPayload = {
   organization_name?: string | null;
   office_phone?: string | null;
   email?: string | null;
-  user_id?: string | null;
   next_followup?: string | null;
   mobile?: string | null;
   company?: string | null;
@@ -97,44 +92,46 @@ export type CreateLeadPayload = {
   description?: string | null;
 };
 
-export type UpdateLeadPayload = {
+type UpdateLeadPayload = {
   id: string;
   lead_number?: string;
-
-  name?: string;
-  first_name?: string;
-  last_name?: string;
-
-  status?: string | null;
-  priority?: string | null;
-
-  organization_name?: string | null;
-  office_phone?: string | null;
-  email?: string | null;
-
-  user_id?: string | null;
-  assigned_to_user_id?: string | null;
-
-  next_followup?: string | null;
-  next_followup_date?: string | null;
-
-  mobile?: string | null;
-  company?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   designation?: string | null;
-
-  source?: string | null;
+  industry?: string | null;
+  mobile?: string | null;
+  office_phone?: string | null;
+  organization_name?: string | null;
+  emails?: LeadEmailItem[] | null;
+  dealer_organization?: string | null;
+  status?: string | null;
+  product_category?: string | null;
+  priority?: string | null;
+  requirements?: string | null;
+  next_followup?: string | null;
+  followup?: string | null;
+  followup_type?: string | null;
   lead_source?: string | null;
-
+  add_description?: string | null;
   description?: string | null;
-  remarks?: string | null;
-  notes?: string | null;
-
-  address_line_1?: string | null;
-  address_line_2?: string | null;
-  city?: string | null;
-  state?: string | null;
-  country?: string | null;
-  zip_code?: string | null;
+  referred_by?: string | null;
+  assigned_to?: string | null;
+  opportunity_name?: string | null;
+  opportunity_amount?: number | null;
+  expected_close_date?: string | null;
+  sales_stage?: string | null;
+  primary_address_street?: string | null;
+  primary_address_area?: string | null;
+  primary_address_postal_code?: string | null;
+  primary_address_city?: string | null;
+  primary_address_state?: string | null;
+  primary_address_country?: string | null;
+  alternate_address_street?: string | null;
+  alternate_address_area?: string | null;
+  alternate_address_postal_code?: string | null;
+  alternate_address_city?: string | null;
+  alternate_address_state?: string | null;
+  alternate_address_country?: string | null;
 };
 
 type FetchLeadsResponse = {

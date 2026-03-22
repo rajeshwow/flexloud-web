@@ -1,5 +1,4 @@
 import { Col, Form, Row, Space, Spin, message } from "antd";
-import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -12,7 +11,9 @@ import {
     fetchLeadDetails,
     updateLead,
 } from "../../redux/reducers/leads.slice";
+import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { formatDateTime } from "../../shared/Utils/utils";
 import DetailsPageHeader from "../Details-page/DetailsPageHeader";
 import DetailsSummaryCard from "../Details-page/DetailsSummaryCard";
 import LeadDetailsContent from "./components/LeadDetailsContent";
@@ -43,11 +44,7 @@ const priorityOptions = [
     { label: "High", value: "high" },
 ];
 
-function formatDateTime(value?: string | null) {
-    if (!value) return "-";
-    const parsed = dayjs(value);
-    return parsed.isValid() ? parsed.format("DD MMM YYYY, hh:mm A") : "-";
-}
+
 
 function getLeadDisplayName(details: any) {
     return (
@@ -67,6 +64,8 @@ export default function LeadDetailsPage() {
     const [timelineData, setTimelineData] = useState<any[]>([]);
     const [timelineLoading, setTimelineLoading] = useState(false);
 
+    const users = useSelector((state: RootState) => state.users?.userList || []);
+
     const { leadDetails, detailsLoading, updateLoading } = useSelector(
         (state: RootState) => state.leads,
     );
@@ -74,8 +73,19 @@ export default function LeadDetailsPage() {
     const details = leadDetails;
 
     const assignedUserOptions = useMemo(() => {
-        return [];
-    }, []);
+        return (users || []).map((user: any) => ({
+            label:
+                user?.name ||
+                `${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
+                user?.email ||
+                user?.id,
+            value: user?.id,
+        }));
+    }, [users]);
+
+    useEffect(() => {
+        dispatch(getUsers());
+    }, [dispatch]);
 
     useEffect(() => {
         if (!id) return;
@@ -109,11 +119,15 @@ export default function LeadDetailsPage() {
 
         form.setFieldsValue({
             ...details,
-            next_followup_date: details?.next_followup
-                ? dayjs(details.next_followup)
-                : details?.next_followup_date
-                    ? dayjs(details.next_followup_date)
-                    : null,
+            first_name: details?.first_name || "",
+            last_name: details?.last_name || "",
+            lead_source: details?.lead_source || "",
+            email: details?.emails?.[0]?.email || "",
+            // next_followup_date: details?.next_followup
+            //     ? dayjs(details.next_followup)
+            //     : details?.next_followup_date
+            //         ? dayjs(details.next_followup_date)
+            //         : null,
         });
     }, [details, form]);
 
@@ -130,11 +144,11 @@ export default function LeadDetailsPage() {
 
         form.setFieldsValue({
             ...details,
-            next_followup_date: details?.next_followup
-                ? dayjs(details.next_followup)
-                : details?.next_followup_date
-                    ? dayjs(details.next_followup_date)
-                    : null,
+            // next_followup_date: details?.next_followup
+            //     ? dayjs(details.next_followup)
+            //     : details?.next_followup_date
+            //         ? dayjs(details.next_followup_date)
+            //         : null,
         });
     };
 
@@ -143,13 +157,26 @@ export default function LeadDetailsPage() {
 
         const payload: any = {
             id: String(id),
-            ...values,
+            first_name: values.first_name || undefined,
+            last_name: values.last_name || undefined,
+            status: values.status || undefined,
+            priority: values.priority || undefined,
+            lead_source: values.lead_source || undefined,
+            mobile: values.mobile || undefined,
+            assigned_to: values.assigned_to || undefined,
+            description: values.description || undefined,
             next_followup: values?.next_followup_date
                 ? values.next_followup_date.toISOString()
                 : undefined,
+            emails: values.email
+                ? [
+                    {
+                        email: values.email,
+                        primary: true,
+                    },
+                ]
+                : [],
         };
-
-        delete payload.next_followup_date;
 
         try {
             await dispatch(updateLead(payload)).unwrap();
@@ -168,7 +195,7 @@ export default function LeadDetailsPage() {
                 <Col xs={24}>
                     <DetailsPageHeader
                         title={getLeadDisplayName(details)}
-                        subtitle={details?.lead_number || details?.email || ""}
+                        subtitle={details?.lead_display_id || details?.lead_number || ""}
                         status={details?.status}
                         isEditing={isEditing}
                         saveLoading={updateLoading}
@@ -207,7 +234,7 @@ export default function LeadDetailsPage() {
                                 },
                                 {
                                     label: "Source",
-                                    value: details?.source || "-",
+                                    value: details?.lead_source || "-",
                                 },
                                 {
                                     label: "Priority",
@@ -219,12 +246,15 @@ export default function LeadDetailsPage() {
                                 },
                                 {
                                     label: "Lead ID",
-                                    value: details?.id || "-",
+                                    value: details?.lead_display_id || "-",
                                     span: 24,
                                 },
                                 {
                                     label: "Assigned To",
-                                    value: details?.assigned_to_name || details?.assigned_to || "-",
+                                    value:
+                                        details?.assigned_to_name ||
+                                        assignedUserOptions?.find((item) => item.value === details?.assigned_to)?.label ||
+                                        "-",
                                     span: 24,
                                 },
                                 {
