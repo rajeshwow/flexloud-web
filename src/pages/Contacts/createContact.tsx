@@ -18,12 +18,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import AddressSection from "../../layouts/addressSection";
 import { createContact } from "../../redux/reducers/contacts.slice";
+import { fetchMasterValues } from "../../redux/reducers/masters.slice";
 import {
     getOrganization,
     type OrganizationItem,
 } from "../../redux/reducers/organization.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
-import type { AppDispatch } from "../../redux/store";
+import type { AppDispatch, RootState } from "../../redux/store";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
@@ -85,12 +86,31 @@ export default function ContactForm({
     const [saveLoading, setSaveLoading] = useState(false);
     const [organization, setOrganization] = useState<OrganizationItem[]>([]);
     const navigate = useNavigate();
-
-    const users = useSelector((state: any) => state.users?.userList);
-    console.log("users", users);
-
     const dispatch = useDispatch<AppDispatch>();
     const [copyAddress, setCopyAddress] = useState(false);
+
+    const users = useSelector((state: any) => state.users?.userList);
+
+    const { masterValues, masterValuesLoading } = useSelector(
+        (state: RootState) => state.masters
+    );
+
+    const countryList = useMemo(() => masterValues?.country || [], [masterValues]);
+    const stateList = useMemo(() => masterValues?.state || [], [masterValues]);
+    const cityList = useMemo(() => masterValues?.city || [], [masterValues]);
+
+    useEffect(() => {
+        dispatch(fetchMasterValues({ type_code: "country", page: 1, limit: 500 }));
+        dispatch(fetchMasterValues({ type_code: "state", page: 1, limit: 1000 }));
+        dispatch(fetchMasterValues({ type_code: "city", page: 1, limit: 2000 }));
+
+
+    }, [dispatch]);
+
+
+    console.log("users", users);
+
+
 
     useEffect(() => {
         fetchOrganizations();
@@ -480,6 +500,12 @@ export default function ContactForm({
                 <AddressSection
                     copyAddress={copyAddress}
                     onCopyAddressChange={handleCopyAddressChange}
+                    countryOptions={countryList}
+                    stateOptions={stateList}
+                    cityOptions={cityList}
+                    countriesLoading={masterValuesLoading}
+                    statesLoading={masterValuesLoading}
+                    citiesLoading={masterValuesLoading}
                 />
             </Form>
         </div>

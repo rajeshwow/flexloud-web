@@ -17,12 +17,14 @@ import {
     theme,
 } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useMasters } from "../../hooks/useMasters";
 import AddressSection from "../../layouts/addressSection";
 import { createLead } from "../../redux/reducers/leads.slice";
+import { fetchMasterValues } from "../../redux/reducers/masters.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
-import type { AppDispatch } from "../../redux/store";
+import type { AppDispatch, RootState } from "../../redux/store";
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -48,14 +50,14 @@ type CreateLeadFormValues = {
         invalid?: boolean;
     }[];
     dealer_organization?: string;
-    priority?: string;
-    status?: string;
+    priority_id?: string;
+    status_id?: string;
     product_category?: string;
     requirements?: string;
     next_followup?: dayjs.Dayjs;
     followup?: string;
     followup_type?: string;
-    lead_source?: string;
+    source_id?: string;
     add_description?: string;
     description?: string;
     assigned_to?: string;
@@ -96,18 +98,7 @@ const dealerOrganizationOptions: SelectOption[] = [
     { label: "Dealer Two", value: "dealer-2" },
 ];
 
-const priorityOptions: SelectOption[] = [
-    { label: "High", value: "high" },
-    { label: "Medium", value: "medium" },
-    { label: "Low", value: "low" },
-];
 
-const statusOptions: SelectOption[] = [
-    { label: "New", value: "new" },
-    { label: "Contacted", value: "contacted" },
-    { label: "Qualified", value: "qualified" },
-    { label: "Closed", value: "closed" },
-];
 
 const productCategoryOptions: SelectOption[] = [
     { label: "Category 1", value: "category-1" },
@@ -125,23 +116,8 @@ const followupTypeOptions: SelectOption[] = [
     { label: "Urgent", value: "urgent" },
 ];
 
-const leadSourceOptions: SelectOption[] = [
-    { label: "Website", value: "website" },
-    { label: "Referral", value: "referral" },
-    { label: "Campaign", value: "campaign" },
-    { label: "Direct Call", value: "direct_call" },
-];
 
-const assignedToOptions = [
-    {
-        label: "Artilain",
-        value: "9c9d4e7f-124b-4096-b567-5d5bca57e077",
-    },
-    {
-        label: "Raju",
-        value: "6e7e2c9c-3e47-4b91-8e6f-b3e6fbbab1b2",
-    },
-];
+
 
 const salesStageOptions: SelectOption[] = [
     { label: "Qualification", value: "qualification" },
@@ -159,11 +135,31 @@ export default function CreateLeadForm() {
 
     const [copyAddress, setCopyAddress] = useState(false);
 
+    const statusOptions = useMasters("lead_status");
+    const priorityOptions = useMasters("priority");
+    const sourceOptions = useMasters("source");
+
+    const { masterValues, masterValuesLoading } = useSelector(
+        (state: RootState) => state.masters
+    );
+
+    const countryList = useMemo(() => masterValues?.country || [], [masterValues]);
+    const stateList = useMemo(() => masterValues?.state || [], [masterValues]);
+    const cityList = useMemo(() => masterValues?.city || [], [masterValues]);
+
 
     const users = useSelector((state: any) => state.users?.userList);
 
     useEffect(() => {
         dispatch(getUsers());
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(fetchMasterValues({ type_code: "country", page: 1, limit: 500 }));
+        dispatch(fetchMasterValues({ type_code: "state", page: 1, limit: 1000 }));
+        dispatch(fetchMasterValues({ type_code: "city", page: 1, limit: 2000 }));
+
+
     }, [dispatch]);
 
 
@@ -218,8 +214,8 @@ export default function CreateLeadForm() {
                 emails: cleanedEmails,
 
                 dealer_organization: values.dealer_organization || undefined,
-                priority: values.priority || undefined,
-                status: values.status || undefined,
+                priority_id: values.priority_id || undefined,
+                status_id: values.status_id || undefined,
                 product_category: values.product_category || undefined,
                 requirements: values.requirements?.trim() || undefined,
 
@@ -228,7 +224,7 @@ export default function CreateLeadForm() {
                     : undefined,
                 followup: values.followup || undefined,
                 followup_type: values.followup_type || undefined,
-                lead_source: values.lead_source || undefined,
+                source_id: values.source_id || undefined,
 
                 add_description: values.add_description?.trim() || undefined,
                 description: values.description?.trim() || undefined,
@@ -272,7 +268,6 @@ export default function CreateLeadForm() {
                 form.resetFields();
                 setCopyAddress(false);
                 form.setFieldsValue({
-                    status: "new",
                     sales_stage: "qualification",
                     emails: [
                         { email: "", primary: true, opt_out: false, invalid: false },
@@ -295,12 +290,7 @@ export default function CreateLeadForm() {
 
 
 
-    const sectionCardStyle: React.CSSProperties = {
-        borderRadius: 16,
-        border: `1px solid ${token.colorBorderSecondary}`,
-        // background: token.colorBgContainer,
-        boxShadow: token.boxShadowTertiary,
-    };
+
 
     const sectionTitleStyle: React.CSSProperties = {
         marginBottom: 16,
@@ -332,7 +322,6 @@ export default function CreateLeadForm() {
                     layout="vertical"
                     onFinish={handleFinish}
                     initialValues={{
-                        status: "new",
                         sales_stage: "qualification",
                         emails: [{ email: "", primary: true, opt_out: false, invalid: false }],
                     }}
@@ -532,12 +521,15 @@ export default function CreateLeadForm() {
                             <Col xs={24} md={12} xl={8}>
                                 <Form.Item
                                     label="Priority"
-                                    name="priority"
+                                    name="priority_id"
                                     rules={[{ required: true, message: "Priority is required" }]}
                                 >
                                     <Select
                                         placeholder="Select priority"
-                                        options={priorityOptions}
+                                        options={priorityOptions.map((item: any) => ({
+                                            label: item.label,
+                                            value: item.id,
+                                        }))}
                                         allowClear
                                     />
                                 </Form.Item>
@@ -547,7 +539,10 @@ export default function CreateLeadForm() {
                                 <Form.Item label="Status" name="status">
                                     <Select
                                         placeholder="Select status"
-                                        options={statusOptions}
+                                        options={statusOptions.map((item: any) => ({
+                                            label: item.label,
+                                            value: item.id,
+                                        }))}
                                         allowClear
                                     />
                                 </Form.Item>
@@ -611,10 +606,13 @@ export default function CreateLeadForm() {
                             </Col>
 
                             <Col xs={24} md={12} xl={8}>
-                                <Form.Item label="Lead Source" name="lead_source">
+                                <Form.Item label="Lead Source" name="source_id">
                                     <Select
                                         placeholder="Select lead source"
-                                        options={leadSourceOptions}
+                                        options={sourceOptions.map((item: any) => ({
+                                            label: item.label,
+                                            value: item.id,
+                                        }))}
                                         allowClear
                                     />
                                 </Form.Item>
@@ -702,9 +700,20 @@ export default function CreateLeadForm() {
                         {/* <Card style={sectionCardStyle}> */}
                         <div style={sectionTitleStyle}>Address Information</div>
 
-                        <AddressSection
+                        {/* <AddressSection
                             copyAddress={copyAddress}
                             onCopyAddressChange={handleCopyAddressChange}
+                        /> */}
+                        <AddressSection
+
+                            copyAddress={copyAddress}
+                            onCopyAddressChange={handleCopyAddressChange}
+                            countryOptions={countryList}
+                            stateOptions={stateList}
+                            cityOptions={cityList}
+                            countriesLoading={masterValuesLoading}
+                            statesLoading={masterValuesLoading}
+                            citiesLoading={masterValuesLoading}
                         />
                         {/* </Card> */}
 

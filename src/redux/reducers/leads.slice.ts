@@ -32,9 +32,12 @@ export type LeadItem = {
   organization_name?: string;
   contact_name?: string;
 
-  status?: string;
-  priority?: string;
-  lead_source?: string;
+  status_id?: string;
+  status_label?: string;
+  priority_id?: string;
+  priority_label?: string;
+  source_id?: string;
+  source_label?: string;
 
   next_followup?: string;
   next_followup_date?: string;

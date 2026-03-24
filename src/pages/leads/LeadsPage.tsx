@@ -135,8 +135,8 @@ export default function LeadsPage() {
             },
             {
                 title: "Priority",
-                dataIndex: "priority",
-                key: "priority",
+                dataIndex: "priority_label",
+                key: "priority_label",
                 width: 130,
                 render: (value?: string) => value || "-",
             },
@@ -167,8 +167,8 @@ export default function LeadsPage() {
             },
             {
                 title: "Lead Source",
-                dataIndex: "lead_source",
-                key: "lead_source",
+                dataIndex: "source_label",
+                key: "source_label",
                 width: 160,
                 render: (value?: string) => value || "-",
             },

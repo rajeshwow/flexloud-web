@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 
+import { useMasters } from "../../hooks/useMasters";
 import ActivityTimeline from "../../layouts/ActivityTimeline";
 import { fetchActivityTimeline } from "../../redux/reducers/activity.slice";
 import {
@@ -23,26 +24,7 @@ type RouteParams = {
     id: string;
 };
 
-const statusOptions = [
-    { label: "Open", value: "open" },
-    { label: "In Progress", value: "in_progress" },
-    { label: "Qualified", value: "qualified" },
-    { label: "Won", value: "won" },
-    { label: "Lost", value: "lost" },
-];
 
-const sourceOptions = [
-    { label: "Website", value: "website" },
-    { label: "Referral", value: "referral" },
-    { label: "Manual", value: "manual" },
-    { label: "Campaign", value: "campaign" },
-];
-
-const priorityOptions = [
-    { label: "Low", value: "low" },
-    { label: "Medium", value: "medium" },
-    { label: "High", value: "high" },
-];
 
 
 
@@ -59,6 +41,11 @@ export default function LeadDetailsPage() {
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     const { slug, id } = useParams<RouteParams>();
+
+    const leadStatus = useMasters("lead_status" as any);
+    const priority = useMasters("priority" as any);
+    const source = useMasters("source" as any);
+
 
     const [isEditing, setIsEditing] = useState(false);
     const [timelineData, setTimelineData] = useState<any[]>([]);
@@ -82,6 +69,27 @@ export default function LeadDetailsPage() {
             value: user?.id,
         }));
     }, [users]);
+
+    const statusOptions = useMemo(() => {
+        return (leadStatus || []).map((status: any) => ({
+            label: status?.label,
+            value: status?.id,
+        }));
+    }, [leadStatus]);
+
+    const priorityOptions = useMemo(() => {
+        return (priority || []).map((priority: any) => ({
+            label: priority?.label,
+            value: priority?.id,
+        }));
+    }, [priority]);
+
+    const sourceOptions = useMemo(() => {
+        return (source || []).map((source: any) => ({
+            label: source?.label,
+            value: source?.id,
+        }));
+    }, [source]);
 
     useEffect(() => {
         dispatch(getUsers());
@@ -121,13 +129,10 @@ export default function LeadDetailsPage() {
             ...details,
             first_name: details?.first_name || "",
             last_name: details?.last_name || "",
-            lead_source: details?.lead_source || "",
+            status_id: details?.status_id || undefined,
+            priority_id: details?.priority_id || undefined,
+            source_id: details?.source_id || undefined,
             email: details?.emails?.[0]?.email || "",
-            // next_followup_date: details?.next_followup
-            //     ? dayjs(details.next_followup)
-            //     : details?.next_followup_date
-            //         ? dayjs(details.next_followup_date)
-            //         : null,
         });
     }, [details, form]);
 
@@ -159,9 +164,9 @@ export default function LeadDetailsPage() {
             id: String(id),
             first_name: values.first_name || undefined,
             last_name: values.last_name || undefined,
-            status: values.status || undefined,
-            priority: values.priority || undefined,
-            lead_source: values.lead_source || undefined,
+            status_id: values.status_id || undefined,
+            priority_id: values.priority_id || undefined,
+            source_id: values.source_id || undefined,
             mobile: values.mobile || undefined,
             assigned_to: values.assigned_to || undefined,
             description: values.description || undefined,
@@ -196,7 +201,7 @@ export default function LeadDetailsPage() {
                     <DetailsPageHeader
                         title={getLeadDisplayName(details)}
                         subtitle={details?.lead_display_id || details?.lead_number || ""}
-                        status={details?.status}
+                        status={details?.status_id}
                         isEditing={isEditing}
                         saveLoading={updateLoading}
                         onBack={() => navigate(`/${slug}/leads/view`)}
@@ -228,17 +233,16 @@ export default function LeadDetailsPage() {
                             items={[
                                 {
                                     label: "Status",
-                                    value: details?.status
-                                        ? String(details.status).replaceAll("_", " ")
-                                        : "-",
+                                    value: details?.status_label || "-",
+
                                 },
                                 {
                                     label: "Source",
-                                    value: details?.lead_source || "-",
+                                    value: details?.source_label || "-",
                                 },
                                 {
                                     label: "Priority",
-                                    value: details?.priority || "-",
+                                    value: details?.priority_label || "-",
                                 },
                                 {
                                     label: "Created",

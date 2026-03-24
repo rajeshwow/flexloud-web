@@ -6,6 +6,7 @@ import contactsReducer from "./reducers/contacts.slice";
 import importsReducer from "./reducers/imports.slice";
 import leadsReducer from "./reducers/leads.slice";
 import leavesReducer from "./reducers/leave.slice";
+import mastersReducer from "./reducers/masters.slice";
 import opportunitiesReducer from "./reducers/opportunities.slice";
 import organizationReducer from "./reducers/organization.slice";
 import productsReducer from "./reducers/products.slice";
@@ -30,6 +31,7 @@ export const store = configureStore({
     imports: importsReducer,
     visits: visitsReducer,
     activity: activityReducer,
+    masters: mastersReducer,
   },
 });
 

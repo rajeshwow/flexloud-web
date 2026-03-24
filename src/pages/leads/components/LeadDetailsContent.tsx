@@ -48,8 +48,8 @@ export default function LeadDetailsContent({
                     <DetailsGrid.Item>
                         <DetailsField
                             label="Status"
-                            name="status"
-                            value={details?.status}
+                            name="status_id"
+                            value={details?.status_label}
                             isEditing={isEditing}
                             input={<Select options={statusOptions} placeholder="Select status" />}
                         />
@@ -58,8 +58,8 @@ export default function LeadDetailsContent({
                     <DetailsGrid.Item>
                         <DetailsField
                             label="Priority"
-                            name="priority"
-                            value={details?.priority}
+                            name="priority_id"
+                            value={details?.priority_label}
                             isEditing={isEditing}
                             input={<Select options={priorityOptions} placeholder="Select priority" />}
                         />
@@ -68,8 +68,8 @@ export default function LeadDetailsContent({
                     <DetailsGrid.Item>
                         <DetailsField
                             label="Source"
-                            name="lead_source"
-                            value={details?.lead_source}
+                            name="source_id"
+                            value={details?.source_label}
                             isEditing={isEditing}
                             input={<Select options={sourceOptions} placeholder="Select source" />}
                         />
