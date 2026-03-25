@@ -1,8 +1,10 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import AppShell from "../layouts/sidebar";
 import AttendanceView from "../pages/Attendance/AttendanceView";
-import ContactsPage from "../pages/Contacts/contacts.page";
-import ContactForm from "../pages/Contacts/createContact";
+import ContactDetailsPage from "../pages/Contacts/ContactDetailsPage";
+import ContactEditPage from "../pages/Contacts/ContactEditPage";
+import ContactForm from "../pages/Contacts/ContactForm";
+import ContactsList from "../pages/Contacts/ContactsList";
 import StunningDashboard from "../pages/Home/dashboard";
 import ImportDataPage from "../pages/Imports/importPage";
 import CreateLeadForm from "../pages/leads/CreateLeads";
@@ -12,8 +14,9 @@ import LeaveListPage from "../pages/Leaves/LeaveListPage";
 import LoginPage from "../pages/LoginPage";
 import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
 import OpportunitiesPage from "../pages/Opportunities/OpportunitiesPage";
-import OrganizationCreate from "../pages/Organization/createOrg";
+import { default as CreateOrganizationPage } from "../pages/Organization/createOrg";
 import OrganizationGet from "../pages/Organization/getOrg";
+import OrgDetailsPage from "../pages/Organization/OrgDetailsPage";
 import CreateProductPage from "../pages/Products/CreateProductPage";
 import ProductListPage from "../pages/Products/ProductListPage";
 import CreateTask from "../pages/Tasks/CreateTask";
@@ -51,29 +54,43 @@ export default function CrmRoutes() {
 
 
 
-          <Route
-            path="contacts"
-            element={
-              <ProtectedRoute required="CONTACTS.VIEW">
-                <ContactsPage />
-              </ProtectedRoute>
-            }
-          />
 
-          <Route
-            path="organization/create"
-            element={
-              <ProtectedRoute required="org.create">
-                <OrganizationCreate />
-              </ProtectedRoute>
-            }
-          />
+
+
 
           <Route
             path="organization/view"
             element={
               <ProtectedRoute required="ORG.VIEW">
                 <OrganizationGet />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="organization/view/:id"
+            element={
+              <ProtectedRoute required="ORG.VIEW">
+                <OrgDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="organization/create"
+            element={
+              <ProtectedRoute required="org.create">
+                <CreateOrganizationPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ----------------------------------------------------------------------------------------- */}
+
+          {/* /:slug/contacts */}
+          <Route
+            path="contacts"
+            element={
+              <ProtectedRoute required="contacts.view">
+                <ContactsList />
               </ProtectedRoute>
             }
           />
@@ -86,6 +103,26 @@ export default function CrmRoutes() {
               </ProtectedRoute>
             }
           />
+          {/* /:slug/contacts/:id */}
+          <Route
+            path="contacts/:id"
+            element={
+              <ProtectedRoute required="contacts.view">
+                <ContactDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* /:slug/contacts/:id/edit */}
+          <Route
+            path="contacts/:id/edit"
+            element={
+              <ProtectedRoute required="contacts.edit">
+                <ContactEditPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* --------------------------------------------------------------------------------------------------- */}
 
           <Route
             path="opportunities"
@@ -104,6 +141,8 @@ export default function CrmRoutes() {
               </ProtectedRoute>
             }
           />
+
+          {/* --------------------------------------------------------------------------------------------------- */}
 
           <Route
             path="leads/create"
@@ -141,6 +180,8 @@ export default function CrmRoutes() {
             }
           />
 
+          {/* --------------------------------------------------------------------------------------------------- */}
+
           <Route
             path="products"
             element={
@@ -158,6 +199,8 @@ export default function CrmRoutes() {
               </ProtectedRoute>
             }
           />
+
+          {/* --------------------------------------------------------------------------------------------------- */}
 
           <Route
             path="tasks"
@@ -186,6 +229,8 @@ export default function CrmRoutes() {
             }
           />
 
+          {/* --------------------------------------------------------------------------------------------------- */}
+
           <Route
             path="attendance"
             element={
@@ -212,6 +257,8 @@ export default function CrmRoutes() {
               </ProtectedRoute>
             }
           />
+
+          {/* --------------------------------------------------------------------------------------------------- */}
 
           <Route
             path="visits"

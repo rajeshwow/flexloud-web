@@ -30,6 +30,7 @@ export type ContactItem = {
   created_at: string;
   updated_at: string;
   statusCode?: number;
+  primary_contact?: string | null;
 };
 
 export type GetContactsParams = {

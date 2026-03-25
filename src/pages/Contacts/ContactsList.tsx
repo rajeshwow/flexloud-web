@@ -1,12 +1,20 @@
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Space, Table, Typography } from "antd";
+import {
+    EditOutlined,
+    EyeOutlined,
+    PlusOutlined,
+    SearchOutlined,
+    UserOutlined,
+} from "@ant-design/icons";
+import { Button, Input, Space, Table, Tag, Tooltip, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchContacts, type ContactItem } from "../../redux/reducers/contacts.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
-const { Title } = Typography;
+
+const { Title, Text, Link } = Typography;
 
 export default function ContactsList() {
     const dispatch = useDispatch<AppDispatch>();
@@ -15,7 +23,6 @@ export default function ContactsList() {
     );
     const { slug = "" } = useParams();
     const navigate = useNavigate();
-
 
     const [searchText, setSearchText] = useState("");
     const [page, setPage] = useState(1);
@@ -33,44 +40,96 @@ export default function ContactsList() {
         {
             title: "Name",
             key: "name",
-            render: (_, record) =>
-                `${record.first_name || ""} ${record.last_name || ""}`.trim() || "-",
+            width: 220,
+            render: (_, record) => {
+                const fullName =
+                    `${record.first_name || ""} ${record.last_name || ""}`.trim() || "-";
+
+                return (
+                    <Space direction="vertical" size={0}>
+                        <Link onClick={() => navigate(`/${slug}/contacts/${record.id}`)}>
+                            <Space size={8}>
+                                <UserOutlined />
+                                <Text strong>{fullName}</Text>
+                            </Space>
+                        </Link>
+
+                        {record.primary_contact ? (
+                            <Tag color={record.primary_contact === "yes" ? "green" : "default"}>
+                                {record.primary_contact === "yes" ? "Primary" : "Secondary"}
+                            </Tag>
+                        ) : null}
+                    </Space>
+                );
+            },
         },
         {
             title: "Mobile",
             dataIndex: "mobile",
             key: "mobile",
+            width: 150,
             render: (value: string | null) => value || "-",
         },
         {
             title: "Email",
             dataIndex: "email",
             key: "email",
+            width: 220,
             render: (value: string | null) => value || "-",
         },
         {
             title: "City",
             dataIndex: "city",
             key: "city",
-            render: (value: string | null) => value || "-",
+            width: 140,
+            render: (value: string | null) =>
+                value ? <Tag>{value}</Tag> : "-",
         },
         {
             title: "Organization",
             dataIndex: "organization_name",
             key: "organization_name",
-            render: (value: string | null | undefined) => value || "-",
+            width: 200,
+            render: (value: string | null | undefined) =>
+                value ? <Tag color="blue">{value}</Tag> : "-",
         },
         {
             title: "Assigned To",
             dataIndex: "assigned_to_name",
             key: "assigned_to_name",
-            render: (value: string | null | undefined) => value || "-",
+            width: 180,
+            render: (value: string | null | undefined) =>
+                value ? <Tag color="purple">{value}</Tag> : "-",
         },
         {
             title: "Date Created",
             dataIndex: "created_at",
             key: "created_at",
-            render: (value: string) => new Date(value).toLocaleString(),
+            width: 180,
+            render: (value: string) => (value ? dayjs(value).format("DD MMM YYYY, hh:mm A") : "-"),
+        },
+        {
+            title: "Actions",
+            key: "actions",
+            fixed: "right",
+            width: 140,
+            render: (_, record) => (
+                <Space>
+                    <Tooltip title="View Details">
+                        <Button
+                            icon={<EyeOutlined />}
+                            onClick={() => navigate(`/${slug}/contacts/${record.id}`)}
+                        />
+                    </Tooltip>
+
+                    <Tooltip title="Edit Contact">
+                        <Button
+                            icon={<EditOutlined />}
+                            onClick={() => navigate(`/${slug}/contacts/${record.id}/edit`)}
+                        />
+                    </Tooltip>
+                </Space>
+            ),
         },
     ];
 
@@ -103,8 +162,6 @@ export default function ContactsList() {
                         style={{ width: 320 }}
                     />
 
-
-
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
@@ -114,7 +171,6 @@ export default function ContactsList() {
                     </Button>
                 </Space>
             </div>
-
 
             <Table
                 rowKey="id"
@@ -134,7 +190,7 @@ export default function ContactsList() {
                         setPageSize(newPageSize);
                     },
                 }}
-                scroll={{ x: 1200 }}
+                scroll={{ x: 1400 }}
             />
         </div>
     );

@@ -16,16 +16,16 @@ export type OrganizationBranchPayload = {
   billing_street?: string | null;
   billing_area?: string | null;
   billing_postal_code?: string | null;
-  billing_city?: string | null;
-  billing_state?: string | null;
-  billing_country?: string | null;
+  billing_city_id?: string | null;
+  billing_state_id?: string | null;
+  billing_country_id?: string | null;
 
   shipping_street?: string | null;
   shipping_area?: string | null;
   shipping_postal_code?: string | null;
-  shipping_city?: string | null;
-  shipping_state?: string | null;
-  shipping_country?: string | null;
+  shipping_city_id?: string | null;
+  shipping_state_id?: string | null;
+  shipping_country_id?: string | null;
 
   is_shipping_same_as_billing?: boolean;
   status?: "active" | "inactive";
@@ -45,9 +45,9 @@ export type CreateOrganizationPayload = {
     street?: string | null;
     area?: string | null;
     postal_code?: string | null;
-    city?: string | null;
-    state?: string | null;
-    country?: string | null;
+    city_id?: string | null;
+    state_id?: string | null;
+    country_id?: string | null;
   } | null;
 
   branches: OrganizationBranchPayload[];
@@ -116,7 +116,7 @@ export const createOrganization = createAsyncThunk<
 >("organization/createOrganization", async (payload, thunkAPI) => {
   try {
     const response = await Client.post(withTenant("/organizations"), payload);
-    return response.data?.data;
+    return response.data;
   } catch (error: any) {
     return thunkAPI.rejectWithValue(
       error?.data?.message || error?.message || "Failed to create organization",

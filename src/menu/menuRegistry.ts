@@ -166,21 +166,21 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         label: "Contacts",
         path: "/contacts",
         icon: "EyeOutlined",
-        requiresAny: ["CONTACTS.VIEW"],
+        requiresAny: ["contacts.view"],
       },
       {
         key: "contacts.import",
         label: "Import Contacts",
         path: "/contacts/import",
         icon: "ImportOutlined",
-        requiresAny: ["CONTACTS.IMPORT"],
+        requiresAny: ["contacts.import"],
       },
       {
         key: "contacts.recent",
         label: "Recently Viewed",
         path: "/contacts/recent",
         icon: "HistoryOutlined",
-        requiresAny: ["CONTACTS.RECENT"],
+        requiresAny: ["contacts.recent"],
       },
 
       // Leads
