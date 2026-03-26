@@ -19,6 +19,9 @@ import OrganizationGet from "../pages/Organization/getOrg";
 import OrgDetailsPage from "../pages/Organization/OrgDetailsPage";
 import CreateProductPage from "../pages/Products/CreateProductPage";
 import ProductListPage from "../pages/Products/ProductListPage";
+import QuoteDetailsPage from "../pages/Quotes/components/QuoteDetailsView";
+import CreateQuotePage from "../pages/Quotes/CreateQuotePage";
+import QuotesListPage from "../pages/Quotes/QuotesListPage";
 import CreateTask from "../pages/Tasks/CreateTask";
 import EditTask from "../pages/Tasks/EditTask";
 import TasksPage from "../pages/Tasks/TasksPage";
@@ -283,6 +286,44 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="visits.edit">
                 <VisitFormPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* ------------------------------------------------------------------------ */}
+
+          {/* //quotes  */}
+          <Route
+            path="quotes"
+            element={
+              <ProtectedRoute required="quotes.view">
+                <QuotesListPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="quotes/create"
+            element={
+              <ProtectedRoute required="quotes.create">
+                <CreateQuotePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="quotes/edit/:id"
+            element={
+              <ProtectedRoute required="quotes.edit">
+                <QuoteDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="quotes/:id"
+            element={
+              <ProtectedRoute required="quotes.view">
+                <QuoteDetailsPage />
               </ProtectedRoute>
             }
           />

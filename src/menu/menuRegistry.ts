@@ -246,10 +246,10 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
       // Quotes
       {
         key: "quotes.view",
-        label: "View Quotes",
+        label: " Quotes",
         path: "/quotes",
         icon: "EyeOutlined",
-        requiresAny: ["QUOTES.VIEW"],
+        requiresAny: ["quotes.view"],
       },
       {
         key: "quotes.import",

@@ -10,6 +10,7 @@ import mastersReducer from "./reducers/masters.slice";
 import opportunitiesReducer from "./reducers/opportunities.slice";
 import organizationReducer from "./reducers/organization.slice";
 import productsReducer from "./reducers/products.slice";
+import quotesReducer from "./reducers/quotes.slice";
 import tasksReducer from "./reducers/tasks.slice";
 import tenantReducer from "./reducers/tenant.slice";
 import usersReducer from "./reducers/user.slice";
@@ -32,6 +33,7 @@ export const store = configureStore({
     visits: visitsReducer,
     activity: activityReducer,
     masters: mastersReducer,
+    quotes: quotesReducer,
   },
 });
 
