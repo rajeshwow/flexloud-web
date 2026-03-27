@@ -99,6 +99,14 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         requiresAny: ["leaves.view"],
       },
 
+      {
+        key: "interactions",
+        label: "Events",
+        path: "/events",
+        requiresAny: ["interactions.view"],
+        icon: "EyeOutlined",
+      },
+
       // Tags
       {
         key: "tag.create",
@@ -298,13 +306,13 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "PlusOutlined",
         requiresAny: ["CALLS.LOG"],
       },
-      {
-        key: "calls.view",
-        label: "View Calls",
-        path: "/calls",
-        icon: "EyeOutlined",
-        requiresAny: ["CALLS.VIEW"],
-      },
+      // {
+      //   key: "calls.view",
+      //   label: "View Calls",
+      //   path: "/calls",
+      //   icon: "EyeOutlined",
+      //   requiresAny: ["CALLS.VIEW"],
+      // },
       {
         key: "calls.import",
         label: "Import Calls",

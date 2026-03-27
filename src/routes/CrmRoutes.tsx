@@ -7,6 +7,10 @@ import ContactForm from "../pages/Contacts/ContactForm";
 import ContactsList from "../pages/Contacts/ContactsList";
 import StunningDashboard from "../pages/Home/dashboard";
 import ImportDataPage from "../pages/Imports/importPage";
+import CreateInteractionPage from "../pages/interactions/CreateInteractionPage";
+import EditInteractionPage from "../pages/interactions/EditInteractionPage";
+import InteractionDetailsPage from "../pages/interactions/InteractionDetailsPage";
+import InteractionsListPage from "../pages/interactions/InteractionsListPage";
 import CreateLeadForm from "../pages/leads/CreateLeads";
 import LeadDetailsPage from "../pages/leads/LeadDetailsPage";
 import LeadsPage from "../pages/leads/LeadsPage";
@@ -324,6 +328,45 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="quotes.view">
                 <QuoteDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ------------------------------------------------------------------------ */}
+
+          {/* //interactions  */}
+          <Route
+            path="events"
+            element={
+              <ProtectedRoute required="interactions.view">
+                <InteractionsListPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="events/create"
+            element={
+              <ProtectedRoute required="interactions.create">
+                <CreateInteractionPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="events/:id/edit"
+            element={
+              <ProtectedRoute required="interactions.edit">
+                <EditInteractionPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="events/:id"
+            element={
+              <ProtectedRoute required="interactions.view">
+                <InteractionDetailsPage />
               </ProtectedRoute>
             }
           />

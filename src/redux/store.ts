@@ -4,6 +4,7 @@ import attendanceReducer from "./reducers/attendance.slice";
 import authReducer from "./reducers/auth.slice";
 import contactsReducer from "./reducers/contacts.slice";
 import importsReducer from "./reducers/imports.slice";
+import interactionsReducer from "./reducers/interactions.slice";
 import leadsReducer from "./reducers/leads.slice";
 import leavesReducer from "./reducers/leave.slice";
 import mastersReducer from "./reducers/masters.slice";
@@ -34,6 +35,7 @@ export const store = configureStore({
     activity: activityReducer,
     masters: mastersReducer,
     quotes: quotesReducer,
+    interactions: interactionsReducer,
   },
 });
 
