@@ -19,6 +19,7 @@ import {
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useMasters } from "../../hooks/useMasters";
 import AddressSection from "../../layouts/addressSection";
 import { createLead } from "../../redux/reducers/leads.slice";
@@ -86,12 +87,7 @@ type CreateLeadFormValues = {
 
 
 
-const industryOptions: SelectOption[] = [
-    { label: "Healthcare", value: "healthcare" },
-    { label: "Manufacturing", value: "manufacturing" },
-    { label: "Retail", value: "retail" },
-    { label: "IT", value: "it" },
-];
+
 
 const dealerOrganizationOptions: SelectOption[] = [
     { label: "Dealer One", value: "dealer-1" },
@@ -119,25 +115,19 @@ const followupTypeOptions: SelectOption[] = [
 
 
 
-const salesStageOptions: SelectOption[] = [
-    { label: "Qualification", value: "qualification" },
-    { label: "Proposal", value: "proposal" },
-    { label: "Negotiation", value: "negotiation" },
-    { label: "Won", value: "won" },
-    { label: "Lost", value: "lost" },
-];
-
 export default function CreateLeadForm() {
     const [form] = Form.useForm<CreateLeadFormValues>();
     const { token } = theme.useToken();
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
 
     const [copyAddress, setCopyAddress] = useState(false);
 
     const statusOptions = useMasters("lead_status");
     const priorityOptions = useMasters("priority");
     const sourceOptions = useMasters("source");
+    const industryOptions = useMasters("industry");
 
     console.log("priorityOptions", priorityOptions, statusOptions, sourceOptions);
 
@@ -275,6 +265,7 @@ export default function CreateLeadForm() {
                         { email: "", primary: true, opt_out: false, invalid: false },
                     ],
                 });
+                navigate(`/leads/${response?.data?.id}`);
 
             } else {
                 message.error("Failed to create lead", 2);
@@ -579,6 +570,7 @@ export default function CreateLeadForm() {
                                     rules={[{ required: true, message: "Next followup is required" }]}
                                 >
                                     <DatePicker
+                                        disabledDate={(current) => current && current.isBefore(dayjs().startOf('day'))}
                                         showTime
                                         format="DD/MM/YYYY hh:mm a"
                                         style={{ width: "100%" }}
@@ -685,7 +677,7 @@ export default function CreateLeadForm() {
                                 </Form.Item>
                             </Col>
 
-                            <Col xs={24} md={12} xl={8}>
+                            {/* <Col xs={24} md={12} xl={8}>
                                 <Form.Item label="Sales Stage" name="sales_stage">
                                     <Select
                                         placeholder="Select sales stage"
@@ -693,7 +685,7 @@ export default function CreateLeadForm() {
                                         allowClear
                                     />
                                 </Form.Item>
-                            </Col>
+                            </Col> */}
                         </Row>
                         <Divider />
                         {/* </Card> */}
