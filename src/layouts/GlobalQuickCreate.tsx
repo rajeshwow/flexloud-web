@@ -1,18 +1,23 @@
 import {
     ContactsOutlined,
     DollarOutlined,
-    FundProjectionScreenOutlined,
     PlusOutlined,
     ScheduleOutlined,
+    UserAddOutlined,
 } from "@ant-design/icons";
-import { Button, FloatButton, Popover, Space, Tooltip, theme } from "antd";
+import { Button, FloatButton, Popover, Space, Typography, theme } from "antd";
+import { motion } from "framer-motion";
+import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
+const { Text } = Typography;
 
 type QuickCreateItem = {
     key: string;
     label: string;
-    icon: React.ReactNode;
+    description: string;
+    icon: ReactNode;
     path: string;
 };
 
@@ -26,25 +31,29 @@ export default function GlobalQuickCreate() {
         () => [
             {
                 key: "contact",
-                label: "Create Contact",
+                label: "Contact",
+                description: "Add a new contact",
                 icon: <ContactsOutlined />,
                 path: `/${slug}/contacts/create`,
             },
             {
                 key: "lead",
-                label: "Create Lead",
-                icon: <FundProjectionScreenOutlined />,
+                label: "Lead",
+                description: "Create a sales lead",
+                icon: <UserAddOutlined />,
                 path: `/${slug}/leads/create`,
             },
             {
                 key: "opportunity",
-                label: "Create Opportunity",
+                label: "Opportunity",
+                description: "Track a new deal",
                 icon: <DollarOutlined />,
                 path: `/${slug}/opportunities/create`,
             },
             {
                 key: "task",
-                label: "Create Task",
+                label: "Task",
+                description: "Add a follow-up task",
                 icon: <ScheduleOutlined />,
                 path: `/${slug}/tasks/create`,
             },
@@ -52,60 +61,148 @@ export default function GlobalQuickCreate() {
         [slug],
     );
 
+    if (!slug) return null;
+
+    const handleNavigate = (path: string) => {
+        setOpen(false);
+        navigate(path);
+    };
+
     const content = (
-        <div style={{ minWidth: 220 }}>
-            <Space direction="vertical" size={8} style={{ width: "100%" }}>
+        <div
+            style={{
+                width: 280,
+                padding: 4,
+            }}
+        >
+            <div
+                style={{
+                    padding: "6px 8px 10px",
+                }}
+            >
+                <Text
+                    style={{
+                        fontSize: 13,
+                        color: token.colorTextSecondary,
+                        fontWeight: 600,
+                        letterSpacing: 0.3,
+                    }}
+                >
+                    Quick Create
+                </Text>
+            </div>
+
+            <Space direction="vertical" size={10} style={{ width: "100%" }}>
                 {items.map((item) => (
-                    <Button
+                    <motion.div
                         key={item.key}
-                        type="text"
-                        block
-                        icon={item.icon}
-                        style={{
-                            display: "flex",
-                            justifyContent: "flex-start",
-                            alignItems: "center",
-                            height: 40,
-                            borderRadius: 10,
-                        }}
-                        onClick={() => {
-                            setOpen(false);
-                            navigate(item.path);
-                        }}
+                        whileHover={{ y: -1 }}
+                        whileTap={{ scale: 0.99 }}
+                        transition={{ duration: 0.15 }}
                     >
-                        {item.label}
-                    </Button>
+                        <Button
+                            type="text"
+                            block
+                            onClick={() => handleNavigate(item.path)}
+                            style={{
+                                height: "auto",
+                                padding: 0,
+                                borderRadius: 14,
+                                overflow: "hidden",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    padding: "12px 14px",
+                                    borderRadius: 14,
+                                    background: token.colorBgElevated,
+                                    border: `1px solid ${token.colorBorderSecondary}`,
+                                    transition: "all 0.2s ease",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        width: 40,
+                                        height: 40,
+                                        minWidth: 40,
+                                        borderRadius: 12,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        background: token.colorFillSecondary,
+                                        fontSize: 18,
+                                    }}
+                                >
+                                    {item.icon}
+                                </div>
+
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "flex-start",
+                                        textAlign: "left",
+                                        flex: 1,
+                                        minWidth: 0,
+                                    }}
+                                >
+                                    <Text
+                                        strong
+                                        style={{
+                                            fontSize: 14,
+                                            lineHeight: "20px",
+                                        }}
+                                    >
+                                        {item.label}
+                                    </Text>
+                                    <Text
+                                        style={{
+                                            fontSize: 12,
+                                            color: token.colorTextSecondary,
+                                            lineHeight: "18px",
+                                        }}
+                                    >
+                                        {item.description}
+                                    </Text>
+                                </div>
+                            </div>
+                        </Button>
+                    </motion.div>
                 ))}
             </Space>
         </div>
     );
 
-    if (!slug) return null;
-
     return (
         <Popover
             content={content}
-            trigger="hover"
+            trigger={["hover", "click"]}
             placement="topRight"
             open={open}
             onOpenChange={setOpen}
+            mouseEnterDelay={0.08}
             overlayInnerStyle={{
-                borderRadius: 14,
                 padding: 10,
+                borderRadius: 18,
             }}
         >
-            <Tooltip title="Quick Create">
-                <FloatButton
-                    icon={<PlusOutlined />}
-                    type="default"
-                    style={{
-                        insetInlineEnd: 28,
-                        bottom: 28,
-                        opacity: 0.78,
-                        boxShadow: token.boxShadowSecondary,
-                    }}
-                />
-            </Tooltip>
+            <FloatButton
+                icon={<PlusOutlined />}
+                type="default"
+                tooltip={<span>Quick Create</span>}
+                style={{
+                    insetInlineEnd: 24,
+                    bottom: 24,
+                    opacity: 0.75,
+                    backdropFilter: "blur(8px)",
+                    boxShadow: token.boxShadowSecondary,
+                    border: `1px solid ${token.colorBorderSecondary}`,
+                }}
+            />
         </Popover>
     );
 }
