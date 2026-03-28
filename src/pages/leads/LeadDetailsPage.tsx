@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMasters } from "../../hooks/useMasters";
 import ActivityTimeline from "../../layouts/ActivityTimeline";
 import { fetchActivityTimeline } from "../../redux/reducers/activity.slice";
+import { fetchLeadAIInsights, resetLeadAIInsightsState } from "../../redux/reducers/aiInsights.slice";
 import {
     clearLeadDetails,
     fetchLeadDetails,
@@ -15,6 +16,7 @@ import {
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { formatDateTime } from "../../shared/Utils/utils";
+import AIInsightsCard from "../ai-insights/components/AIInsightsCard";
 import DetailsPageHeader from "../Details-page/DetailsPageHeader";
 import DetailsSummaryCard from "../Details-page/DetailsSummaryCard";
 import LeadDetailsContent from "./components/LeadDetailsContent";
@@ -57,6 +59,10 @@ export default function LeadDetailsPage() {
         (state: RootState) => state.leads,
     );
 
+    const { leadInsights, leadInsightsLoading, leadInsightsError } = useSelector(
+        (state: RootState) => state.aiInsights
+    );
+
     const {
         insightsByKey,
         insightsLoading,
@@ -72,6 +78,16 @@ export default function LeadDetailsPage() {
     const aiKey = useMemo(() => `lead:${id}`, [id]);
     const aiInsight = insightsByKey[aiKey];
 
+    useEffect(() => {
+        if (id) {
+            dispatch(fetchLeadAIInsights(id));
+        }
+
+        return () => {
+            dispatch(resetLeadAIInsightsState());
+        };
+    }, [dispatch, id]);
+
     const assignedUserOptions = useMemo(() => {
         return (users || []).map((user: any) => ({
             label:
@@ -83,26 +99,9 @@ export default function LeadDetailsPage() {
         }));
     }, [users]);
 
-    const statusOptions = useMemo(() => {
-        return (leadStatus || []).map((status: any) => ({
-            label: status?.label,
-            value: status?.id,
-        }));
-    }, [leadStatus]);
-
-    const priorityOptions = useMemo(() => {
-        return (priority || []).map((priority: any) => ({
-            label: priority?.label,
-            value: priority?.id,
-        }));
-    }, [priority]);
-
-    const sourceOptions = useMemo(() => {
-        return (source || []).map((source: any) => ({
-            label: source?.label,
-            value: source?.id,
-        }));
-    }, [source]);
+    const statusOptions = useMemo(() => leadStatus || [], [leadStatus]);
+    const priorityOptions = useMemo(() => priority || [], [priority]);
+    const sourceOptions = useMemo(() => source || [], [source]);
 
     useEffect(() => {
         dispatch(getUsers());
@@ -138,13 +137,16 @@ export default function LeadDetailsPage() {
     useEffect(() => {
         if (!details) return;
 
+        form.resetFields(); // IMPORTANT
+
         form.setFieldsValue({
-            ...details,
             first_name: details?.first_name || "",
             last_name: details?.last_name || "",
-            status_id: details?.status_id || undefined,
-            priority_id: details?.priority_id || undefined,
-            source_id: details?.source_id || undefined,
+            status_id: details?.status_id ?? undefined,
+            priority_id: details?.priority_id ?? undefined,
+            source_id: details?.source_id ?? undefined,
+            mobile: details?.mobile || "",
+            assigned_to: details?.assigned_to || undefined,
             email: details?.emails?.[0]?.email || "",
         });
     }, [details, form]);
@@ -348,6 +350,14 @@ export default function LeadDetailsPage() {
                                 },
                             ]}
                         />
+
+                        <AIInsightsCard
+                            data={leadInsights}
+                            loading={leadInsightsLoading}
+                            error={leadInsightsError}
+                        />
+
+
 
                         {/* <AIInsightCard
                             loading={insightsLoading}

@@ -139,6 +139,8 @@ export default function CreateLeadForm() {
     const priorityOptions = useMasters("priority");
     const sourceOptions = useMasters("source");
 
+    console.log("priorityOptions", priorityOptions, statusOptions, sourceOptions);
+
     const { masterValues, masterValuesLoading } = useSelector(
         (state: RootState) => state.masters
     );
@@ -528,7 +530,7 @@ export default function CreateLeadForm() {
                                         placeholder="Select priority"
                                         options={priorityOptions.map((item: any) => ({
                                             label: item.label,
-                                            value: item.id,
+                                            value: item.value,
                                         }))}
                                         allowClear
                                     />
@@ -536,12 +538,12 @@ export default function CreateLeadForm() {
                             </Col>
 
                             <Col xs={24} md={12} xl={8}>
-                                <Form.Item label="Status" name="status">
+                                <Form.Item label="Status" name="status_id">
                                     <Select
                                         placeholder="Select status"
                                         options={statusOptions.map((item: any) => ({
                                             label: item.label,
-                                            value: item.id,
+                                            value: item.value,
                                         }))}
                                         allowClear
                                     />
@@ -611,7 +613,7 @@ export default function CreateLeadForm() {
                                         placeholder="Select lead source"
                                         options={sourceOptions.map((item: any) => ({
                                             label: item.label,
-                                            value: item.id,
+                                            value: item.value,
                                         }))}
                                         allowClear
                                     />

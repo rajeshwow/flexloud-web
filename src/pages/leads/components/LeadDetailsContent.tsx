@@ -21,6 +21,7 @@ export default function LeadDetailsContent({
     priorityOptions,
     assignedUserOptions,
 }: Props) {
+
     return (
         <>
             <DetailsSectionCard title="Basic Information">
@@ -117,6 +118,7 @@ export default function LeadDetailsContent({
                             isEditing={isEditing}
                             input={
                                 <DatePicker
+
                                     showTime
                                     style={{ width: "100%" }}
                                     format="DD MMM YYYY hh:mm A"
