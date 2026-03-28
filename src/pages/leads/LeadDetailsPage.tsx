@@ -57,7 +57,20 @@ export default function LeadDetailsPage() {
         (state: RootState) => state.leads,
     );
 
+    const {
+        insightsByKey,
+        insightsLoading,
+        followupDraft,
+        followupLoading,
+        activitySummary,
+    } = useSelector((state: RootState) => state.aiAssistant);
+
     const details = leadDetails;
+
+    const [followupOpen, setFollowupOpen] = useState(false);
+
+    const aiKey = useMemo(() => `lead:${id}`, [id]);
+    const aiInsight = insightsByKey[aiKey];
 
     const assignedUserOptions = useMemo(() => {
         return (users || []).map((user: any) => ({
@@ -156,6 +169,71 @@ export default function LeadDetailsPage() {
             //         : null,
         });
     };
+
+    // useEffect(() => {
+    //     if (!id) return;
+
+    //     dispatch(
+    //         fetchAIInsights({
+    //             entityType: "lead",
+    //             entityId: id,
+    //         }),
+    //     ).catch(() => null);
+    // }, [dispatch, id]);
+
+    // const handleRefreshAI = async () => {
+    //     if (!id) return;
+
+    //     try {
+    //         await dispatch(
+    //             fetchAIInsights({
+    //                 entityType: "lead",
+    //                 entityId: id,
+    //                 forceRefresh: true,
+    //             }),
+    //         ).unwrap();
+
+    //         message.success("AI insight refreshed");
+    //     } catch (error: any) {
+    //         message.error(error?.message || "Failed to refresh AI insight");
+    //     }
+    // };
+
+    // const handleGenerateFollowup = async () => {
+    //     if (!id) return;
+
+    //     try {
+    //         await dispatch(
+    //             generateAIFollowup({
+    //                 entityType: "lead",
+    //                 entityId: id,
+    //                 channel: "email",
+    //             }),
+    //         ).unwrap();
+
+    //         setFollowupOpen(true);
+    //         message.success("Follow-up generated");
+    //     } catch (error: any) {
+    //         message.error(error?.message || "Failed to generate follow-up");
+    //     }
+    // };
+
+    // const handleSummarizeActivities = async () => {
+    //     if (!id) return;
+
+    //     try {
+    //         const result = await dispatch(
+    //             summarizeAIActivities({
+    //                 entityType: "lead",
+    //                 entityId: id,
+    //             }),
+    //         ).unwrap();
+
+    //         message.info(result?.summary || "Activities summarized");
+    //     } catch (error: any) {
+    //         message.error(error?.message || "Failed to summarize activities");
+    //     }
+    // };
 
     const handleSave = async (values: any) => {
         if (!id) return;
@@ -270,6 +348,14 @@ export default function LeadDetailsPage() {
                                 },
                             ]}
                         />
+
+                        {/* <AIInsightCard
+                            loading={insightsLoading}
+                            data={aiInsight}
+                            onRefresh={handleRefreshAI}
+                            onGenerateFollowup={handleGenerateFollowup}
+                            onSummarizeActivities={handleSummarizeActivities}
+                        /> */}
 
                         <ActivityTimeline
                             data={timelineData}

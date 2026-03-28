@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import activityReducer from "./reducers/activity.slice";
+import aiAssistantReducer from "./reducers/aiAssistant.slice";
 import attendanceReducer from "./reducers/attendance.slice";
 import authReducer from "./reducers/auth.slice";
 import contactsReducer from "./reducers/contacts.slice";
@@ -36,6 +37,7 @@ export const store = configureStore({
     masters: mastersReducer,
     quotes: quotesReducer,
     interactions: interactionsReducer,
+    aiAssistant: aiAssistantReducer,
   },
 });
 
