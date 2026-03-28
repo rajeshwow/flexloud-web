@@ -46,6 +46,7 @@ import { buildMenuTree } from "../menu/buildMenu";
 import { MENU_REGISTRY } from "../menu/menuRegistry";
 import { clockInAttendance, clockOutAttendance, getTodayAttendance } from "../redux/reducers/attendance.slice";
 import type { AppDispatch, RootState } from "../redux/store";
+import GlobalQuickCreate from "./GlobalQuickCreate";
 
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
@@ -835,6 +836,7 @@ export default function AppShell({ children, user }: Props) {
         <Content className="fl-contentBg">
           <div className="fl-card">{children}</div>
         </Content>
+        <GlobalQuickCreate />
       </Layout>
     </Layout>
   );
