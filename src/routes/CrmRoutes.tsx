@@ -26,6 +26,9 @@ import ProductListPage from "../pages/Products/ProductListPage";
 import QuoteDetailsPage from "../pages/Quotes/components/QuoteDetailsView";
 import CreateQuotePage from "../pages/Quotes/CreateQuotePage";
 import QuotesListPage from "../pages/Quotes/QuotesListPage";
+import CreateRolePage from "../pages/rbac/CreateRolePage";
+import RoleDetailsPage from "../pages/rbac/RoleDetailsPage";
+import RolesListPage from "../pages/rbac/RolesListPage";
 import CreateTask from "../pages/Tasks/CreateTask";
 import EditTask from "../pages/Tasks/EditTask";
 import TasksPage from "../pages/Tasks/TasksPage";
@@ -370,6 +373,45 @@ export default function CrmRoutes() {
               </ProtectedRoute>
             }
           />
+
+          {/* ------------------------------------------------------------------------ */}
+
+          {/* //rbac  */}
+          <Route
+            path="rbac"
+            element={
+              <ProtectedRoute required="rbac.view">
+                <RolesListPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="rbac/create"
+            element={
+              <ProtectedRoute required="rbac.create">
+                <CreateRolePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="rbac/:id"
+            element={
+              <ProtectedRoute required="rbac.view">
+                <RoleDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* <Route
+            path="rbac/:id/edit"
+            element={
+              <ProtectedRoute required="rbac.edit">
+                <EditRolePage />
+              </ProtectedRoute>
+            }
+          /> */}
 
         </Route>
       </Route>
