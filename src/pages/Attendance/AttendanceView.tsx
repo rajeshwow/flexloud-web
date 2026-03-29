@@ -11,6 +11,7 @@ import {
     Badge,
     Button,
     Card,
+    DatePicker,
     Dropdown,
     Space,
     Spin,
@@ -28,15 +29,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     getAttendanceCalendar,
+    getAttendanceHistory,
     getAttendanceMetrics,
     type AttendanceCalendarDay,
 } from "../../redux/reducers/attendance.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import AttendanceMovementMap from "./components/AttendanceMovementMap";
 
 dayjs.extend(weekday);
 dayjs.extend(isToday);
 
 const { Title, Text } = Typography;
+const { RangePicker } = DatePicker;
 
 const WEEK_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -111,16 +115,36 @@ export default function AttendanceViewPage() {
     const dispatch = useDispatch<AppDispatch>();
     const { token } = theme.useToken();
     const { slug } = useParams();
+    const navigate = useNavigate();
+
     const [currentMonth, setCurrentMonth] = useState(dayjs());
 
-    const { calendarData, calendarLoading, metrics, metricsLoading, refreshKey } = useSelector(
-        (state: RootState) => state.attendance
-    );
+    const [trackRange, setTrackRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
 
-    const navigate = useNavigate();
+    const {
+        calendarData,
+        calendarLoading,
+        metrics,
+        metricsLoading,
+        refreshKey,
+        historyList,
+        historyLoading,
+    } = useSelector((state: RootState) => state.attendance);
 
     const month = currentMonth.month() + 1;
     const year = currentMonth.year();
+
+    const last7DaysFrom = useMemo(
+        () => dayjs().subtract(6, "day").startOf("day").format("YYYY-MM-DD"),
+        []
+    );
+    const last7DaysTo = useMemo(() => dayjs().endOf("day").format("YYYY-MM-DD"), []);
+
+    const historyFrom =
+        trackRange?.[0]?.startOf("day").format("YYYY-MM-DD") || last7DaysFrom;
+
+    const historyTo =
+        trackRange?.[1]?.endOf("day").format("YYYY-MM-DD") || last7DaysTo;
 
     useEffect(() => {
         dispatch(getAttendanceCalendar({ month, year }))
@@ -132,6 +156,19 @@ export default function AttendanceViewPage() {
             .catch((err) => message.error(err || "Failed to load attendance metrics"));
     }, [dispatch, month, year, refreshKey]);
 
+    useEffect(() => {
+        dispatch(
+            getAttendanceHistory({
+                page: 1,
+                limit: 100,
+                from: historyFrom,
+                to: historyTo,
+            })
+        )
+            .unwrap()
+            .catch((err) => message.error(err || "Failed to load attendance history"));
+    }, [dispatch, refreshKey, historyFrom, historyTo]);
+
     const attendanceMap = useMemo(() => {
         const map = new Map<string, AttendanceCalendarDay>();
         (calendarData?.days || []).forEach((item) => {
@@ -142,17 +179,15 @@ export default function AttendanceViewPage() {
 
     const monthDays = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
 
-    const requestMenuItems: MenuProps["items"] = [
-        { key: "leave", label: "Leave" },
-        // { key: "attendance_adjustment", label: "Attendance Adjustment" },
-        // { key: "out_duty", label: "Out Duty" },
-        // { key: "shift_change", label: "Shift Change and Attendance" },
-        // { key: "clockin", label: "Clockin" },
-    ];
+    const requestMenuItems: MenuProps["items"] = [{ key: "leave", label: "Leave" }];
 
-    const handleRequestClick: MenuProps["onClick"] = ({ key }) => {
-        navigate(`/${slug}/leaves`); //redirect to leave list page
+    const handleRequestClick: MenuProps["onClick"] = () => {
+        navigate(`/${slug}/leaves`);
     };
+
+    const movementTitle = trackRange?.[0] && trackRange?.[1]
+        ? `Movement Track (${trackRange[0].format("DD MMM YYYY")} - ${trackRange[1].format("DD MMM YYYY")})`
+        : "Movement Track (Last 7 Days)";
 
     return (
         <div style={{ padding: 16 }}>
@@ -280,7 +315,6 @@ export default function AttendanceViewPage() {
                                     fontWeight: 600,
                                     color: token.colorTextSecondary,
                                     background: token.colorBgContainer,
-
                                 }}
                             >
                                 {day}
@@ -336,6 +370,47 @@ export default function AttendanceViewPage() {
                     </div>
                 )}
             </Card>
+
+            <Card
+                style={{ borderRadius: 16, marginTop: 16 }}
+                bodyStyle={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 12,
+                    flexWrap: "wrap",
+                }}
+            >
+                <div>
+                    <Title level={5} style={{ margin: 0 }}>
+                        User Track Filter
+                    </Title>
+                    <Text type="secondary">
+                        Default: last 7 days. Select any range to load that period.
+                    </Text>
+                </div>
+
+                <RangePicker
+                    value={trackRange}
+                    onChange={(values) => {
+                        if (!values || values.length !== 2) {
+                            setTrackRange(null);
+                            return;
+                        }
+                        setTrackRange([values[0], values[1]]);
+                    }}
+                    format="DD MMM YYYY"
+                    allowClear
+                    disabledDate={(current) => current.isAfter(dayjs().endOf("day"))} // disable future dates
+                    placeholder={["Start Date", "End Date"]}
+                />
+            </Card>
+
+            <AttendanceMovementMap
+                sessions={historyList || []}
+                loading={historyLoading}
+                title={movementTitle}
+            />
         </div>
     );
 }

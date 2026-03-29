@@ -95,6 +95,54 @@ type AttendanceWatchProps = {
   dark: boolean;
 };
 
+type BrowserLocation = {
+  lat: number;
+  lng: number;
+  accuracy_meters: number | null;
+};
+
+function getCurrentPositionAsync(): Promise<BrowserLocation> {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocation is not supported in this browser"));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy_meters: position.coords.accuracy ?? null,
+        });
+      },
+      (error) => {
+        reject(new Error(error.message || "Unable to fetch location"));
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
+      }
+    );
+  });
+}
+
+async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+    );
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    return data?.display_name || null;
+  } catch {
+    return null;
+  }
+}
+
 function AttendanceWatch({ dark }: AttendanceWatchProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const currentTime = new Date();
@@ -123,15 +171,27 @@ function AttendanceWatch({ dark }: AttendanceWatchProps) {
 
   const handleClockIn = async () => {
     try {
+      const currentLocation = await getCurrentPositionAsync();
+      const currentAddress = await reverseGeocode(
+        currentLocation.lat,
+        currentLocation.lng
+      );
+
       await dispatch(
         clockInAttendance({
-          remarks: "Started work",
           source: "web",
+          remarks: "",
+          location: {
+            lat: currentLocation.lat,
+            lng: currentLocation.lng,
+            address: currentAddress,
+            accuracy_meters: currentLocation.accuracy_meters,
+          },
         })
       ).unwrap();
 
       message.success("Clock-in successful");
-      await dispatch(getTodayAttendance()).unwrap();
+      dispatch(getTodayAttendance());
     } catch (error: any) {
       message.error(error || "Clock-in failed");
     }
@@ -139,14 +199,26 @@ function AttendanceWatch({ dark }: AttendanceWatchProps) {
 
   const handleClockOut = async () => {
     try {
+      const currentLocation = await getCurrentPositionAsync();
+      const currentAddress = await reverseGeocode(
+        currentLocation.lat,
+        currentLocation.lng
+      );
+
       await dispatch(
         clockOutAttendance({
-          remarks: "Work completed",
+          remarks: "",
+          location: {
+            lat: currentLocation.lat,
+            lng: currentLocation.lng,
+            address: currentAddress,
+            accuracy_meters: currentLocation.accuracy_meters,
+          },
         })
       ).unwrap();
 
       message.success("Clock-out successful");
-      await dispatch(getTodayAttendance()).unwrap();
+      dispatch(getTodayAttendance());
     } catch (error: any) {
       message.error(error || "Clock-out failed");
     }

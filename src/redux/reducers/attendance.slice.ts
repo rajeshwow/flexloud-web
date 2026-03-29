@@ -13,6 +13,16 @@ export type AttendanceSession = {
   status?: string;
   source?: string | null;
   remarks?: string | null;
+
+  clock_in_lat?: number | null;
+  clock_in_lng?: number | null;
+  clock_in_address?: string | null;
+  clock_in_accuracy_meters?: number | null;
+
+  clock_out_lat?: number | null;
+  clock_out_lng?: number | null;
+  clock_out_address?: string | null;
+  clock_out_accuracy_meters?: number | null;
 };
 
 export type TodayAttendanceResponse = {
@@ -63,13 +73,22 @@ export type AttendanceRequestItem = {
   created_at?: string;
 };
 
+export type AttendanceLocationPayload = {
+  lat: number;
+  lng: number;
+  address?: string | null;
+  accuracy_meters?: number | null;
+};
+
 export type ClockInPayload = {
   remarks?: string;
   source?: "web" | "mobile" | "admin";
+  location: AttendanceLocationPayload;
 };
 
 export type ClockOutPayload = {
   remarks?: string;
+  location: AttendanceLocationPayload;
 };
 
 export type GetAttendanceHistoryParams = {
@@ -117,6 +136,15 @@ type AttendanceState = {
     limit: number;
     total: number;
   };
+  clock_in_lat?: number | null;
+  clock_in_lng?: number | null;
+  clock_in_address?: string | null;
+  clock_in_accuracy_meters?: number | null;
+
+  clock_out_lat?: number | null;
+  clock_out_lng?: number | null;
+  clock_out_address?: string | null;
+  clock_out_accuracy_meters?: number | null;
 
   calendarData: AttendanceCalendarResponse | null;
   calendarLoading: boolean;
