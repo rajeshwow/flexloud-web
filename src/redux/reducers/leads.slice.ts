@@ -22,6 +22,7 @@ export type LeadItem = {
   id: string;
   lead_number?: string;
   lead_display_id?: string;
+  address?: string;
 
   first_name?: string;
   last_name?: string;
@@ -64,6 +65,13 @@ export type LeadItem = {
   updated_by_name?: string;
 
   emails?: LeadEmailItem[];
+
+  primary_address_street?: string;
+  primary_address_area?: string;
+  primary_address_postal_code?: string;
+  primary_address_city?: string;
+  primary_address_state?: string;
+  primary_address_country?: string;
 };
 
 export type LeadsInsightItem = {

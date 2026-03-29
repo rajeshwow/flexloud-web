@@ -19,6 +19,8 @@ import { formatDateTime } from "../../shared/Utils/utils";
 import AIInsightsCard from "../ai-insights/components/AIInsightsCard";
 import DetailsPageHeader from "../Details-page/DetailsPageHeader";
 import DetailsSummaryCard from "../Details-page/DetailsSummaryCard";
+import GeoVisitActionCard from "../geo-visits/components/GeoVisitActionCard";
+import GeoVisitTimeline from "../geo-visits/components/GeoVisitTimeline";
 import LeadDetailsContent from "./components/LeadDetailsContent";
 
 type RouteParams = {
@@ -274,6 +276,8 @@ export default function LeadDetailsPage() {
         }
     };
 
+    console.log("details", details);
+
     return (
         <div style={{ padding: 4 }}>
             <Row gutter={[16, 16]}>
@@ -281,7 +285,7 @@ export default function LeadDetailsPage() {
                     <DetailsPageHeader
                         title={getLeadDisplayName(details)}
                         subtitle={details?.lead_display_id || details?.lead_number || ""}
-                        status={details?.status_id}
+                        status={details?.status_label}
                         isEditing={isEditing}
                         saveLoading={updateLoading}
                         onBack={() => navigate(`/${slug}/leads/view`)}
@@ -304,6 +308,23 @@ export default function LeadDetailsPage() {
                             />
                         </Form>
                     </Spin>
+
+                    <ActivityTimeline
+                        data={timelineData}
+                        loading={timelineLoading}
+                        title="Lead Timeline"
+                    />
+                    <GeoVisitActionCard
+                        moduleName="lead"
+                        recordId={details?.id || ''}
+                    // targetAddress={details?.primary_address_street || details?.primary_address_area || details?.primary_address_city || details?.primary_address_state || details?.primary_address_country || null}
+                    />
+                    <div style={{ marginTop: 16 }}>
+                        <GeoVisitTimeline
+                            moduleName="lead"
+                            recordId={details?.id || ''}
+                        />
+                    </div>
                 </Col>
 
                 <Col xs={24} xl={8}>
@@ -367,11 +388,9 @@ export default function LeadDetailsPage() {
                             onSummarizeActivities={handleSummarizeActivities}
                         /> */}
 
-                        <ActivityTimeline
-                            data={timelineData}
-                            loading={timelineLoading}
-                            title="Lead Timeline"
-                        />
+
+
+
                     </Space>
                 </Col>
             </Row>

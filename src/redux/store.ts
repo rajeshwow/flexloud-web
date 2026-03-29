@@ -5,6 +5,7 @@ import aiInsightsReducer from "./reducers/aiInsights.slice";
 import attendanceReducer from "./reducers/attendance.slice";
 import authReducer from "./reducers/auth.slice";
 import contactsReducer from "./reducers/contacts.slice";
+import geoVisitsReducer from "./reducers/geoVisits.slice";
 import importsReducer from "./reducers/imports.slice";
 import interactionsReducer from "./reducers/interactions.slice";
 import leadsReducer from "./reducers/leads.slice";
@@ -40,6 +41,7 @@ export const store = configureStore({
     interactions: interactionsReducer,
     aiAssistant: aiAssistantReducer,
     aiInsights: aiInsightsReducer,
+    geoVisits: geoVisitsReducer,
   },
 });
 
