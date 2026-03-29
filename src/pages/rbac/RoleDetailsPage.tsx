@@ -62,7 +62,7 @@ export default function RoleDetailsPage() {
         }, {} as Record<string, string[]>);
     }, [currentRole]);
 
-    if (currentRoleLoading) {
+    if (currentRoleLoading && !currentRole) {
         return <Skeleton active />;
     }
 

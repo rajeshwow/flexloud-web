@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     assignUsersToRole,
-    fetchAssignableUsers,
-    fetchRoleById,
+    fetchRoleById
 } from "../../../redux/reducers/rbac.slice";
+import { getUsers } from "../../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../../redux/store";
 
 const { Text } = Typography;
@@ -20,7 +20,11 @@ type Props = {
 export default function UserRoleAssignDrawer({ open, onClose, roleId }: Props) {
     const dispatch = useDispatch<AppDispatch>();
 
-    const { assignableUsers, assignableUsersLoading, currentRole, submitting } = useSelector(
+    const { userList, listLoading } = useSelector(
+        (state: RootState) => state.users
+    );
+
+    const { currentRole, submitting } = useSelector(
         (state: RootState) => state.rbac
     );
 
@@ -28,10 +32,9 @@ export default function UserRoleAssignDrawer({ open, onClose, roleId }: Props) {
 
     useEffect(() => {
         if (open) {
-            dispatch(fetchAssignableUsers(""));
-            dispatch(fetchRoleById(roleId));
+            dispatch(getUsers());
         }
-    }, [dispatch, open, roleId]);
+    }, [dispatch, open]);
 
     useEffect(() => {
         if (open && currentRole?.id === roleId) {
@@ -41,11 +44,15 @@ export default function UserRoleAssignDrawer({ open, onClose, roleId }: Props) {
     }, [open, currentRole, roleId]);
 
     const userOptions = useMemo(() => {
-        return assignableUsers.map((user) => ({
-            label: user.name || `${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email || "Unnamed User",
+        return userList.map((user) => ({
+            label:
+                user.name ||
+                `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
+                user.email ||
+                "Unnamed User",
             value: user.id,
         }));
-    }, [assignableUsers]);
+    }, [userList]);
 
     const handleSave = async () => {
         try {
@@ -92,7 +99,7 @@ export default function UserRoleAssignDrawer({ open, onClose, roleId }: Props) {
                     style={{ width: "100%" }}
                     placeholder="Select users"
                     value={selectedUserIds}
-                    loading={assignableUsersLoading}
+                    loading={listLoading}
                     options={userOptions}
                     onChange={(values) => setSelectedUserIds(values)}
                     filterOption={(input, option) =>
