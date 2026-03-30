@@ -32,6 +32,7 @@ import RolesListPage from "../pages/rbac/RolesListPage";
 import CreateTask from "../pages/Tasks/CreateTask";
 import EditTask from "../pages/Tasks/EditTask";
 import TasksPage from "../pages/Tasks/TasksPage";
+import UserCreatePage from "../pages/Users/UserCreatePage";
 import UserGet from "../pages/Users/UserGet";
 import VisitFormPage from "../pages/Visits/VisitFormPage";
 import VisitListPage from "../pages/Visits/VisitListPage";
@@ -58,6 +59,15 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="users.view">
                 <UserGet />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="users/create"
+            element={
+              <ProtectedRoute required="users.create">
+                <UserCreatePage />
               </ProtectedRoute>
             }
           />

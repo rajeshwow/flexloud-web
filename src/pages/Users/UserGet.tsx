@@ -3,6 +3,7 @@ import { Button, Input, Select, Space, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchRoles } from "../../redux/reducers/rbac.slice";
 import {
     getUsers,
     type UserItem,
@@ -17,6 +18,10 @@ export default function UserGet() {
     const dispatch = useDispatch<AppDispatch>();
     const { userList, listLoading, pagination } = useSelector(
         (state: RootState) => state.users
+    );
+
+    const { list: rolesList } = useSelector(
+        (state: RootState) => state.rbac
     );
 
     const [searchText, setSearchText] = useState("");
@@ -37,6 +42,10 @@ export default function UserGet() {
             })
         );
     };
+
+    useEffect(() => {
+        dispatch(fetchRoles())
+    }, []);
 
     useEffect(() => {
         fetchUsers();
@@ -158,9 +167,11 @@ export default function UserGet() {
                         }}
                         style={{ width: 160 }}
                     >
-                        <Option value="ADMIN">Admin</Option>
-                        <Option value="MANAGER">Manager</Option>
-                        <Option value="AGENT">Agent</Option>
+                        {rolesList?.map((role: any) => (
+                            <Option key={role.id} value={role.id}>
+                                {role.name}
+                            </Option>
+                        ))}
                     </Select>
 
                     <Select

@@ -7,7 +7,8 @@ export type UserRole = "ADMIN" | "MANAGER" | "AGENT";
 export type CreateUserPayload = {
   email: string;
   name: string;
-  role: UserRole;
+  // role: UserRole;
+  role_id: string;
 
   display_name?: string | null;
   first_name?: string | null;
@@ -43,6 +44,7 @@ export type UserItem = {
   name: string;
   role: UserRole;
   is_active: boolean;
+  role_id: string;
 
   display_name?: string | null;
   first_name?: string | null;

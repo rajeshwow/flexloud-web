@@ -6,12 +6,14 @@ import {
     Modal,
     Row,
     Select,
-    message,
+    message
 } from "antd";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMasterValues } from "../../redux/reducers/masters.slice";
+import { fetchRoles } from "../../redux/reducers/rbac.slice";
 import { createUser } from "../../redux/reducers/user.slice";
-import type { AppDispatch } from "../../redux/store";
+import type { AppDispatch, RootState } from "../../redux/store";
 
 type Props = {
     open: boolean;
@@ -25,11 +27,83 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
     const [form] = Form.useForm();
     const dispatch = useDispatch<AppDispatch>();
     const [generatedPassword, setGeneratedPassword] = useState("");
+    const { masterValues, masterValuesLoading } = useSelector(
+        (state: RootState) => state.masters
+    );
+
+    const { list: rolesList, } = useSelector(
+        (state: RootState) => state.rbac
+    );
+
+    const countryList = useMemo(() => masterValues?.country || [], [masterValues]);
+    const stateList = useMemo(() => masterValues?.state || [], [masterValues]);
+    const cityList = useMemo(() => masterValues?.city || [], [masterValues]);
+
+    const selectedCountry = Form.useWatch("country", form);
+    const selectedState = Form.useWatch("state", form);
+
+    useEffect(() => {
+        dispatch(fetchRoles())
+    }, []);
+
+    const countryOptions = useMemo(
+        () =>
+            countryList.map((item: any) => ({
+                label: item.label,
+                value: item.id,
+            })),
+        [countryList]
+    );
+
+    const selectedCountryItem = useMemo(
+        () => countryList.find((item: any) => item.id === selectedCountry),
+        [countryList, selectedCountry]
+    );
+
+    const filteredStateList = useMemo(() => {
+        if (!selectedCountryItem?.id) return [];
+        return stateList.filter((item: any) => item.parent_id === selectedCountryItem.id);
+    }, [stateList, selectedCountryItem]);
+
+    const stateOptions = useMemo(
+        () =>
+            filteredStateList.map((item: any) => ({
+                label: item.label,
+                value: item.id,
+            })),
+        [filteredStateList]
+    );
+
+    const selectedStateItem = useMemo(
+        () => filteredStateList.find((item: any) => item.id === selectedState),
+        [filteredStateList, selectedState]
+    );
+
+    const filteredCityList = useMemo(() => {
+        if (!selectedStateItem?.id) return [];
+        return cityList.filter((item: any) => item.parent_id === selectedStateItem.id);
+    }, [cityList, selectedStateItem]);
+
+    const cityOptions = useMemo(
+        () =>
+            filteredCityList.map((item: any) => ({
+                label: item.label,
+                value: item.id,
+            })),
+        [filteredCityList]
+    );
+
+    useEffect(() => {
+        dispatch(fetchMasterValues({ type_code: "country", page: 1, limit: 500 }));
+        dispatch(fetchMasterValues({ type_code: "state", page: 1, limit: 1000 }));
+        dispatch(fetchMasterValues({ type_code: "city", page: 1, limit: 2000 }));
+    }, [dispatch]);
 
     useEffect(() => {
         if (!open) {
             form.resetFields();
-            // setGeneratedPassword("");
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setGeneratedPassword("");
         }
     }, [open, form]);
 
@@ -39,22 +113,22 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
                 createUser({
                     email: values.email,
                     name: values.name,
-                    role: values.role,
+                    role_id: values.role,
 
-                    phone_country_code: values.phone_country_code || null,
-                    phone: values.phone || null,
+                    phone_country_code: values.phone_country_code || '',
+                    phone: values.phone || '',
 
-                    city: values.city || null,
-                    district: values.district || null,
-                    state: values.state || null,
-                    country: values.country || null,
-                    postal_code: values.postal_code || null,
+                    city: values.city || '',
+                    district: values.district || '',
+                    state: values.state || '',
+                    country: values.country || '',
+                    postal_code: values.postal_code || '',
 
-                    designation: values.designation || null,
-                    department: values.department || null,
-                    employee_code: values.employee_code || null,
+                    designation: values.designation || '',
+                    department: values.department || '',
+                    employee_code: values.employee_code || '',
 
-                    tempPassword: values.tempPassword || undefined,
+                    tempPassword: values.tempPassword || '',
                 })
             ).unwrap();
 
@@ -122,41 +196,52 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
                             rules={[{ required: true, message: "Role is required" }]}
                         >
                             <Select>
-                                <Option value="ADMIN">Admin</Option>
-                                <Option value="MANAGER">Manager</Option>
-                                <Option value="AGENT">Agent</Option>
+                                {rolesList?.map((role: any) => (
+                                    <Option key={role.id} value={role.id}>
+                                        {role.name}
+                                    </Option>
+                                ))}
                             </Select>
                         </Form.Item>
                     </Col>
                 </Row>
 
                 <Row gutter={16}>
-                    <Col span={6}>
-                        <Form.Item label="Phone Code" name="phone_country_code" initialValue="+91">
-                            <Input placeholder="+91" />
-                        </Form.Item>
-                    </Col>
 
-                    <Col span={10}>
+
+                    <Col span={8}>
                         <Form.Item
                             label="Phone"
                             name="phone"
-                            rules={[{ pattern: /^[0-9]*$/, message: "Only digits allowed" }]}
+                            rules={[
+                                { required: true, message: "Phone is required" },
+                                { pattern: /^[0-9]{10}$/, message: "Enter valid 10 digit phone number" },
+                            ]}
                         >
-                            <Input placeholder="Enter phone number" />
+                            <Input
+                                maxLength={10}
+                                placeholder="Enter phone number"
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\D/g, ""); // remove alphabets
+                                    e.target.value = value; // overwrite input value
+                                }}
+                                onKeyPress={(e) => {
+                                    if (!/[0-9]/.test(e.key)) {
+                                        e.preventDefault(); // block non-numeric keys
+                                    }
+                                }}
+                            />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item label="Temporary Password" name="tempPassword">
+                        <Form.Item label="Temporary Password" name="tempPassword" rules={[{ required: true, message: "Temporary Password is required and must be at least 6 characters long" }]}>
                             <Input.Password placeholder="Leave empty to auto-generate" />
                         </Form.Item>
                     </Col>
-                </Row>
 
-                <Row gutter={16}>
                     <Col span={8}>
-                        <Form.Item label="Department" name="department">
+                        <Form.Item label="Department" name="department" rules={[{ required: true, message: "Department is required" }]}>
                             <Input placeholder="Sales / Operations / HR" />
                         </Form.Item>
                     </Col>
@@ -168,36 +253,73 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item label="Employee Code" name="employee_code">
+                        <Form.Item label="Employee Code" name="employee_code" rules={[{ required: true, message: "Employee Code is required" }]}>
                             <Input placeholder="EMP001" />
                         </Form.Item>
                     </Col>
-                </Row>
 
-                <Row gutter={16}>
-                    <Col span={6}>
-                        <Form.Item label="City" name="city">
-                            <Input />
+                    <Col span={8}>
+                        <Form.Item label="Country" name="country" rules={[{ required: true, message: "Country is required" }]}>
+                            <Select
+                                showSearch
+                                allowClear
+                                placeholder="Select country"
+                                loading={masterValuesLoading}
+                                options={countryOptions}
+                                optionFilterProp="label"
+                                notFoundContent="No countries available"
+                                onChange={() => {
+                                    form.setFieldsValue({
+                                        state: undefined,
+                                        city: undefined,
+                                    });
+                                }}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="State" name="state" rules={[{ required: true, message: "State is required" }]}>
+                            <Select
+                                showSearch
+                                allowClear
+                                placeholder="Select state"
+                                loading={masterValuesLoading}
+                                options={stateOptions}
+                                optionFilterProp="label"
+                                disabled={!selectedCountry}
+                                notFoundContent="No states available"
+                                onChange={() => {
+                                    form.setFieldsValue({
+                                        city: undefined,
+                                    });
+                                }}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="City" name="city" rules={[{ required: true, message: "City is required" }]}>
+                            <Select
+                                showSearch
+                                allowClear
+                                placeholder="Select city"
+                                loading={masterValuesLoading}
+                                options={cityOptions}
+                                optionFilterProp="label"
+                                disabled={!selectedState}
+                                notFoundContent="No cities available"
+                            />
                         </Form.Item>
                     </Col>
 
-                    <Col span={6}>
+                    <Col span={8}>
                         <Form.Item label="District" name="district">
                             <Input />
                         </Form.Item>
                     </Col>
 
-                    <Col span={6}>
-                        <Form.Item label="State" name="state">
-                            <Input />
-                        </Form.Item>
-                    </Col>
 
-                    <Col span={6}>
-                        <Form.Item label="Country" name="country" initialValue="India">
-                            <Input />
-                        </Form.Item>
-                    </Col>
+
+
                 </Row>
 
                 <Row gutter={16}>
