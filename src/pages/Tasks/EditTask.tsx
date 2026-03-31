@@ -14,6 +14,7 @@ export default function EditTask() {
     const dispatch = useDispatch<any>();
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    const { slug = "" } = useParams();
 
     const userOptions = [
         { label: "ArtiJain", value: "user-1" },
@@ -67,7 +68,7 @@ export default function EditTask() {
 
             await dispatch(updateTask({ id: id as string, body: payload })).unwrap();
             message.success("Task updated successfully", 2);
-            navigate("/tasks");
+            navigate(`/${slug}/tasks`);
         } catch (error: any) {
             message.error(error?.message || "Failed to update task", 3);
         }

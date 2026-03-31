@@ -48,12 +48,11 @@ type ChartItem = {
 function getLeadStatusColor(status?: string) {
     const value = (status || "").toLowerCase();
 
-    if (value.includes("new")) return "blue";
-    if (value.includes("converted")) return "cyan";
-    if (value.includes("in process")) return "orange";
-    if (value.includes("recycled")) return "gold";
-    if (value.includes("dead")) return "red";
-    if (value.includes("assigned")) return "purple";
+    if (value.includes("open")) return "blue";
+    if (value.includes("qualified")) return "cyan";
+    if (value.includes("contacted")) return "orange";
+    if (value.includes("won")) return "gold";
+    if (value.includes("lost")) return "red";
 
     return "default";
 }
@@ -93,6 +92,24 @@ export default function LeadsPage() {
         };
     }, [dispatch]);
 
+    function getLeadTemperatureColor(value?: string) {
+        const v = (value || "").toLowerCase();
+
+        if (v === "hot") return "red";
+        if (v === "warm") return "orange";
+        if (v === "cold") return "blue";
+
+        return "default";
+    }
+
+    function getLeadScoreColor(score?: number) {
+        const value = Number(score || 0);
+
+        if (value >= 75) return "red";
+        if (value >= 40) return "orange";
+        return "blue";
+    }
+
     const columns: ColumnsType<LeadItem> = useMemo(
         () => [
             {
@@ -126,11 +143,31 @@ export default function LeadsPage() {
             },
             {
                 title: "Status",
-                dataIndex: "status",
+                dataIndex: "status_label",
                 key: "status",
                 width: 140,
                 render: (value?: string) => (
                     <Tag color={getLeadStatusColor(value)}>{value || "-"}</Tag>
+                ),
+            },
+            {
+                title: "Lead Nature",
+                dataIndex: "lead_temperature",
+                key: "lead_temperature",
+                width: 130,
+                render: (value?: string) => (
+                    <Tag color={getLeadTemperatureColor(value)}>{value || "-"}</Tag>
+                ),
+            },
+            {
+                title: "Score",
+                dataIndex: "lead_score",
+                key: "lead_score",
+                width: 100,
+                render: (value?: number) => (
+                    <Tag color={getLeadScoreColor(value)}>
+                        {typeof value === "number" ? value : "-"}
+                    </Tag>
                 ),
             },
             {

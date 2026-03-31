@@ -268,6 +268,7 @@ export default function LeadDetailsPage() {
         try {
             await dispatch(updateLead(payload)).unwrap();
             message.success("Lead updated successfully");
+            await dispatch(fetchLeadAIInsights(id)).unwrap();
             setIsEditing(false);
             fetchTimeline(id);
             await dispatch(fetchLeadDetails(id)).unwrap();

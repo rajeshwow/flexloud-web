@@ -143,7 +143,7 @@ export default function TaskForm({
 
     const dispatch = useDispatch<any>();
 
-    const [relatedToType, setRelatedToType] = useState<string>();
+    const relatedToType = Form.useWatch("related_to_type", form);
     const [relatedToOptions, setRelatedToOptions] = useState<{ label: string; value: string }[]>([]);
 
 
@@ -184,8 +184,6 @@ export default function TaskForm({
 
 
     const handleRelatedToTypeChange = async (value: string) => {
-        setRelatedToType(value);
-
         form.setFieldsValue({
             related_to_id: undefined,
         });
@@ -249,7 +247,7 @@ export default function TaskForm({
                 initialValues={{
                     status: "not_started",
                     priority: "medium",
-                    related_to_type: "organization",
+                    related_to_type: "none",
                     repeat_task: "none",
                 }}
             >

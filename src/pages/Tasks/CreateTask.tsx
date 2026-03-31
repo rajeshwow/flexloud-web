@@ -39,7 +39,7 @@ export default function CreateTask() {
             const res = await dispatch(createTask(payload)).unwrap();
             if (res.statusCode === 201) {
                 message.success("Task created successfully", 2);
-                navigate(`${slug}/tasks`);
+                navigate(`/${slug}/tasks`);
             }
         } catch (error: any) {
             message.error(error?.message || "Failed to create task", 3);

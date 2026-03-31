@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import {
     Button,
@@ -16,6 +17,12 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { fetchContacts } from "../../../redux/reducers/contacts.slice";
+import { fetchLeads } from "../../../redux/reducers/leads.slice";
+import { fetchOpportunities } from "../../../redux/reducers/opportunities.slice";
+import { getOrganization } from "../../../redux/reducers/organization.slice";
+import type { AppDispatch } from "../../../redux/store";
 import { Client } from "../../../shared/Utils/api-client";
 import { withTenant } from "../../../shared/Utils/utils";
 
@@ -96,6 +103,8 @@ function getLineTotal(item: any) {
     return Math.max(base - discount + taxAmount, 0);
 }
 
+
+
 export default function QuoteForm({
     form,
     initialValues,
@@ -127,6 +136,75 @@ export default function QuoteForm({
     const shippingCountry = Form.useWatch("shipping_country", form);
     const shippingState = Form.useWatch("shipping_state", form);
 
+    const dispatch = useDispatch<AppDispatch>();
+
+    const relatedToType = Form.useWatch("related_to_type", form);
+    const [relatedToOptions, setRelatedToOptions] = useState<OptionItem[]>([]);
+
+
+    const normalizeRelatedOptions = (list: any[], type: string): OptionItem[] => {
+        switch (type) {
+            case "organization":
+                return list.map((item) => ({
+                    label: item.name,
+                    value: item.id,
+                    raw: item,
+                }));
+
+            case "contact":
+                return list.map((item) => ({
+                    label: `${item.first_name || ""} ${item.last_name || ""}`.trim() || item.email,
+                    value: item.id,
+                    raw: item,
+                }));
+
+            case "lead":
+                return list.map((item) => ({
+                    label: `${item.first_name || ""} ${item.last_name || ""}`.trim() || item.email,
+                    value: item.id,
+                    raw: item,
+                }));
+
+            case "opportunity":
+                return list.map((item) => ({
+                    label: item.title || item.name || item.opportunity_name,
+                    value: item.id,
+                    raw: item,
+                }));
+
+            default:
+                return [];
+        }
+    };
+
+    const handleRelatedToTypeChange = async (value: string) => {
+        form.setFieldsValue({
+            related_to_id: undefined,
+        });
+
+        try {
+            let list: any[] = [];
+
+            if (value === "organization") {
+                const res = await dispatch(getOrganization({ page: 1, limit: 100 })).unwrap();
+                list = res?.data || [];
+            } else if (value === "contact") {
+                const res = await dispatch(fetchContacts({ page: 1, limit: 100 })).unwrap();
+                list = res?.data || [];
+            } else if (value === "lead") {
+                const res = await dispatch(fetchLeads({ page: 1, limit: 100 })).unwrap();
+                list = res?.data || [];
+            } else if (value === "opportunity") {
+                const res = await dispatch(fetchOpportunities({ page: 1, limit: 100 })).unwrap();
+                list = res?.data || [];
+            }
+
+            setRelatedToOptions(normalizeRelatedOptions(list, value));
+        } catch (error) {
+            setRelatedToOptions([]);
+        }
+    };
+
     useEffect(() => {
         if (initialValues) {
             form.setFieldsValue({
@@ -144,6 +222,8 @@ export default function QuoteForm({
                         tax_amount: Number(item.tax_amount || 0),
                         line_total: Number(item.line_total || 0),
                     })) || [],
+                related_to_type: initialValues?.related_to_type || undefined,
+                related_to_id: initialValues?.related_to_id || undefined,
             });
         } else {
             form.setFieldsValue({
@@ -174,9 +254,20 @@ export default function QuoteForm({
                         line_total: 0,
                     },
                 ],
+                related_to_type: undefined,
+                related_to_id: undefined,
             });
         }
     }, [initialValues, form]);
+
+    useEffect(() => {
+        if (!relatedToType) {
+            setRelatedToOptions([]);
+            return;
+        }
+
+        handleRelatedToTypeChange(relatedToType);
+    }, [relatedToType]);
 
     useEffect(() => {
         const loadDropdowns = async () => {
@@ -454,12 +545,29 @@ export default function QuoteForm({
                     </Col>
 
                     <Col xs={24} md={8}>
-                        <Form.Item name="opportunity_id" label="Opportunity">
+                        <Form.Item name="related_to_type" label="Related To">
+                            <Select
+                                allowClear
+                                placeholder="Select type"
+                                onChange={handleRelatedToTypeChange}
+                                options={[
+                                    { label: "Organization", value: "organization" },
+                                    { label: "Contact", value: "contact" },
+                                    { label: "Lead", value: "lead" },
+                                    { label: "Opportunity", value: "opportunity" },
+                                ]}
+                            />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={8}>
+                        <Form.Item name="related_to_id" label="Related Record">
                             <Select
                                 allowClear
                                 showSearch
-                                options={opportunityOptions}
-                                placeholder="Select opportunity"
+                                placeholder="Select related record"
+                                disabled={!relatedToType}
+                                options={relatedToOptions}
                                 optionFilterProp="label"
                             />
                         </Form.Item>
@@ -474,6 +582,8 @@ export default function QuoteForm({
                             <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
                         </Form.Item>
                     </Col>
+
+
 
                     <Col xs={24} md={8}>
                         <Form.Item

@@ -54,6 +54,9 @@ export default function CrmRoutes() {
           <Route path="dashboard" element={<StunningDashboard />} />
           <Route path="home" element={<StunningDashboard />} />
 
+
+          {/* --------------------------------------------------------------------------------------------------- */}
+
           <Route
             path="users"
             element={
@@ -81,7 +84,7 @@ export default function CrmRoutes() {
           <Route
             path="organization/view"
             element={
-              <ProtectedRoute required="ORG.VIEW">
+              <ProtectedRoute required="org.view">
                 <OrganizationGet />
               </ProtectedRoute>
             }
@@ -89,7 +92,7 @@ export default function CrmRoutes() {
           <Route
             path="organization/view/:id"
             element={
-              <ProtectedRoute required="ORG.VIEW">
+              <ProtectedRoute required="org.view">
                 <OrgDetailsPage />
               </ProtectedRoute>
             }
