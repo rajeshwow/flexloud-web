@@ -459,7 +459,7 @@ export default function DashboardPage() {
                     </div>
 
                     <Space wrap>
-                        <Button icon={<PlusOutlined />}>Create Lead</Button>
+                        <Button onClick={() => navigate(`/${slug}/leads/create`)} icon={<PlusOutlined />}>Create Lead</Button>
                         <Button
                             type="primary"
                             loading={summaryLoading}
@@ -491,12 +491,22 @@ export default function DashboardPage() {
                                 <Col xs={24} sm={12} lg={8} xl={6} key={item.key}>
                                     <ShellCard minHeight={116}>
                                         <div
+
                                             style={{
                                                 display: "flex",
                                                 alignItems: "flex-start",
                                                 justifyContent: "space-between",
                                                 gap: 12,
                                                 cursor: "pointer",
+                                                transition: "all 0.2s ease",
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.transform = "translateY(-4px)";
+                                                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.08)";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.transform = "none";
+                                                e.currentTarget.style.boxShadow = "none";
                                             }}
                                             onClick={() => navigate(item?.path || "")}
                                         >
@@ -532,6 +542,46 @@ export default function DashboardPage() {
                                 </Col>
                             );
                         })}
+                    </Row>
+                    <Row gutter={[14, 14]} style={{ marginBottom: 14 }}>
+                        <Col xs={24}>
+                            <ShellCard title={<Text strong>⚡ Action Required</Text>}>
+                                <Row gutter={[12, 12]}>
+                                    <Col xs={24} md={12} lg={8}>
+                                        <Alert
+                                            type="error"
+                                            message={`Overdue Tasks: ${dashboard.metrics.overdueTasks}`}
+                                            description="These tasks need immediate attention."
+                                            showIcon
+                                            onClick={() => navigate(`/${slug}/tasks?filter=overdue`)}
+                                            style={{ cursor: "pointer", borderRadius: 12 }}
+                                        />
+                                    </Col>
+
+                                    <Col xs={24} md={12} lg={8}>
+                                        <Alert
+                                            type="warning"
+                                            message={`Open Tasks: ${dashboard.metrics.openTasks}`}
+                                            description="Pending work items waiting for action."
+                                            showIcon
+                                            onClick={() => navigate(`/${slug}/tasks`)}
+                                            style={{ cursor: "pointer", borderRadius: 12 }}
+                                        />
+                                    </Col>
+
+                                    <Col xs={24} md={12} lg={8}>
+                                        <Alert
+                                            type="info"
+                                            message={`Attendance Today: ${dashboard.metrics.attendanceToday}`}
+                                            description="Users marked present for today."
+                                            showIcon
+                                            onClick={() => navigate(`/${slug}/attendance`)}
+                                            style={{ cursor: "pointer", borderRadius: 12 }}
+                                        />
+                                    </Col>
+                                </Row>
+                            </ShellCard>
+                        </Col>
                     </Row>
 
                     <Row gutter={[14, 14]}>
@@ -580,7 +630,7 @@ export default function DashboardPage() {
                                         </Text>
                                     </div>
 
-                                    <div
+                                    {/* <div
                                         style={{
                                             padding: 16,
                                             borderRadius: 16,
@@ -596,7 +646,7 @@ export default function DashboardPage() {
                                         <Text type="secondary">
                                             Users marked in for today
                                         </Text>
-                                    </div>
+                                    </div> */}
                                 </Space>
                             </ShellCard>
                         </Col>
