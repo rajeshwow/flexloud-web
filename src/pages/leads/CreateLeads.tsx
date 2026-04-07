@@ -129,7 +129,6 @@ export default function CreateLeadForm() {
     const sourceOptions = useMasters("source");
     const industryOptions = useMasters("industry");
 
-    console.log("priorityOptions", priorityOptions, statusOptions, sourceOptions);
 
     const { masterValues, masterValuesLoading } = useSelector(
         (state: RootState) => state.masters

@@ -9,6 +9,8 @@ type TaskState = {
   taskList: any[];
   currentTask: any | null;
   total: number;
+  performanceSummary: any[];
+  performanceSummaryLoading: boolean;
 };
 
 const initialState: TaskState = {
@@ -16,6 +18,8 @@ const initialState: TaskState = {
   taskListLoading: false,
   error: null,
   taskList: [],
+  performanceSummary: [],
+  performanceSummaryLoading: false,
   currentTask: null,
   total: 0,
 };
@@ -39,12 +43,22 @@ export const getTaskById = createAsyncThunk(
   async (id: string, thunkAPI) => {
     try {
       const res = await Client.get(withTenant(`/tasks/${id}`));
-      return res.data;
+      return res.data?.data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error?.response?.data || { message: "Failed to fetch task" },
       );
     }
+  },
+);
+
+export const getTaskPerformanceSummary = createAsyncThunk(
+  "tasks/getTaskPerformanceSummary",
+  async (params: { month: number; year: number; assigned_to?: string }) => {
+    const res = await Client.get(withTenant("/tasks/performance-summary"), {
+      params,
+    });
+    return res.data;
   },
 );
 

@@ -31,6 +31,7 @@ import RoleDetailsPage from "../pages/rbac/RoleDetailsPage";
 import RolesListPage from "../pages/rbac/RolesListPage";
 import CreateTask from "../pages/Tasks/CreateTask";
 import EditTask from "../pages/Tasks/EditTask";
+import TaskDetailsPage from "../pages/Tasks/TaskDetailsPage";
 import TasksPage from "../pages/Tasks/TasksPage";
 import UserCreatePage from "../pages/Users/UserCreatePage";
 import UserGet from "../pages/Users/UserGet";
@@ -77,7 +78,7 @@ export default function CrmRoutes() {
 
 
 
-
+          {/* ----------------------------------------------------------------------------- */}
 
 
 
@@ -244,10 +245,19 @@ export default function CrmRoutes() {
           />
 
           <Route
-            path="tasks/edit/:id"
+            path="tasks/:id/edit"
             element={
               <ProtectedRoute required="tasks.edit">
                 <EditTask />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="tasks/:id"
+            element={
+              <ProtectedRoute required="tasks.view">
+                <TaskDetailsPage />
               </ProtectedRoute>
             }
           />
