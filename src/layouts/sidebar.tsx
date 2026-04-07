@@ -166,8 +166,11 @@ function AttendanceWatch({ dark }: AttendanceWatchProps) {
   }, []);
 
   useEffect(() => {
+    if (todayAttendanceLoading) return;
+    if (todayAttendance) return;
+
     dispatch(getTodayAttendance());
-  }, [dispatch]);
+  }, [dispatch, todayAttendanceLoading, todayAttendance]);
 
   const handleClockIn = async () => {
     try {
@@ -497,7 +500,7 @@ export default function AppShell({ children, user }: Props) {
   // ✅ TEMP: until backend + redux done
   // Put permissions in localStorage like:
   // localStorage.setItem("fl_permissions", JSON.stringify(["LEADS.VIEW","CONTACTS.VIEW"]))
-  const permissions = useSelector((state: any) => state.auth?.permissions || []);
+  const permissions = useSelector((state: RootState) => state.auth?.permissions || []);
 
 
   const onLogout = () => {
@@ -527,9 +530,6 @@ export default function AppShell({ children, user }: Props) {
   };
 
 
-  const rawMenu = useMemo(() => {
-    return buildMenuTree(MENU_REGISTRY, permissions, base);
-  }, [permissions, base]);
 
   const rawNavItems = useMemo(() => {
     return buildMenuTree(MENU_REGISTRY, permissions, base);
