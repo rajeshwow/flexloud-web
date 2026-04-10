@@ -12,6 +12,8 @@ export type VisitItem = {
   start_date?: string | null;
   end_date?: string | null;
   next_followup_date?: string | null;
+  checkin_captured_at?: string | null;
+  checkout_captured_at?: string | null;
 
   duration?: string | null;
   duration_in_minutes?: number | null;
@@ -24,6 +26,11 @@ export type VisitItem = {
   contact_id?: string | null;
   lead_id?: string | null;
   case_id?: string | null;
+
+  organization_name?: string | null;
+  contact_name?: string | null;
+  lead_name?: string | null;
+  case_name?: string | null;
 
   checkin_address?: string | null;
   checkout_address?: string | null;

@@ -83,7 +83,7 @@ export default function VisitListPage() {
                 dataIndex: "name",
                 key: "name",
                 render: (value: string, record) => (
-                    <a onClick={() => navigate(`/${slug}/visits/${record.id}/edit`)}>
+                    <a onClick={() => navigate(`/${slug}/visits/${record.id}`)}>
                         {value}
                     </a>
                 ),
@@ -143,7 +143,9 @@ export default function VisitListPage() {
             {
                 title: "Action",
                 key: "action",
-                width: 80,
+                width: 100,
+                //fix this column in right
+                fixed: "right",
                 render: (_, record) => (
                     <Button
                         type="text"

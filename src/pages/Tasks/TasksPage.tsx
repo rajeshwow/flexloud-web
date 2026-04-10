@@ -147,7 +147,7 @@ export default function TasksPage() {
                         // color: token.colorError,
                         fontWeight: 600,
                     }}
-                    onClick={() => navigate(`/${slug}/tasks/${record.id}/edit`)}
+                    onClick={() => navigate(`/${slug}/tasks/${record.id}`)}
                 >
                     {record.subject}
                 </Button>
