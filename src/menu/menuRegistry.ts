@@ -224,6 +224,18 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
     icon: "ScheduleOutlined",
     children: [
       {
+        key: "my-day",
+        label: "My Day",
+        path: "/my-day",
+        icon: "CalendarOutlined",
+        requiresAny: [
+          "dashboard.view",
+          "tasks.view",
+          "leads.view",
+          "my-day.view",
+        ],
+      },
+      {
         key: "emails.compose",
         label: "Compose",
         path: "/emails/compose",

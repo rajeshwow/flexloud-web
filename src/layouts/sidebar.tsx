@@ -34,7 +34,7 @@ import {
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Grid, Layout, Menu, message, Popover, Space, Switch, Typography } from "antd";
+import { Avatar, Badge, Button, Grid, Layout, Menu, message, Popover, Space, Switch, Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAppTheme } from "../theme/ThemeProvider";
@@ -44,7 +44,9 @@ import { useAppTheme } from "../theme/ThemeProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { buildMenuTree } from "../menu/buildMenu";
 import { MENU_REGISTRY } from "../menu/menuRegistry";
+import NotificationCenterDrawer from "../pages/my-day/components/NotificationCenterDrawer";
 import { clockInAttendance, clockOutAttendance, getTodayAttendance } from "../redux/reducers/attendance.slice";
+import { fetchMyDay, fetchMyDayCounts, setNotificationDrawerOpen } from "../redux/reducers/myDay.slice";
 import type { AppDispatch, RootState } from "../redux/store";
 import GlobalQuickCreate from "./GlobalQuickCreate";
 
@@ -462,6 +464,7 @@ export default function AppShell({ children, user }: Props) {
   const screens = Grid.useBreakpoint();
 
   const dispatch = useDispatch<AppDispatch>();
+  const { counts } = useSelector((state: RootState) => state.myDay);
 
   const [collapsed, setCollapsed] = useState(false);
 
@@ -469,7 +472,16 @@ export default function AppShell({ children, user }: Props) {
 
 
 
+  useEffect(() => {
+    dispatch(fetchMyDayCounts({ assigned: "me" }));
+    dispatch(fetchMyDay({ assigned: "me", view: "all" }));
 
+    const timer = setInterval(() => {
+      dispatch(fetchMyDayCounts({ assigned: "me" }));
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, [dispatch]);
 
 
   const findTopLevelKey = (items: any[], targetKey?: string): string | null => {
@@ -902,6 +914,15 @@ export default function AppShell({ children, user }: Props) {
 
             <BulbOutlined style={{ color: "var(--fl-text2)" }} />
             <Switch checked={dark} onChange={setDark} />
+            <Button
+              type="text"
+              onClick={() => dispatch(setNotificationDrawerOpen(true))}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <Badge count={counts.total} size="small">
+                <BellOutlined style={{ fontSize: 18 }} />
+              </Badge>
+            </Button>
           </Space>
         </Header>
 
@@ -909,6 +930,7 @@ export default function AppShell({ children, user }: Props) {
           <div className="fl-card">{children}</div>
         </Content>
         <GlobalQuickCreate />
+        <NotificationCenterDrawer />
       </Layout>
     </Layout>
   );

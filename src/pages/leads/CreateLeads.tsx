@@ -19,7 +19,7 @@ import {
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMasters } from "../../hooks/useMasters";
 import AddressSection from "../../layouts/addressSection";
 import { createLead } from "../../redux/reducers/leads.slice";
@@ -121,6 +121,7 @@ export default function CreateLeadForm() {
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
+    const { slug } = useParams();
 
     const [copyAddress, setCopyAddress] = useState(false);
 
@@ -264,7 +265,7 @@ export default function CreateLeadForm() {
                         { email: "", primary: true, opt_out: false, invalid: false },
                     ],
                 });
-                navigate(`/leads/${response?.data?.id}`);
+                navigate(`${slug}/leads/${response?.data?.id}`);
 
             } else {
                 message.error("Failed to create lead", 2);

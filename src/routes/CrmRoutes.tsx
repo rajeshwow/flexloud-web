@@ -16,6 +16,7 @@ import LeadDetailsPage from "../pages/leads/LeadDetailsPage";
 import LeadsPage from "../pages/leads/LeadsPage";
 import LeaveListPage from "../pages/Leaves/LeaveListPage";
 import LoginPage from "../pages/LoginPage";
+import MyDayPage from "../pages/my-day/MyDayPage";
 import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
 import OpportunitiesPage from "../pages/Opportunities/OpportunitiesPage";
 import { default as CreateOrganizationPage } from "../pages/Organization/createOrg";
@@ -433,6 +434,18 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="rbac.view">
                 <RoleDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ------------------------------------------------------------------------ */}
+
+          {/* //my-day  */}
+          <Route
+            path="my-day"
+            element={
+              <ProtectedRoute required="my-day.view">
+                <MyDayPage />
               </ProtectedRoute>
             }
           />

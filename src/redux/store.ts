@@ -12,6 +12,7 @@ import interactionsReducer from "./reducers/interactions.slice";
 import leadsReducer from "./reducers/leads.slice";
 import leavesReducer from "./reducers/leave.slice";
 import mastersReducer from "./reducers/masters.slice";
+import myDayReducer from "./reducers/myDay.slice";
 import opportunitiesReducer from "./reducers/opportunities.slice";
 import organizationReducer from "./reducers/organization.slice";
 import productsReducer from "./reducers/products.slice";
@@ -46,6 +47,7 @@ export const store = configureStore({
     geoVisits: geoVisitsReducer,
     rbac: rbacReducer,
     dashboard: dashboardReducer,
+    myDay: myDayReducer,
   },
 });
 
