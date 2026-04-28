@@ -25,6 +25,7 @@ import {
 } from "../../redux/reducers/organization.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
@@ -340,7 +341,7 @@ export default function ContactForm({
                                 placeholder="Select organization"
                                 optionFilterProp="label"
                                 options={organization.map((org) => ({
-                                    label: org.name,
+                                    label: toTitleCase(org.name),
                                     value: org.id,
                                 }))}
                             />
@@ -409,7 +410,7 @@ export default function ContactForm({
                                 placeholder="Select assignee"
                                 options={users?.map((user: any) => ({
                                     value: user.id,
-                                    label: user.name,
+                                    label: toTitleCase(user.name),
                                 }))}
                                 optionFilterProp="label"
                                 optionLabelProp="label"

@@ -16,8 +16,10 @@ import myDayReducer from "./reducers/myDay.slice";
 import opportunitiesReducer from "./reducers/opportunities.slice";
 import organizationReducer from "./reducers/organization.slice";
 import productsReducer from "./reducers/products.slice";
+import purchaseOrdersReducer from "./reducers/purchaseOrders.slice";
 import quotesReducer from "./reducers/quotes.slice";
 import rbacReducer from "./reducers/rbac.slice";
+import salesOrdersReducer from "./reducers/salesOrders.slice";
 import tasksReducer from "./reducers/tasks.slice";
 import tenantReducer from "./reducers/tenant.slice";
 import usersReducer from "./reducers/user.slice";
@@ -48,6 +50,8 @@ export const store = configureStore({
     rbac: rbacReducer,
     dashboard: dashboardReducer,
     myDay: myDayReducer,
+    purchaseOrders: purchaseOrdersReducer,
+    salesOrders: salesOrdersReducer,
   },
 });
 

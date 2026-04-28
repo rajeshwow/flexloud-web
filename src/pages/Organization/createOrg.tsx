@@ -3,7 +3,7 @@ import { Button, Form, message, Space } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Client } from "../../shared/Utils/api-client";
-import { withTenant } from "../../shared/Utils/utils";
+import { toTitleCase, withTenant } from "../../shared/Utils/utils";
 import OrganizationForm, {
     type OrganizationFormValues,
 } from "./components/OrganizationForm";
@@ -69,7 +69,7 @@ export default function CreateOrganizationPage() {
 
             setUserOptions(
                 (usersRes?.data?.data || []).map((item: any) => ({
-                    label: item.name,
+                    label: toTitleCase(item.name),
                     value: item.id,
                 }))
             );

@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getVisits, type VisitItem } from "../../redux/reducers/visits.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 import {
     VISIT_REGARDING_OPTIONS,
     VISIT_STATUS_OPTIONS,
@@ -92,7 +93,7 @@ export default function VisitListPage() {
                 title: "Assigned To",
                 dataIndex: "assigned_to_name",
                 key: "assigned_to_name",
-                render: (value) => value || "-",
+                render: (value) => toTitleCase(value as string) || "-",
             },
             {
                 title: "Start Date",

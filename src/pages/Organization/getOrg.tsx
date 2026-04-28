@@ -16,6 +16,7 @@ import {
     type OrganizationItem,
 } from "../../redux/reducers/organization.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Title, Text, Link } = Typography;
 
@@ -52,7 +53,7 @@ export default function OrganizationGet() {
                 render: (_, record) => (
                     <Space direction="vertical" size={0}>
                         <Link onClick={() => navigate(`/${slug}/organization/view/${record.id}`)}>
-                            <Text strong>{record.name || "-"}</Text>
+                            <Text strong>{toTitleCase(record.name) || "-"}</Text>
                         </Link>
                         <Text type="secondary">{record.email || "-"}</Text>
                     </Space>
@@ -63,7 +64,7 @@ export default function OrganizationGet() {
                 dataIndex: "head_office_name",
                 key: "head_office_name",
                 width: 180,
-                render: (value) => value || "-",
+                render: (value) => toTitleCase(value) || "-",
             },
             {
                 title: "Branches",
@@ -109,7 +110,7 @@ export default function OrganizationGet() {
                 dataIndex: "assigned_to_name",
                 key: "assigned_to_name",
                 width: 180,
-                render: (value) => value || "-",
+                render: (value) => toTitleCase(value) || "-",
             },
             {
                 title: "GST Number",
@@ -188,7 +189,7 @@ export default function OrganizationGet() {
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
-                        onClick={() => navigate(`/${slug}/organizations/create`)}
+                        onClick={() => navigate(`/${slug}/organization/create`)}
                     >
                         Create
                     </Button>

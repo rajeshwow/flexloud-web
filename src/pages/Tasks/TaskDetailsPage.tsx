@@ -41,6 +41,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getTaskById, updateTask } from "../../redux/reducers/tasks.slice";
 import type { RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -495,7 +496,7 @@ export default function TaskDetailsPage() {
                             <Space direction="vertical" size={2}>
                                 <Text type="secondary">Assigned To</Text>
                                 <Text strong style={{ fontSize: 16 }}>
-                                    {task?.assigned_to_name || "--"}
+                                    {toTitleCase(task?.assigned_to_name as string) || "--"}
                                 </Text>
                             </Space>
                         </Card>
@@ -574,7 +575,7 @@ export default function TaskDetailsPage() {
                                 </Descriptions.Item>
 
                                 <Descriptions.Item label="Assigned To">
-                                    {task?.assigned_to_name || "--"}
+                                    {toTitleCase(task?.assigned_to_name as string) || "--"}
                                 </Descriptions.Item>
                             </Descriptions>
                         </InfoCard>

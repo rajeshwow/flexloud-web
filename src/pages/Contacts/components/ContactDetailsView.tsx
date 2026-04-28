@@ -6,6 +6,7 @@ import {
 } from "@ant-design/icons";
 import { Card, Col, Descriptions, Row, Space, Tag, Typography } from "antd";
 import dayjs from "dayjs";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 const { Title, Text } = Typography;
 
@@ -129,7 +130,7 @@ export default function ContactDetailsView({ contact }: Props) {
                                 {contact.organization_name || "-"}
                             </Descriptions.Item>
                             <Descriptions.Item label="Assigned To">
-                                {contact.assigned_to_name || "-"}
+                                {toTitleCase(contact.assigned_to_name as string) || "-"}
                             </Descriptions.Item>
                             <Descriptions.Item label="Created At">
                                 {contact.created_at

@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchContacts, type ContactItem } from "../../redux/reducers/contacts.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Title, Text, Link } = Typography;
 
@@ -50,7 +51,7 @@ export default function ContactsList() {
                         <Link onClick={() => navigate(`/${slug}/contacts/${record.id}`)}>
                             <Space size={8}>
                                 <UserOutlined />
-                                <Text strong>{fullName}</Text>
+                                <Text strong>{toTitleCase(fullName)}</Text>
                             </Space>
                         </Link>
 
@@ -83,7 +84,7 @@ export default function ContactsList() {
             key: "city",
             width: 140,
             render: (value: string | null) =>
-                value ? <Tag>{value}</Tag> : "-",
+                value ? <Tag>{toTitleCase(value)}</Tag> : "-",
         },
         {
             title: "Organization",
@@ -91,7 +92,7 @@ export default function ContactsList() {
             key: "organization_name",
             width: 200,
             render: (value: string | null | undefined) =>
-                value ? <Tag color="blue">{value}</Tag> : "-",
+                value ? <Tag color="blue">{toTitleCase(value)}</Tag> : "-",
         },
         {
             title: "Assigned To",
@@ -99,7 +100,7 @@ export default function ContactsList() {
             key: "assigned_to_name",
             width: 180,
             render: (value: string | null | undefined) =>
-                value ? <Tag color="purple">{value}</Tag> : "-",
+                value ? <Tag color="purple">{toTitleCase(value)}</Tag> : "-",
         },
         {
             title: "Date Created",

@@ -23,6 +23,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { Link, useParams } from "react-router-dom";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -443,7 +444,7 @@ export default function InteractionDetailsView({
                                 <Col xs={24} md={12}>
                                     <DetailItem
                                         label="Assigned To"
-                                        value={interaction?.assigned_to_name || "—"}
+                                        value={toTitleCase(interaction?.assigned_to_name as string) || "—"}
                                     />
                                 </Col>
                                 <Col xs={24} md={12}>

@@ -18,6 +18,7 @@ import {
     type OpportunityItem,
 } from "../../redux/reducers/opportunities.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { formatDateTime, toTitleCase } from "../../shared/Utils/utils";
 
 const { Text, Link, Title } = Typography;
 
@@ -102,17 +103,17 @@ export default function OpportunitiesPage() {
             },
             {
                 title: "Close",
-                dataIndex: "close_date",
-                key: "close_date",
+                dataIndex: "expected_close_date",
+                key: "expected_close_date",
                 width: 130,
-                render: (value?: string) => value || "-",
+                render: (value?: string) => formatDateTime(value) || "-",
             },
             {
                 title: "User",
-                dataIndex: "user_name",
-                key: "user_name",
+                dataIndex: "assigned_to_name",
+                key: "assigned_to_name",
                 width: 180,
-                render: (value?: string) => value || "-",
+                render: (value?: string) => toTitleCase(value) || "-",
             },
             {
                 title: "Date Created",

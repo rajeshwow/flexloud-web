@@ -15,7 +15,7 @@ import {
 } from "../../redux/reducers/leads.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
-import { formatDateTime } from "../../shared/Utils/utils";
+import { formatDateTime, toTitleCase } from "../../shared/Utils/utils";
 import AIInsightsCard from "../ai-insights/components/AIInsightsCard";
 import DetailsPageHeader from "../Details-page/DetailsPageHeader";
 import DetailsSummaryCard from "../Details-page/DetailsSummaryCard";
@@ -358,7 +358,7 @@ export default function LeadDetailsPage() {
                                 {
                                     label: "Assigned To",
                                     value:
-                                        details?.assigned_to_name ||
+                                        toTitleCase(details?.assigned_to_name as string) ||
                                         assignedUserOptions?.find((item) => item.value === details?.assigned_to)?.label ||
                                         "-",
                                     span: 24,

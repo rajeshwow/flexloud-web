@@ -31,6 +31,7 @@ import {
 import { getOrganization, type OrganizationItem } from "../../redux/reducers/organization.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 // import "./create-opportunity.css";
 
 const { Title, Text } = Typography;
@@ -53,7 +54,7 @@ type LineItem = {
 };
 
 type FormValues = {
-    opportunity_number?: string;
+    // opportunity_number?: string;
     organization_name?: string;
     contact_number?: string;
     lead_source?: string;
@@ -440,7 +441,7 @@ export default function CreateOpportunityPage() {
             setSaving(true);
 
             const payload = {
-                opportunity_number: values.opportunity_number || "",
+                // opportunity_number: values.opportunity_number || "",
                 name: values.opportunity_name || "",
                 sales_stage: values.sales_stage || null,
                 amount: values.opportunity_amount || null,
@@ -516,11 +517,11 @@ export default function CreateOpportunityPage() {
             >
                 {/* <Card className="op-card" title="Opportunity Information"> */}
                 <Row gutter={[20, 6]}>
-                    <Col xs={24} md={8}>
+                    {/* <Col xs={24} md={8}>
                         <Form.Item label="Opportunity Number" name="opportunity_number">
                             <Input placeholder="Enter opportunity number" />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
 
                     <Col xs={24} md={8}>
                         <Form.Item
@@ -533,7 +534,7 @@ export default function CreateOpportunityPage() {
                     </Col>
                     <Col xs={24} md={8}>
                         <Form.Item
-                            label="Contact Name"
+                            label="Sales Person"
                             name="contact_name"
                             rules={[{ required: true, message: "Please select contact" }]}
                         >
@@ -564,7 +565,7 @@ export default function CreateOpportunityPage() {
                                 placeholder="Select organization"
                                 optionFilterProp="label"
                                 options={organization.map((org) => ({
-                                    label: org.name,
+                                    label: toTitleCase(org.name),
                                     value: org.id,
                                 }))}
                             />                            </Form.Item>
@@ -590,7 +591,7 @@ export default function CreateOpportunityPage() {
                         </Form.Item>
                     </Col>
 
-                    <Col xs={24} md={8}>
+                    {/* <Col xs={24} md={8}>
                         <Form.Item
                             label="Product Category"
                             name="product_category"
@@ -601,15 +602,15 @@ export default function CreateOpportunityPage() {
                                 value: category.id,
                             }))} />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
 
                     <Col xs={24} md={8}>
                         <Form.Item
                             label="Company"
                             name="company"
-                            rules={[{ required: true, message: "Please enter company" }]}
+                        // rules={[{ required: true, message: "Please enter company" }]}
                         >
-                            <Input placeholder="Enter company" />
+                            <Input placeholder="My company" />
                         </Form.Item>
                     </Col>
 
@@ -635,11 +636,11 @@ export default function CreateOpportunityPage() {
                         </Form.Item>
                     </Col>
 
-                    <Col xs={24} md={8}>
+                    {/* <Col xs={24} md={8}>
                         <Form.Item label="Next Step" name="next_step">
                             <Input placeholder="Enter next step" />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
 
                     <Col xs={24} md={8}>
                         <Form.Item label="Type" name="type">
@@ -652,15 +653,15 @@ export default function CreateOpportunityPage() {
 
                     <Col xs={24} md={8}>
                         <Form.Item label="Dealer Contact" name="dealer_contact">
-                            <Select placeholder="Select dealer contact" allowClear showSearch />
+                            <Input placeholder="Enter dealer contact" />
                         </Form.Item>
                     </Col>
 
-                    <Col xs={24} md={8}>
+                    {/* <Col xs={24} md={8}>
                         <Form.Item label="Dealer Organization" name="dealer_organization">
                             <Select placeholder="Select dealer organization" allowClear showSearch />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
 
                     <Col xs={24} md={8}>
                         <Form.Item
@@ -727,11 +728,7 @@ export default function CreateOpportunityPage() {
                         </Form.Item>
                     </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Add Description" name="add_description">
-                            <TextArea rows={5} placeholder="Enter additional description" />
-                        </Form.Item>
-                    </Col>
+
 
                     <Col xs={24} md={8}>
                         <Form.Item label="Description" name="description">
@@ -743,20 +740,12 @@ export default function CreateOpportunityPage() {
                         <Form.Item label="Assigned To" name="assigned_to">
                             <Select placeholder="Select assignee" allowClear showSearch options={users?.map((user: any) => ({
                                 value: user.id,
-                                label: user.name,
+                                label: toTitleCase(user.name),
                             }))} />
                         </Form.Item>
                     </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Close Date" name="close_date">
-                            <DatePicker
-                                style={{ width: "100%" }}
-                                format="DD/MM/YYYY"
-                                suffixIcon={<CalendarOutlined />}
-                            />
-                        </Form.Item>
-                    </Col>
+
                 </Row>
                 {/* </Card> */}
 
@@ -789,55 +778,7 @@ export default function CreateOpportunityPage() {
 
                 <Divider />
 
-                {/* </Card> */}
 
-                {/* <Card className="op-card" title="Other Details"> */}
-                <div>
-                    <Title level={5}>Other Details</Title>
-                    <Row gutter={[20, 6]}>
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Campaign" name="campaign">
-                                <Select placeholder="Select campaign" allowClear showSearch />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Date Created" name="date_created">
-                                <Input placeholder="Auto-generated" disabled />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Create Quote" name="create_quote">
-                                <Input disabled />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Date Modified" name="date_modified">
-                                <Input placeholder="Auto-generated" disabled />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} md={8}>
-                            <Form.Item label="How Old" name="how_old">
-                                <Input placeholder="Auto-calculated" disabled />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Opportunity Flag" name="opportunity_flag">
-                                <Input placeholder="Auto-generated" disabled />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} md={8}>
-                            <Form.Item label="Untouched Since" name="untouched_since">
-                                <Input placeholder="Auto-calculated" disabled />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </div>
 
                 {/* </Card> */}
             </Form>

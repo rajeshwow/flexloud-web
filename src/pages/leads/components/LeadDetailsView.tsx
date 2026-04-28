@@ -10,6 +10,7 @@ import {
     Typography,
 } from "antd";
 import dayjs from "dayjs";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 const { TextArea } = Input;
 const { Title } = Typography;
@@ -58,7 +59,7 @@ export default function LeadDetailsView({
 
                         <Descriptions.Item label="Company">{renderValue(details?.company)}</Descriptions.Item>
                         <Descriptions.Item label="Designation">{renderValue(details?.designation)}</Descriptions.Item>
-                        <Descriptions.Item label="Assigned To">{renderValue(details?.assigned_to_name || details?.assigned_to)}</Descriptions.Item>
+                        <Descriptions.Item label="Assigned To">{renderValue(toTitleCase(details?.assigned_to_name as string) || details?.assigned_to)}</Descriptions.Item>
 
                         <Descriptions.Item label="Next Followup">
                             {details?.next_followup_date

@@ -24,8 +24,11 @@ import { useMasters } from "../../hooks/useMasters";
 import AddressSection from "../../layouts/addressSection";
 import { createLead } from "../../redux/reducers/leads.slice";
 import { fetchMasterValues } from "../../redux/reducers/masters.slice";
+import { getOrganization } from "../../redux/reducers/organization.slice";
+import { getProducts } from "../../redux/reducers/products.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -86,21 +89,6 @@ type CreateLeadFormValues = {
 };
 
 
-
-
-
-const dealerOrganizationOptions: SelectOption[] = [
-    { label: "Dealer One", value: "dealer-1" },
-    { label: "Dealer Two", value: "dealer-2" },
-];
-
-
-
-const productCategoryOptions: SelectOption[] = [
-    { label: "Category 1", value: "category-1" },
-    { label: "Category 2", value: "category-2" },
-];
-
 const followupOptions: SelectOption[] = [
     { label: "Call", value: "call" },
     { label: "Email", value: "email" },
@@ -130,6 +118,12 @@ export default function CreateLeadForm() {
     const sourceOptions = useMasters("source");
     const industryOptions = useMasters("industry");
 
+    const organizationsList = useSelector(
+        (state: RootState) => state?.organization?.orgList || []
+    );
+    const productList = useSelector((state: RootState) => state.products?.productList || []);
+
+
 
     const { masterValues, masterValuesLoading } = useSelector(
         (state: RootState) => state.masters
@@ -144,6 +138,9 @@ export default function CreateLeadForm() {
 
     useEffect(() => {
         dispatch(getUsers());
+        dispatch(
+            getProducts({})
+        );
     }, [dispatch]);
 
     useEffect(() => {
@@ -265,7 +262,7 @@ export default function CreateLeadForm() {
                         { email: "", primary: true, opt_out: false, invalid: false },
                     ],
                 });
-                navigate(`${slug}/leads/${response?.data?.id}`);
+                navigate(`/${slug}/leads/${response?.data?.id}`);
 
             } else {
                 message.error("Failed to create lead", 2);
@@ -280,6 +277,10 @@ export default function CreateLeadForm() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        dispatch(getOrganization({ page: 1, limit: 1000 })).unwrap().catch(() => { });
+    }, []);
 
 
 
@@ -383,11 +384,11 @@ export default function CreateLeadForm() {
                                 </Form.Item>
                             </Col>
 
-                            <Col xs={24} md={12} xl={8}>
+                            {/* <Col xs={24} md={12} xl={8}>
                                 <Form.Item label="Organization Name" name="organization_name">
                                     <Input placeholder="Enter organization name" />
                                 </Form.Item>
-                            </Col>
+                            </Col> */}
 
                             <Col xs={24}>
                                 <Form.List name="emails">
@@ -505,7 +506,10 @@ export default function CreateLeadForm() {
                                 <Form.Item label="Dealer Organization" name="dealer_organization">
                                     <Select
                                         placeholder="Select dealer organization"
-                                        options={dealerOrganizationOptions}
+                                        options={organizationsList.map((org) => ({
+                                            label: toTitleCase(org.name),
+                                            value: org.id,
+                                        }))}
                                         allowClear
                                     />
                                 </Form.Item>
@@ -545,13 +549,16 @@ export default function CreateLeadForm() {
                                 <Form.Item
                                     label="Product Category"
                                     name="product_category"
-                                    rules={[
-                                        { required: true, message: "Product category is required" },
-                                    ]}
+                                // rules={[
+                                //     { required: true, message: "Product category is required" },
+                                // ]}
                                 >
                                     <Select
                                         placeholder="Select product category"
-                                        options={productCategoryOptions}
+                                        options={productList.map((item: any) => ({
+                                            label: item.name,
+                                            value: item.id,
+                                        }))}
                                         allowClear
                                     />
                                 </Form.Item>
@@ -618,7 +625,7 @@ export default function CreateLeadForm() {
                                         placeholder="Select assignee"
                                         options={users?.map((user: any) => ({
                                             value: user.id,
-                                            label: user.name,
+                                            label: toTitleCase(user.name),
                                         }))}
                                         allowClear
                                     />

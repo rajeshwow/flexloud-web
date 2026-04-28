@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProducts, type GetProductsParams, type ProductItem } from "../../redux/reducers/products.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Title } = Typography;
 
@@ -93,7 +94,7 @@ export default function ProductListPage() {
             key: "assigned_to_name",
             width: 190,
             render: (value: string) => (
-                <span >{value}</span>
+                <span >{toTitleCase(value as string)}</span>
             ),
         },
         {

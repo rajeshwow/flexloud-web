@@ -27,7 +27,7 @@ import {
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { Client } from "../../shared/Utils/api-client";
-import { withTenant } from "../../shared/Utils/utils";
+import { toTitleCase, withTenant } from "../../shared/Utils/utils";
 
 const { Title, Text } = Typography;
 
@@ -219,11 +219,12 @@ export default function ContactForm({
         if (assignedUsers?.length) return assignedUsers;
 
         return (users || []).map((user: any) => ({
-            label:
+            label: toTitleCase(
                 user?.name ||
                 `${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
                 user?.email ||
-                "Unknown",
+                "Unknown"
+            ),
             value: user?.id,
         }));
     }, [assignedUsers, users]);
@@ -384,7 +385,7 @@ export default function ContactForm({
                                 placeholder="Select organization"
                                 optionFilterProp="label"
                                 options={organization.map((org) => ({
-                                    label: org.name,
+                                    label: toTitleCase(org.name),
                                     value: org.id,
                                 }))}
                             />

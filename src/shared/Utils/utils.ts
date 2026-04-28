@@ -19,3 +19,17 @@ export const formatDateTime = (value?: string | null) => {
   const parsed = dayjs(value);
   return parsed.isValid() ? parsed.format("DD MMM YYYY, hh:mm A") : "-";
 };
+
+export const toTitleCase = (str: string = ""): string => {
+  if (!str) return "";
+
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+  // const lower = str.toLowerCase().trim();
+
+  // return lower.charAt(0).toUpperCase() + lower.slice(1);
+};

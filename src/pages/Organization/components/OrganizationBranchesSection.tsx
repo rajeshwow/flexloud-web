@@ -1,4 +1,5 @@
 import { Card, Col, Row, Tag, Typography } from "antd";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 const { Title, Text } = Typography;
 
@@ -64,7 +65,7 @@ export default function OrganizationBranchesSection({ branches = [] }: Props) {
 
                                     <Col span={12}>
                                         <Text type="secondary">Assigned To</Text>
-                                        <div>{branch.assigned_to_name || "-"}</div>
+                                        <div>{toTitleCase(branch.assigned_to_name as string) || "-"}</div>
                                     </Col>
 
                                     <Col span={24}>

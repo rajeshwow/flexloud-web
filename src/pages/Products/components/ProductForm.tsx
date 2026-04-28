@@ -14,6 +14,7 @@ import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUsers } from "../../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../../redux/store";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -236,7 +237,7 @@ export default function ProductForm({
                                 showSearch
                                 placeholder="Select assignee"
                                 options={userList.map((user: any) => ({
-                                    label: user.name,
+                                    label: toTitleCase(user.name),
                                     value: user.id,
                                 }))}
                             />

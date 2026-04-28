@@ -21,6 +21,7 @@ import { fetchContacts } from "../../redux/reducers/contacts.slice";
 import { fetchLeads } from "../../redux/reducers/leads.slice";
 import { fetchOpportunities } from "../../redux/reducers/opportunities.slice";
 import { getOrganization } from "../../redux/reducers/organization.slice";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -167,16 +168,16 @@ export default function TaskForm({
         switch (type) {
             case "organization":
                 return (list || []).map((item: any) => ({
-                    label: item?.name || item?.organization_name || "Unnamed Organization",
+                    label: toTitleCase(item?.name || item?.organization_name || "Unnamed Organization"),
                     value: item?.id,
                 }));
 
             case "contact":
                 return (list || []).map((item: any) => ({
                     label:
-                        [item?.first_name, item?.last_name].filter(Boolean).join(" ") ||
-                        item?.name ||
-                        item?.email ||
+                        toTitleCase([item?.first_name, item?.last_name].filter(Boolean).join(" ")) ||
+                        toTitleCase(item?.name) ||
+                        toTitleCase(item?.email) ||
                         "Unnamed Contact",
                     value: item?.id,
                 }));
@@ -184,10 +185,10 @@ export default function TaskForm({
             case "lead":
                 return (list || []).map((item: any) => ({
                     label:
-                        [item?.first_name, item?.last_name].filter(Boolean).join(" ") ||
-                        item?.organization_name ||
-                        item?.lead_display_id ||
-                        item?.lead_number ||
+                        toTitleCase([item?.first_name, item?.last_name].filter(Boolean).join(" ")) ||
+                        toTitleCase(item?.organization_name) ||
+                        toTitleCase(item?.lead_display_id) ||
+                        toTitleCase(item?.lead_number) ||
                         "Unnamed Lead",
                     value: item?.id,
                 }));
@@ -195,9 +196,9 @@ export default function TaskForm({
             case "opportunity":
                 return (list || []).map((item: any) => ({
                     label:
-                        item?.name ||
-                        item?.title ||
-                        item?.opportunity_name ||
+                        toTitleCase(item?.name) ||
+                        toTitleCase(item?.title) ||
+                        toTitleCase(item?.opportunity_name) ||
                         "Unnamed Opportunity",
                     value: item?.id,
                 }));

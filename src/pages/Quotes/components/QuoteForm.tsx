@@ -24,7 +24,7 @@ import { fetchOpportunities } from "../../../redux/reducers/opportunities.slice"
 import { getOrganization } from "../../../redux/reducers/organization.slice";
 import type { AppDispatch } from "../../../redux/store";
 import { Client } from "../../../shared/Utils/api-client";
-import { withTenant } from "../../../shared/Utils/utils";
+import { toTitleCase, withTenant } from "../../../shared/Utils/utils";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -146,28 +146,28 @@ export default function QuoteForm({
         switch (type) {
             case "organization":
                 return list.map((item) => ({
-                    label: item.name,
+                    label: toTitleCase(item.name),
                     value: item.id,
                     raw: item,
                 }));
 
             case "contact":
                 return list.map((item) => ({
-                    label: `${item.first_name || ""} ${item.last_name || ""}`.trim() || item.email,
+                    label: toTitleCase(`${item.first_name || ""} ${item.last_name || ""}`.trim() || item.email),
                     value: item.id,
                     raw: item,
                 }));
 
             case "lead":
                 return list.map((item) => ({
-                    label: `${item.first_name || ""} ${item.last_name || ""}`.trim() || item.email,
+                    label: toTitleCase(`${item.first_name || ""} ${item.last_name || ""}`.trim() || item.email),
                     value: item.id,
                     raw: item,
                 }));
 
             case "opportunity":
                 return list.map((item) => ({
-                    label: item.title || item.name || item.opportunity_name,
+                    label: toTitleCase(item.title || item.name || item.opportunity_name),
                     value: item.id,
                     raw: item,
                 }));
@@ -177,11 +177,7 @@ export default function QuoteForm({
         }
     };
 
-    const handleRelatedToTypeChange = async (value: string) => {
-        form.setFieldsValue({
-            related_to_id: undefined,
-        });
-
+    const loadRelatedOptions = async (value: string) => {
         try {
             let list: any[] = [];
 
@@ -203,6 +199,19 @@ export default function QuoteForm({
         } catch (error) {
             setRelatedToOptions([]);
         }
+    };
+
+    const handleRelatedToTypeChange = async (value: string) => {
+        form.setFieldsValue({
+            related_to_id: undefined,
+        });
+
+        if (!value) {
+            setRelatedToOptions([]);
+            return;
+        }
+
+        await loadRelatedOptions(value);
     };
 
     useEffect(() => {
@@ -266,7 +275,7 @@ export default function QuoteForm({
             return;
         }
 
-        handleRelatedToTypeChange(relatedToType);
+        loadRelatedOptions(relatedToType);
     }, [relatedToType]);
 
     useEffect(() => {
@@ -330,7 +339,11 @@ export default function QuoteForm({
 
                 setUserOptions(
                     userData.map((item: any) => ({
-                        label: item.name || item.full_name || item.email,
+                        label:
+                            toTitleCase(item.name) ||
+                            toTitleCase(item.full_name) ||
+                            `${toTitleCase(item.first_name || "")} ${toTitleCase(item.last_name || "")}`.trim() ||
+                            toTitleCase(item.email),
                         value: item.id,
                         raw: item,
                     }))

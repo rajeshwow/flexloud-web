@@ -150,26 +150,8 @@ export const getProducts = createAsyncThunk<
   { rejectValue: any }
 >("products/getProducts", async (params, { rejectWithValue }) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      search,
-      status,
-      category,
-      manufacturer,
-      assigned_to,
-    } = params;
-
     const res = await Client.get(withTenant(`/products`), {
-      params: {
-        page,
-        limit,
-        search,
-        status,
-        category,
-        manufacturer,
-        assigned_to,
-      },
+      params,
     });
     return res.data;
   } catch (error: any) {
@@ -185,8 +167,7 @@ export const createProduct = createAsyncThunk<
   { rejectValue: any }
 >("products/createProduct", async (payload, { rejectWithValue }) => {
   try {
-    const { slug, ...body } = payload;
-    const res = await Client.post(withTenant(`/products`), body);
+    const res = await Client.post(withTenant(`/products`), payload);
     return res.data;
   } catch (error: any) {
     return rejectWithValue(

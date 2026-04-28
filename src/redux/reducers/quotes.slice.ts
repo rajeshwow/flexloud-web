@@ -24,6 +24,46 @@ export type QuoteLineItem = {
 };
 
 export type QuoteItem = {
+  status_id(
+    status_label: any,
+    status_name: any,
+    status: any,
+    status_id: any,
+  ): unknown;
+  items: any;
+  products: any;
+  quote_items: any;
+  quote_no: string;
+  quote_display_id: any;
+  display_id: any;
+  status: any;
+  status_name: any;
+  status_label: any;
+  organization(organization: any): unknown;
+  organization_name: any;
+  contact(contact: any): any;
+  contact_name: any;
+  assigned_to_name: any;
+  assigned_user_name: any;
+  total_amount: number | undefined;
+  final_amount: any;
+  net_amount: any;
+  sub_total: number | undefined;
+  amount: any;
+  tax_amount: any;
+  gst_amount: any;
+  discount_amount: number | undefined;
+  opportunity_name: any;
+  opportunity(opportunity: any): import("react").ReactNode;
+  quote_date: string | undefined;
+  expiry_date: string;
+  notes: any;
+  terms: any;
+  email: any;
+  contact_email: any;
+  mobile: any;
+  phone: any;
+  contact_mobile: any;
   id: string;
   quote_number: string;
   title: string;
@@ -67,6 +107,11 @@ export type QuoteItem = {
   created_at?: string;
   updated_at?: string;
   line_items?: QuoteLineItem[];
+  assigned_to_full_name?: string;
+  assigned_to_email?: string;
+  related_to_type?: string;
+  lead_name?: string;
+  lead?: string;
 };
 
 export type GetQuotesParams = {

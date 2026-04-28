@@ -217,6 +217,35 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
     ],
   },
 
+  //tally operations option add kr usme submenu PO SO etc add krna h with permission and icon
+  //tally operations option add kr usme submenu PO SO etc add krna h with permission and icon
+  //tally operations option add kr usme submenu PO SO etc add krna h with permission and icon
+  //tally operations option add kr usme submenu PO SO etc add krna h with permission and icon
+  //tally operations option add kr usme submenu PO SO etc add krna h with permission and icon
+
+  {
+    key: "tally-operations",
+    label: "Tally Operations",
+    icon: "EyeOutlined",
+    requiresAny: ["tally-operations.view"],
+    children: [
+      {
+        key: "purchase-orders.view",
+        label: "Purchase Orders",
+        path: "/purchase-orders",
+        icon: "EyeOutlined",
+        requiresAny: ["purchase-orders.view"],
+      },
+      {
+        key: "sales-orders.view",
+        label: "Sales Orders",
+        path: "/sales-orders",
+        icon: "EyeOutlined",
+        requiresAny: ["sales-orders.view"],
+      },
+    ],
+  },
+
   // ---------------- Operations ----------------
   {
     key: "operations",

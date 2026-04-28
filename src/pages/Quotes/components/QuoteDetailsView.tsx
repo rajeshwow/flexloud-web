@@ -18,7 +18,7 @@ import QuoteForm from "./QuoteForm";
 
 const { Title, Text } = Typography;
 
-export default function QuoteDetailsPage() {
+export default function QuoteDetailsView() {
     const [form] = Form.useForm();
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
@@ -46,7 +46,7 @@ export default function QuoteDetailsPage() {
         try {
             await dispatch(updateQuote({ id, payload: values })).unwrap();
             message.success("Quote updated successfully");
-            navigate(`/${slug}/quotes/${id}`);
+            navigate(`/${slug}/quotes`);
         } catch (error: any) {
             message.error(error || "Failed to update quote");
         }

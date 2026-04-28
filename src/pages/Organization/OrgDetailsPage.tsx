@@ -8,7 +8,7 @@ import { Button, Form, Space, Spin, message } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Client } from "../../shared/Utils/api-client";
-import { withTenant } from "../../shared/Utils/utils";
+import { toTitleCase, withTenant } from "../../shared/Utils/utils";
 import OrganizationDetailsView from "./components/OrganizationDetailsView";
 import OrganizationForm, {
     type OrganizationFormValues,
@@ -137,7 +137,7 @@ export default function OrgDetailsPage() {
 
             setUserOptions(
                 (usersRes?.data?.data || []).map((item: any) => ({
-                    label: item.name,
+                    label: toTitleCase(item.name),
                     value: item.id,
                 }))
             );

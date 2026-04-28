@@ -1,5 +1,5 @@
 import { DatePicker, Input, Select } from "antd";
-import { formatDateTime } from "../../../shared/Utils/utils";
+import { formatDateTime, toTitleCase } from "../../../shared/Utils/utils";
 import DetailsField from "../../Details-page/DetailsField";
 import DetailsGrid from "../../Details-page/DetailsGrid";
 import DetailsSectionCard from "../../Details-page/DetailsSectionCard";
@@ -101,7 +101,7 @@ export default function LeadDetailsContent({
                             label="Assigned To"
                             name="assigned_to"
                             value={
-                                details?.assigned_to_name ||
+                                toTitleCase(details?.assigned_to_name as string) ||
                                 assignedUserOptions?.find((item) => item.value === details?.assigned_to)?.label ||
                                 "-"
                             }

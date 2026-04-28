@@ -21,6 +21,7 @@ import { fetchOpportunities } from "../../../redux/reducers/opportunities.slice"
 import { getOrganization } from "../../../redux/reducers/organization.slice";
 import { getUsers } from "../../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../../redux/store";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 const { TextArea } = Input;
 const { Title } = Typography;
@@ -107,7 +108,7 @@ export default function InteractionForm({
     const userOptions = useMemo(
         () =>
             (usersList || []).map((item: any) => ({
-                label: item.name || item.full_name || item.email,
+                label: toTitleCase(item.name || item.full_name || item.email),
                 value: item.id,
             })),
         [usersList]
@@ -117,8 +118,8 @@ export default function InteractionForm({
         () =>
             (leadsList || []).map((item: any) => ({
                 label: item.lead_display_id
-                    ? `${item.lead_display_id} - ${item.first_name || ""} ${item.last_name || ""}`.trim()
-                    : `${item.first_name || ""} ${item.last_name || ""}`.trim() || item.mobile,
+                    ? `${item.lead_display_id} - ${toTitleCase(item.first_name || "")} ${toTitleCase(item.last_name || "")}`.trim()
+                    : toTitleCase(`${item.first_name || ""} ${item.last_name || ""}`.trim() || item.mobile),
                 value: item.id,
             })),
         [leadsList]
@@ -127,7 +128,7 @@ export default function InteractionForm({
     const contactOptions = useMemo(
         () =>
             (contactsList || []).map((item: any) => ({
-                label: `${item.first_name || ""} ${item.last_name || ""}`.trim() || item.email,
+                label: toTitleCase(`${item.first_name || ""} ${item.last_name || ""}`.trim() || item.email),
                 value: item.id,
             })),
         [contactsList]
@@ -136,7 +137,7 @@ export default function InteractionForm({
     const organizationOptions = useMemo(
         () =>
             (organizationsList || []).map((item: any) => ({
-                label: item.name,
+                label: toTitleCase(item.name),
                 value: item.id,
             })),
         [organizationsList]
@@ -145,7 +146,7 @@ export default function InteractionForm({
     const opportunityOptions = useMemo(
         () =>
             (opportunitiesList || []).map((item: any) => ({
-                label: item.title || item.name || item.opportunity_name,
+                label: toTitleCase(item.title || item.name || item.opportunity_name),
                 value: item.id,
             })),
         [opportunitiesList]
@@ -283,6 +284,7 @@ export default function InteractionForm({
                     <Col xs={24} md={8}>
                         <Form.Item name="related_to_id" label="Related Record">
                             <Select
+                                className="capitalize"
                                 allowClear
                                 showSearch
                                 options={relatedRecordOptions}

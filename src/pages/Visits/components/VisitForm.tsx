@@ -32,6 +32,7 @@ import { fetchLeads } from "../../../redux/reducers/leads.slice";
 import { getOrganization } from "../../../redux/reducers/organization.slice";
 import { getUsers } from "../../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../../redux/store";
+import { toTitleCase } from "../../../shared/Utils/utils";
 import {
     calculateDurationInMinutes,
     formatDuration,
@@ -161,7 +162,7 @@ export default function VisitForm({
     const usersOptions = useMemo(
         () =>
             (userList || []).map((item: any) => ({
-                label: item.name || item.full_name || item.email,
+                label: toTitleCase(item.name || item.full_name || item.email),
                 value: item.id,
             })),
         [userList],

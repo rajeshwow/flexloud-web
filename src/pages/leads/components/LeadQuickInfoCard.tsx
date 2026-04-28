@@ -1,5 +1,6 @@
 import { Card, Col, Row, Statistic, Typography } from "antd";
 import dayjs from "dayjs";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 const { Text } = Typography;
 
@@ -32,7 +33,7 @@ export default function LeadQuickInfoCard({ details }: Props) {
 
             <div style={{ marginTop: 12 }}>
                 <Text type="secondary">Assigned To</Text>
-                <div>{details?.assigned_to_name || details?.assigned_to || "-"}</div>
+                <div>{toTitleCase(details?.assigned_to_name as string) || details?.assigned_to || "-"}</div>
             </div>
 
             <div style={{ marginTop: 12 }}>

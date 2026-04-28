@@ -33,6 +33,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getVisitById, resetVisitDetailsState } from "../../redux/reducers/visits.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 dayjs.extend(relativeTime);
 
@@ -541,7 +542,7 @@ export default function VisitDetailsPage() {
                                     style={{ borderRadius: 20 }}
                                 >
                                     <Row gutter={[12, 12]}>
-                                        <SummaryItem label="Assigned To" value={selectedVisit.assigned_to_name || "-"} span={8} />
+                                        <SummaryItem label="Assigned To" value={toTitleCase(selectedVisit.assigned_to_name as string) || "-"} span={8} />
                                         <SummaryItem label="Regarding" value={selectedVisit.regarding || "-"} span={8} />
                                         <SummaryItem label="Ticket Status" value={selectedVisit.ticket_status || "-"} span={8} />
                                         <SummaryItem label="Start Date" value={formatDateTime(selectedVisit.start_date)} span={8} />

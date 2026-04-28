@@ -24,12 +24,19 @@ import OrganizationGet from "../pages/Organization/getOrg";
 import OrgDetailsPage from "../pages/Organization/OrgDetailsPage";
 import CreateProductPage from "../pages/Products/CreateProductPage";
 import ProductListPage from "../pages/Products/ProductListPage";
-import QuoteDetailsPage from "../pages/Quotes/components/QuoteDetailsView";
+import CreatePurchaseOrder from "../pages/purchase-orders/CreatePurchaseOrder";
+import PurchaseOrderDetailsPage from "../pages/purchase-orders/PurchaseOrderDetailsPage";
+import PurchaseOrderListPage from "../pages/purchase-orders/PurchaseOrderListPage";
+import QuoteDetailsView from "../pages/Quotes/components/QuoteDetailsView";
 import CreateQuotePage from "../pages/Quotes/CreateQuotePage";
+import QuoteDetailsPage from "../pages/Quotes/QuoteDetailsPage";
 import QuotesListPage from "../pages/Quotes/QuotesListPage";
 import CreateRolePage from "../pages/rbac/CreateRolePage";
 import RoleDetailsPage from "../pages/rbac/RoleDetailsPage";
 import RolesListPage from "../pages/rbac/RolesListPage";
+import SalesOrderDetailsPage from "../pages/salesOrders/SalesOrderDetailsPage";
+import SalesOrderFormPage from "../pages/salesOrders/SalesOrderFormPage";
+import SalesOrderListPage from "../pages/salesOrders/SalesOrderListPage";
 import CreateTask from "../pages/Tasks/CreateTask";
 import EditTask from "../pages/Tasks/EditTask";
 import TaskDetailsPage from "../pages/Tasks/TaskDetailsPage";
@@ -352,10 +359,10 @@ export default function CrmRoutes() {
           />
 
           <Route
-            path="quotes/edit/:id"
+            path="quotes/:id/edit"
             element={
               <ProtectedRoute required="quotes.edit">
-                <QuoteDetailsPage />
+                <QuoteDetailsView />
               </ProtectedRoute>
             }
           />
@@ -369,7 +376,87 @@ export default function CrmRoutes() {
             }
           />
 
+          {/* ----------------------------------------------------------------------------- */}
+
+          {/* tally operations */}
+
+          <Route
+            path="purchase-orders"
+            element={
+              <ProtectedRoute required="purchase-orders.view">
+                <PurchaseOrderListPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="purchase-orders/create"
+            element={
+              <ProtectedRoute required="purchase-orders.create">
+                <CreatePurchaseOrder />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="purchase-orders/:id/edit"
+            element={
+              <ProtectedRoute required="purchase-orders.edit">
+                <CreatePurchaseOrder isEdit />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="purchase-orders/:id"
+            element={
+              <ProtectedRoute required="purchase-orders.view">
+                <PurchaseOrderDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* ------------------------------------------------------------------------ */}
+
+            //sales order routes
+
+          <Route
+            path="sales-orders"
+            element={
+              <ProtectedRoute required="sales-orders.view">
+                <SalesOrderListPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="sales-orders/create"
+            element={
+              <ProtectedRoute required="sales-orders.create">
+                <SalesOrderFormPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="sales-orders/:id/edit"
+            element={
+              <ProtectedRoute required="sales-orders.edit">
+                <SalesOrderFormPage isEdit />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="sales-orders/:id"
+            element={
+              <ProtectedRoute required="sales-orders.view">
+                <SalesOrderDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* --------------------------------------------------------------------------------- */}
 
           {/* //interactions  */}
           <Route

@@ -33,6 +33,7 @@ import {
     resetLeadsListState,
     type LeadItem,
 } from "../../redux/reducers/leads.slice";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Text, Link } = Typography;
 const { Option } = Select;
@@ -131,7 +132,7 @@ export default function LeadsPage() {
                     const fullName = [record.first_name, record.last_name]
                         .filter(Boolean)
                         .join(" ");
-                    return <Text strong>{fullName || "-"}</Text>;
+                    return <Text strong>{toTitleCase(fullName) || "-"}</Text>;
                 },
             },
             {
@@ -175,14 +176,14 @@ export default function LeadsPage() {
                 dataIndex: "priority_label",
                 key: "priority_label",
                 width: 130,
-                render: (value?: string) => value || "-",
+                render: (value?: string) => toTitleCase(value as string) || "-",
             },
             {
                 title: "Organization Name",
                 dataIndex: "organization_name",
                 key: "organization_name",
                 width: 220,
-                render: (value?: string) => value || "-",
+                render: (value?: string) => toTitleCase(value as string) || "-",
             },
             {
                 title: "Email",
@@ -200,7 +201,7 @@ export default function LeadsPage() {
                 dataIndex: "assigned_to_name",
                 key: "assigned_to_name",
                 width: 180,
-                render: (value?: string) => value || "-",
+                render: (value?: string) => toTitleCase(value as string) || "-",
             },
             {
                 title: "Lead Source",

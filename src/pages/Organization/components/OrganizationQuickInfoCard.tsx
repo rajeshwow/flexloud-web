@@ -1,4 +1,5 @@
 import { Card, Col, Row, Tag, Typography } from "antd";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 const { Text, Title } = Typography;
 
@@ -28,7 +29,7 @@ export default function OrganizationQuickInfoCard({ organization }: Props) {
 
                         <Col span={12}>
                             <Text type="secondary">Assigned To</Text>
-                            <div>{organization?.assigned_to_name || "-"}</div>
+                            <div>{toTitleCase(organization?.assigned_to_name as string) || "-"}</div>
                         </Col>
 
                         <Col span={12}>
