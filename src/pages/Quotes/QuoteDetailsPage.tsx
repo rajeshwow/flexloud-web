@@ -222,7 +222,7 @@ export default function QuoteDetailsPage() {
             render: (_: any, row: any) => (
                 <Space direction="vertical" size={0}>
                     <Text strong>
-                        {getText(row.product_name, row.name, row.title, row.item_name)}
+                        {getText(toTitleCase(row.product_name), toTitleCase(row.name), toTitleCase(row.title), toTitleCase(row.item_name))}
                     </Text>
                     {row.description && <Text type="secondary">{row.description}</Text>}
                 </Space>
@@ -369,7 +369,7 @@ export default function QuoteDetailsPage() {
                                             </Space>
 
                                             <Text type="secondary">
-                                                Quote for <Text strong>{customerName}</Text>
+                                                Quote for <Text strong>{toTitleCase(customerName as string)}</Text>
                                             </Text>
 
                                             <div style={{ marginTop: 12 }}>
@@ -380,7 +380,7 @@ export default function QuoteDetailsPage() {
                                                     <Tag icon={<ClockCircleOutlined />}>
                                                         Valid Until: {formatDate(validUntil)}
                                                     </Tag>
-                                                    <Tag icon={<UserOutlined />}>Owner: {assignedTo}</Tag>
+                                                    <Tag icon={<UserOutlined />}>Owner: {toTitleCase(assignedTo as string)}</Tag>
                                                 </Space>
                                             </div>
                                         </div>
@@ -412,7 +412,7 @@ export default function QuoteDetailsPage() {
                                         <div>
                                             <Text type="secondary">Customer</Text>
                                             <br />
-                                            <Text strong>{customerName}</Text>
+                                            <Text strong>{toTitleCase(customerName as string)}</Text>
                                         </div>
                                     </Space>
                                 </Col>
@@ -423,7 +423,7 @@ export default function QuoteDetailsPage() {
                                         <div>
                                             <Text type="secondary">Contact Person</Text>
                                             <br />
-                                            <Text strong>{contactName}</Text>
+                                            <Text strong>{toTitleCase(contactName as string)}</Text>
                                         </div>
                                     </Space>
                                 </Col>
@@ -631,7 +631,7 @@ export default function QuoteDetailsPage() {
                                         <div>
                                             <Text type="secondary">Organization</Text>
                                             <br />
-                                            <Text strong>{getText(details.organization_name, details.organization)}</Text>
+                                            <Text strong>{getText(toTitleCase(details.organization_name), (details.organization))}</Text>
                                         </div>
                                     </Space>
 
@@ -640,7 +640,7 @@ export default function QuoteDetailsPage() {
                                         <div>
                                             <Text type="secondary">Contact</Text>
                                             <br />
-                                            <Text strong>{contactName}</Text>
+                                            <Text strong>{toTitleCase(contactName as string)}</Text>
                                         </div>
                                     </Space>
 

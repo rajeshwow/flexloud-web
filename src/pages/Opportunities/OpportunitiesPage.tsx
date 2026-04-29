@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Input, Space, Table, Tag, Tooltip, Typography, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -65,15 +65,15 @@ export default function OpportunitiesPage() {
         };
     }, [dispatch]);
 
-    const columns: ColumnsType<OpportunityItem> = useMemo(
-        () => [
+    const columns: ColumnsType<OpportunityItem> =
+        [
             {
                 title: "Opportunity Number",
                 dataIndex: "opportunity_number",
                 key: "opportunity_number",
                 width: 190,
                 render: (value: string, record) => (
-                    <Link onClick={() => navigate(`/opportunities/${record.id}`)}>{value}</Link>
+                    <Link onClick={() => navigate(`/${slug}/opportunities/${record.id}`)}>{value}</Link>
                 ),
             },
             {
@@ -81,7 +81,7 @@ export default function OpportunitiesPage() {
                 dataIndex: "name",
                 key: "name",
                 width: 220,
-                render: (value: string) => <Text strong>{value || "-"}</Text>,
+                render: (value: string) => <Text strong>{toTitleCase(value) || "-"}</Text>,
             },
             {
                 title: "Sales Stage",
@@ -102,7 +102,7 @@ export default function OpportunitiesPage() {
                         : "-",
             },
             {
-                title: "Close",
+                title: "Expected Close Date",
                 dataIndex: "expected_close_date",
                 key: "expected_close_date",
                 width: 130,
@@ -120,7 +120,7 @@ export default function OpportunitiesPage() {
                 dataIndex: "created_at",
                 key: "created_at",
                 width: 180,
-                render: (value?: string) => value || "-",
+                render: (value?: string) => formatDateTime(value) || "-",
             },
             {
                 title: "Actions",
@@ -133,7 +133,7 @@ export default function OpportunitiesPage() {
                             <Button
                                 type="text"
                                 icon={<EditOutlined />}
-                                onClick={() => navigate(`/opportunities/${record.id}/edit`)}
+                                onClick={() => navigate(`${slug}/opportunities/${record.id}/edit`)}
                             />
                         </Tooltip>
 
@@ -175,9 +175,7 @@ export default function OpportunitiesPage() {
                     </Space>
                 ),
             },
-        ],
-        [navigate]
-    );
+        ]
 
     const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
     const end = Math.min(page * pageSize, total || 0);

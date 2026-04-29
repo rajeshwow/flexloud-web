@@ -72,13 +72,16 @@ const calculateItem = (item: any) => {
     };
 };
 
-export default function SalesOrderFormPage() {
+interface Props {
+    isEdit?: boolean,
+}
+
+export default function SalesOrderFormPage({ isEdit = false }: Props) {
     const [form] = Form.useForm();
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     const { slug, id } = useParams();
 
-    const isEdit = Boolean(id);
     const { detail, detailLoading } = useSelector((s: any) => s.salesOrders);
 
     const [customers, setCustomers] = useState<any[]>([]);

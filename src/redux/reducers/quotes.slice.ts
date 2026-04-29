@@ -39,7 +39,7 @@ export type QuoteItem = {
   status: any;
   status_name: any;
   status_label: any;
-  organization(organization: any): unknown;
+  organization(organization: any): any;
   organization_name: any;
   contact(contact: any): any;
   contact_name: any;

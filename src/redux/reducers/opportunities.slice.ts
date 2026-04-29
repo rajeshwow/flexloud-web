@@ -137,6 +137,20 @@ export const fetchOpportunities = createAsyncThunk<
   }
 });
 
+export const getOpportunityById = createAsyncThunk(
+  "opportunities/getById",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await Client.get(withTenant(`/opportunities/${id}`));
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err?.response?.data?.message || "Failed to fetch opportunity",
+      );
+    }
+  },
+);
+
 export const createOpportunity = createAsyncThunk<
   CreateOpportunityResponse,
   CreateOpportunityPayload,

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchQuotes, type QuoteItem } from "../../redux/reducers/quotes.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Title } = Typography;
 
@@ -35,7 +36,7 @@ export default function QuotesListPage() {
             key: "title",
             render: (_, record) => (
                 <Button type="link" style={{ padding: 0 }} onClick={() => navigate(`/${slug}/quotes/${record.id}`)}>
-                    {record.title}
+                    {toTitleCase(record.title)}
                 </Button>
             ),
         },

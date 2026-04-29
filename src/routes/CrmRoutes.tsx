@@ -18,7 +18,9 @@ import LeaveListPage from "../pages/Leaves/LeaveListPage";
 import LoginPage from "../pages/LoginPage";
 import MyDayPage from "../pages/my-day/MyDayPage";
 import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
+import EditOpportunityPage from "../pages/Opportunities/EditOpportunityPage";
 import OpportunitiesPage from "../pages/Opportunities/OpportunitiesPage";
+import OpportunityDetailsPage from "../pages/Opportunities/OpportunityDetailsPage";
 import { default as CreateOrganizationPage } from "../pages/Organization/createOrg";
 import OrganizationGet from "../pages/Organization/getOrg";
 import OrgDetailsPage from "../pages/Organization/OrgDetailsPage";
@@ -174,6 +176,24 @@ export default function CrmRoutes() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="opportunities/:id"
+            element={
+              <ProtectedRoute required="opportunities.view">
+                <OpportunityDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="opportunities/:id/edit"
+            element={
+              <ProtectedRoute required="opportunities.edit">
+                <EditOpportunityPage />
+              </ProtectedRoute>
+            }
+          />
+
 
           {/* --------------------------------------------------------------------------------------------------- */}
 

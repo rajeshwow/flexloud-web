@@ -13,22 +13,25 @@ import {
     Form,
     Input,
     InputNumber,
+    message,
     Row,
     Select,
     Space,
+    Spin,
     Table,
     Typography,
-    message,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
 import { fetchContacts } from "../../redux/reducers/contacts.slice";
 import {
-    createOpportunity,
+    getOpportunityById,
     resetOpportunitiesState,
+    updateOpportunity,
 } from "../../redux/reducers/opportunities.slice";
 import {
     getOrganization,
@@ -45,6 +48,7 @@ const { Option } = Select;
 
 type LineItem = {
     key: string;
+    id?: string;
     product_id?: string;
     product_name?: string;
     sku?: string;
@@ -109,14 +113,17 @@ const DEFAULT_LINE_ITEM: LineItem = {
     amount: 0,
 };
 
-export default function CreateOpportunityPage() {
+export default function EditOpportunityPage() {
     const [form] = Form.useForm<FormValues>();
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>();
 
     const [organization, setOrganization] = useState<OrganizationItem[]>([]);
     const [contactOptions, setContactOptions] = useState<any[]>([]);
     const [saving, setSaving] = useState(false);
+    const [pageLoading, setPageLoading] = useState(true);
+
     const [lineItems, setLineItems] = useState<LineItem[]>([DEFAULT_LINE_ITEM]);
 
     const users = useSelector((state: any) => state.users?.userList || []);
@@ -129,29 +136,8 @@ export default function CreateOpportunityPage() {
     );
 
     useEffect(() => {
-        fetchOrganizations();
-        fetchContactsFn();
-        dispatch(getUsers());
-        dispatch(getProducts({}));
-    }, []);
-
-    const fetchContactsFn = async () => {
-        try {
-            const res = await dispatch(fetchContacts()).unwrap();
-            setContactOptions(res.data || []);
-        } catch {
-            message.error("Failed to load contacts");
-        }
-    };
-
-    const fetchOrganizations = async () => {
-        try {
-            const res = await dispatch(getOrganization()).unwrap();
-            setOrganization(res.data || []);
-        } catch {
-            message.error("Failed to load organizations");
-        }
-    };
+        loadInitialData();
+    }, [id]);
 
     const calculateLineItem = (item: LineItem) => {
         const quantity = Number(item.quantity || 0);
@@ -168,6 +154,100 @@ export default function CreateOpportunityPage() {
             sgst: gstAmount / 2,
             amount: taxableAmount + gstAmount,
         };
+    };
+
+    const normalizeLineItem = (item: any): LineItem => {
+        const prepared: LineItem = {
+            key: item.id || crypto.randomUUID(),
+            id: item.id,
+            product_id: item.product_id,
+            product_name: item.product_name || item.name || "",
+            sku: item.sku || item.part_no || "",
+            quantity: Number(item.quantity || item.qty || 1),
+            price: Number(item.list_price || 0),
+            discount: Number(item.discount || 0),
+            tax: Number(item.tax || 18),
+            cgst: Number(item.cgst || 0),
+            sgst: Number(item.sgst || 0),
+            amount: Number(item.amount || item.total || 0),
+        };
+
+        const calc = calculateLineItem(prepared);
+
+        return {
+            ...prepared,
+            cgst: prepared.cgst || calc.cgst,
+            sgst: prepared.sgst || calc.sgst,
+            amount: prepared.amount || calc.amount,
+        };
+    };
+
+    const loadInitialData = async () => {
+        if (!id) return;
+
+        try {
+            setPageLoading(true);
+
+            const [orgRes, contactRes, oppRes] = await Promise.all([
+                dispatch(getOrganization()).unwrap(),
+                dispatch(fetchContacts()).unwrap(),
+                dispatch(getOpportunityById(id)).unwrap(),
+                dispatch(getUsers()).unwrap(),
+                dispatch(getProducts({})).unwrap(),
+            ]);
+
+            const orgList = orgRes?.data || [];
+            const contacts = contactRes?.data || [];
+            const opportunity = oppRes?.data;
+
+            setOrganization(orgList);
+            setContactOptions(contacts);
+
+            form.setFieldsValue({
+                opportunity_name: opportunity?.name || "",
+                contact_name: opportunity?.contact_name || undefined,
+                organization_name: opportunity?.organization_name || undefined,
+                contact_number: opportunity?.contact_number || opportunity?.phone || "",
+                contact_email: opportunity?.contact_email || opportunity?.email || "",
+                lead_source: opportunity?.lead_source || undefined,
+                company: opportunity?.company || "",
+                probability: opportunity?.probability ?? undefined,
+                sales_stage: opportunity?.sales_stage || "Qualification",
+                type: opportunity?.type || undefined,
+                dealer_contact: opportunity?.dealer_contact || "",
+                expected_close_date: opportunity?.expected_close_date
+                    ? dayjs(opportunity.expected_close_date)
+                    : undefined,
+                opportunity_amount_currency: opportunity?.currency || "₹ (INR)",
+                opportunity_amount: opportunity?.amount ?? undefined,
+                next_followup: opportunity?.next_followup
+                    ? dayjs(opportunity.next_followup)
+                    : undefined,
+                followup_type: opportunity?.followup_type || undefined,
+                description: opportunity?.description || "",
+                assigned_to: opportunity?.assigned_to || undefined,
+                campaign: opportunity?.campaign || "",
+                add_description: opportunity?.add_description || "",
+                next_step: opportunity?.next_step || "",
+                close_date: opportunity?.close_date
+                    ? dayjs(opportunity.close_date)
+                    : undefined,
+            });
+
+            const mappedLineItems =
+                opportunity?.line_items?.length > 0
+                    ? opportunity.line_items.map(normalizeLineItem)
+                    : [{ ...DEFAULT_LINE_ITEM, key: crypto.randomUUID() }];
+
+            setLineItems(mappedLineItems);
+        } catch (error) {
+            message.error(
+                typeof error === "string" ? error : "Failed to load opportunity"
+            );
+            navigate(-1);
+        } finally {
+            setPageLoading(false);
+        }
     };
 
     const handleContactChange = (contactId: string) => {
@@ -223,27 +303,11 @@ export default function CreateOpportunityPage() {
 
                 return {
                     ...updated,
-                    ...calc,
+                    cgst: calc.cgst,
+                    sgst: calc.sgst,
+                    amount: calc.amount,
                 };
             })
-        );
-    };
-
-    const safeNumber = (value: any, fallback = 0) => {
-        const num = Number(value);
-        return Number.isFinite(num) ? num : fallback;
-    };
-
-    const getProductTax = (product: any) => {
-        return safeNumber(
-            product?.tax_percentage ??
-            product?.tax_percent ??
-            product?.gst_percentage ??
-            product?.gst_percent ??
-            product?.tax ??
-            product?.gst ??
-            product?.tax,
-            18
         );
     };
 
@@ -280,7 +344,7 @@ export default function CreateOpportunityPage() {
                         product?.unit_price ||
                         0
                     ),
-                    tax: getProductTax(product),
+                    tax: Number(product?.tax || product?.gst || 18),
                     quantity: item.quantity || 1,
                     discount: item.discount || 0,
                 };
@@ -298,17 +362,17 @@ export default function CreateOpportunityPage() {
     const totals = useMemo(() => {
         return lineItems.reduce(
             (acc, item) => {
-                const quantity = Number(item.quantity || 0);
-                const price = Number(item.price || 0);
-                const discount = Number(item.discount || 0);
-                const baseAmount = quantity * price;
+                const amount = Number(item.amount || 0);
+                const cgst = Number(item.cgst || 0);
+                const sgst = Number(item.sgst || 0);
+                const taxAmount = cgst + sgst;
 
-                acc.subtotal += baseAmount;
-                acc.discount += discount;
-                acc.cgst += Number(item.cgst || 0);
-                acc.sgst += Number(item.sgst || 0);
-                acc.tax += Number(item.cgst || 0) + Number(item.sgst || 0);
-                acc.grandTotal += Number(item.amount || 0);
+                acc.subtotal += amount - taxAmount;
+                acc.discount += Number(item.discount || 0);
+                acc.cgst += cgst;
+                acc.sgst += sgst;
+                acc.tax += taxAmount;
+                acc.grandTotal += amount;
 
                 return acc;
             },
@@ -322,12 +386,6 @@ export default function CreateOpportunityPage() {
             }
         );
     }, [lineItems]);
-
-    useEffect(() => {
-        form.setFieldsValue({
-            opportunity_amount: totals.grandTotal,
-        });
-    }, [totals.grandTotal, form]);
 
     const columns: ColumnsType<LineItem> = useMemo(
         () => [
@@ -351,12 +409,7 @@ export default function CreateOpportunityPage() {
                     />
                 ),
             },
-            // {
-            //     title: "SKU",
-            //     dataIndex: "sku",
-            //     width: 140,
-            //     render: (_, record) => <Input value={record.sku} readOnly />,
-            // },
+
             {
                 title: "Qty",
                 dataIndex: "quantity",
@@ -420,7 +473,7 @@ export default function CreateOpportunityPage() {
                 width: 120,
                 render: (_, record) => (
                     <Select
-                        value={Number.isFinite(Number(record.tax)) ? Number(record.tax) : 18}
+                        value={record.tax}
                         style={{ width: "100%" }}
                         onChange={(value) => updateLineItem(record.key, "tax", value)}
                         options={GST_OPTIONS.map((gst) => ({
@@ -469,6 +522,8 @@ export default function CreateOpportunityPage() {
     );
 
     const onFinish = async (values: FormValues) => {
+        if (!id) return;
+
         try {
             setSaving(true);
 
@@ -513,48 +568,44 @@ export default function CreateOpportunityPage() {
                 sgst: totals.sgst,
                 grand_total: totals.grandTotal,
 
-                line_items: lineItems.map(({ key, ...item }) => {
-                    const quantity = Number(item.quantity || 0);
-                    const price = Number(item.price || 0);
-                    const discount = Number(item.discount || 0);
-                    const taxRate = Number(item.tax || 0);
-
-                    const baseAmount = quantity * price;
-                    const taxableAmount = Math.max(baseAmount - discount, 0);
-                    const taxAmount = (taxableAmount * taxRate) / 100;
-                    const total = taxableAmount + taxAmount;
-
-                    return {
-                        product_id: item.product_id || null,
-                        product_name: item.product_name || null,
-                        part_no: item.sku || null,
-
-                        qty: quantity,
-                        list_price: price,
-                        discount,
-                        discount_type: "Flat",
-                        sale_price: taxableAmount,
-
-                        tax_type: "GST",
-                        tax_amount: taxAmount,
-                        tax: taxRate,
-                        total,
-                    };
-                }),
+                line_items: lineItems.map(({ key, id: lineItemId, ...item }) => ({
+                    id: lineItemId,
+                    product_id: item.product_id || null,
+                    product_name: item.product_name || null,
+                    sku: item.sku || null,
+                    quantity: Number(item.quantity || 0),
+                    price: Number(item.price || 0),
+                    discount: Number(item.discount || 0),
+                    tax: Number(item.tax || 0),
+                    cgst: Number(item.cgst || 0),
+                    sgst: Number(item.sgst || 0),
+                    amount: Number(item.amount || 0),
+                })),
             };
 
-            const res = await dispatch(createOpportunity(payload as never)).unwrap();
-            message.success(res?.message || "Opportunity created successfully");
+            const res = await dispatch(
+                updateOpportunity({ id, payload } as never)
+            ).unwrap();
+
+            message.success(res?.message || "Opportunity updated successfully");
             dispatch(resetOpportunitiesState());
             navigate(-1);
         } catch (error: unknown) {
             message.error(
-                typeof error === "string" ? error : "Failed to create opportunity"
+                typeof error === "string" ? error : "Failed to update opportunity"
             );
         } finally {
             setSaving(false);
         }
     };
+
+    if (pageLoading) {
+        return (
+            <div style={{ padding: 40, textAlign: "center" }}>
+                <Spin />
+            </div>
+        );
+    }
 
     return (
         <div className="op-create-page">
@@ -566,16 +617,14 @@ export default function CreateOpportunityPage() {
                     alignItems: "center",
                 }}
             >
-                <div>
-                    <Title level={4} className="op-create-title">
-                        Create Opportunity
-                    </Title>
-                </div>
+                <Title level={4} className="op-create-title">
+                    Edit Opportunity
+                </Title>
 
                 <Space>
                     <Button onClick={() => navigate(-1)}>Cancel</Button>
                     <Button type="primary" loading={saving} onClick={() => form.submit()}>
-                        Save
+                        Update
                     </Button>
                 </Space>
             </div>
@@ -624,7 +673,8 @@ export default function CreateOpportunityPage() {
                                 showSearch
                                 optionFilterProp="label"
                                 options={contactOptions?.map((contact: any) => ({
-                                    label: `${toTitleCase(contact.first_name || "")} ${toTitleCase(contact.last_name || "")}`.trim(),
+                                    label: `${toTitleCase(contact.first_name || "")} ${toTitleCase(contact.last_name || ""
+                                    )}`.trim(),
                                     value: contact.id,
                                 }))}
                             />
@@ -686,9 +736,7 @@ export default function CreateOpportunityPage() {
                         <Form.Item
                             label="Sales Stage"
                             name="sales_stage"
-                            rules={[
-                                { required: true, message: "Please select sales stage" },
-                            ]}
+                            rules={[{ required: true, message: "Please select sales stage" }]}
                         >
                             <Select placeholder="Select sales stage">
                                 {salesStageOptions.map((item) => (
@@ -750,9 +798,9 @@ export default function CreateOpportunityPage() {
                                 <Form.Item name="opportunity_amount" noStyle>
                                     <InputNumber
                                         min={0}
-                                        readOnly
                                         style={{ width: "72%" }}
                                         placeholder="Auto from items"
+                                        value={totals.grandTotal}
                                     />
                                 </Form.Item>
                             </Input.Group>
@@ -789,12 +837,6 @@ export default function CreateOpportunityPage() {
                     </Col>
 
                     <Col xs={24} md={8}>
-                        <Form.Item label="Description" name="description">
-                            <TextArea rows={5} placeholder="Enter description" />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={8}>
                         <Form.Item label="Assigned To" name="assigned_to">
                             <Select
                                 placeholder="Select assignee"
@@ -806,6 +848,12 @@ export default function CreateOpportunityPage() {
                                     label: toTitleCase(user.name || user.full_name || user.email),
                                 }))}
                             />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={8}>
+                        <Form.Item label="Description" name="description">
+                            <TextArea rows={5} placeholder="Enter description" />
                         </Form.Item>
                     </Col>
                 </Row>
