@@ -98,6 +98,17 @@ export default function ProductListPage() {
             ),
         },
         {
+            title: "Source",
+            dataIndex: "source",
+            key: "source",
+            width: 120,
+            render: (source?: string) => (
+                <Tag color={source === "tally" ? "blue" : "default"}>
+                    {source === "tally" ? "Tally" : "System"}
+                </Tag>
+            ),
+        },
+        {
             title: "Status",
             dataIndex: "status",
             key: "status",

@@ -59,13 +59,7 @@ export default function OrganizationGet() {
                     </Space>
                 ),
             },
-            {
-                title: "Head Office",
-                dataIndex: "head_office_name",
-                key: "head_office_name",
-                width: 180,
-                render: (value) => toTitleCase(value) || "-",
-            },
+
             {
                 title: "Branches",
                 dataIndex: "branch_count",
@@ -104,6 +98,17 @@ export default function OrganizationGet() {
                 key: "industry_name",
                 width: 180,
                 render: (value, record) => value || record.industry || "-",
+            },
+            {
+                title: "Source",
+                dataIndex: "source",
+                key: "source",
+                width: 120,
+                render: (source?: string) => (
+                    <Tag color={source === "tally" ? "blue" : "default"}>
+                        {source === "tally" ? "Tally" : "System"}
+                    </Tag>
+                ),
             },
             {
                 title: "Assigned To",

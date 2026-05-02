@@ -105,7 +105,7 @@ export default function OpportunitiesPage() {
                 title: "Expected Close Date",
                 dataIndex: "expected_close_date",
                 key: "expected_close_date",
-                width: 130,
+                width: 170,
                 render: (value?: string) => formatDateTime(value) || "-",
             },
             {

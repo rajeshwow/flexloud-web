@@ -128,35 +128,42 @@ export default function PurchaseOrderListPage() {
                     {val}
                 </a>
             ),
+            width: 150,
         },
         {
             title: "Vendor",
             dataIndex: "supplier_name",
+            width: 150,
         },
         {
             title: "Sales person",
             dataIndex: "assigned_to_name",
             render: (val: string) => val || "-",
+            width: 170,
         },
         {
             title: "Expected Delivery Date",
             dataIndex: "expected_delivery_date",
             render: (val: string) => (val ? dayjs(val).format("DD MMM YYYY") : "-"),
+            width: 190,
         },
         {
             title: "Order Date",
             dataIndex: "voucher_date",
             render: (val: string) => (val ? dayjs(val).format("DD MMM YYYY") : "-"),
+            width: 150,
         },
         {
             title: "Items Count",
             dataIndex: "items_count",
             render: (val: number) => val || 0,
+            width: 150,
         },
         {
             title: "Amount",
             dataIndex: "total_amount",
             render: (val: number) => `₹ ${Number(val || 0).toLocaleString("en-IN")}`,
+            width: 150,
         },
         {
             title: "Status",
@@ -301,7 +308,7 @@ export default function PurchaseOrderListPage() {
                 dataSource={data}
                 pagination={pagination}
                 onChange={handleTableChange}
-                scroll={{ x: 1100 }}
+                scroll={{ x: 1500 }}
             />
         </div>
     );

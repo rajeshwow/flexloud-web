@@ -26,16 +26,17 @@ import {
     Statistic,
     Table,
     Tag,
-    Timeline,
     Typography,
     message,
     theme
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import ActivityTimeline from "../../layouts/ActivityTimeline";
+import { fetchActivityTimeline } from "../../redux/reducers/activity.slice";
 import {
     clearQuoteDetails,
     fetchQuoteDetails,
@@ -107,6 +108,9 @@ export default function QuoteDetailsPage() {
     const location = useLocation();
     const { token } = theme.useToken();
 
+    const [timelineData, setTimelineData] = useState<any[]>([]);
+    const [timelineLoading, setTimelineLoading] = useState(false);
+
     const isEditMode = useMemo(
         () => location.pathname.endsWith("/edit"),
         [location.pathname]
@@ -115,6 +119,32 @@ export default function QuoteDetailsPage() {
     const { details, detailsLoading, updateLoading } = useSelector(
         (state: RootState) => state.quotes
     );
+
+    const fetchTimeline = async (quoteId: string) => {
+        try {
+            setTimelineLoading(true);
+
+            const res = await dispatch(
+                fetchActivityTimeline({
+                    entityType: "quote",
+                    entityId: quoteId,
+                })
+            ).unwrap();
+
+            setTimelineData(res || []);
+        } catch (error) {
+            console.error("quote timeline fetch failed", error);
+            setTimelineData([]);
+        } finally {
+            setTimelineLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!id) return;
+
+        fetchTimeline(id);
+    }, [id]);
 
     useEffect(() => {
         if (!id) return;
@@ -197,16 +227,6 @@ export default function QuoteDetailsPage() {
     const validUntil = details.valid_until || details.expiry_date;
     const quoteDate = details.quote_date || details.created_at;
 
-    const subtotal = details.sub_total || details.subtotal || details.amount || 0;
-    const discount = details.discount_amount || details.discount || 0;
-    const tax = details.tax_amount || details.gst_amount || 0;
-    const grandTotal =
-        details.grand_total ||
-        details.total_amount ||
-        details.final_amount ||
-        details.net_amount ||
-        0;
-
     const items =
         details.items ||
         details.products ||
@@ -214,16 +234,72 @@ export default function QuoteDetailsPage() {
         details.line_items ||
         [];
 
+    const itemsSubtotal = items.reduce((sum: number, row: any) => {
+        const qty = Number(row.quantity || 0);
+        const rate = Number(row.sale_price || row.list_price || row.rate || row.price || row.unit_price || 0);
+        const discountValue = Number(row.discount_value || row.discount || row.discount_amount || 0);
+
+        return sum + Math.max(qty * rate - discountValue, 0);
+    }, 0);
+
+    const itemsDiscount = items.reduce((sum: number, row: any) => {
+        return sum + Number(row.discount_value || row.discount || row.discount_amount || 0);
+    }, 0);
+
+    const itemsTax = items.reduce((sum: number, row: any) => {
+        return sum + Number(row.tax_amount || 0);
+    }, 0);
+
+    const itemsGrandTotal = items.reduce((sum: number, row: any) => {
+        return sum + Number(row.line_total || row.total || row.amount || row.final_amount || 0);
+    }, 0);
+
+    const subtotal = items.length
+        ? itemsSubtotal
+        : Number(details.sub_total || details.subtotal || details.amount || 0);
+
+    const discount = items.length
+        ? itemsDiscount
+        : Number(details.discount_amount || details.discount || 0);
+
+    const tax = items.length
+        ? itemsTax
+        : Number(details.tax || details.tax_amount || details.gst_amount || 0);
+
+    const grandTotal = items.length
+        ? itemsGrandTotal
+        : Number(
+            details.grand_total ||
+            details.total_amount ||
+            details.final_amount ||
+            details.net_amount ||
+            0
+        );
+
     const itemColumns: ColumnsType<any> = [
         {
             title: "Item",
             dataIndex: "name",
             key: "name",
+            width: 260,
             render: (_: any, row: any) => (
                 <Space direction="vertical" size={0}>
                     <Text strong>
-                        {getText(toTitleCase(row.product_name), toTitleCase(row.name), toTitleCase(row.title), toTitleCase(row.item_name))}
+                        {getText(
+                            toTitleCase(row.product_display_name),
+                            toTitleCase(row.product_name),
+                            toTitleCase(row.name),
+                            toTitleCase(row.title),
+                            toTitleCase(row.item_name)
+                        )}
                     </Text>
+
+                    {row.hsn_code && (
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                            HSN: {row.hsn_code}
+                        </Text>
+                    )}
+
                     {row.description && <Text type="secondary">{row.description}</Text>}
                 </Space>
             ),
@@ -234,7 +310,7 @@ export default function QuoteDetailsPage() {
             key: "quantity",
             width: 90,
             align: "right",
-            render: (value: any) => value || 1,
+            render: (value: any) => Number(value || 0).toFixed(2),
         },
         {
             title: "Rate",
@@ -242,7 +318,8 @@ export default function QuoteDetailsPage() {
             key: "rate",
             width: 140,
             align: "right",
-            render: (_: any, row: any) => money(row.rate || row.price || row.unit_price),
+            render: (_: any, row: any) =>
+                money(row.sale_price || row.list_price || row.rate || row.price || row.unit_price),
         },
         {
             title: "Discount",
@@ -250,7 +327,40 @@ export default function QuoteDetailsPage() {
             key: "discount",
             width: 130,
             align: "right",
-            render: (_: any, row: any) => money(row.discount || row.discount_amount),
+            render: (_: any, row: any) =>
+                money(row.discount_value || row.discount || row.discount_amount),
+        },
+        {
+            title: "GST %",
+            dataIndex: "tax_rate",
+            key: "tax_rate",
+            width: 100,
+            align: "right",
+            render: (_: any, row: any) => `${Number(row.tax_rate || row.tax || 0).toFixed(2)}%`,
+        },
+        {
+            title: "CGST",
+            dataIndex: "tax_type_1",
+            key: "tax_type_1",
+            width: 120,
+            align: "right",
+            render: (_: any, row: any) => money(row.tax_type_1 || row.cgst),
+        },
+        {
+            title: "SGST",
+            dataIndex: "tax_type_2",
+            key: "tax_type_2",
+            width: 120,
+            align: "right",
+            render: (_: any, row: any) => money(row.tax_type_2 || row.sgst),
+        },
+        {
+            title: "Tax",
+            dataIndex: "tax_amount",
+            key: "tax_amount",
+            width: 120,
+            align: "right",
+            render: (_: any, row: any) => money(row.tax_amount),
         },
         {
             title: "Total",
@@ -455,7 +565,7 @@ export default function QuoteDetailsPage() {
                                     pagination={false}
                                     size="middle"
                                     locale={{ emptyText: "No quote items found" }}
-                                    scroll={{ x: 760 }}
+                                    scroll={{ x: 1250 }}
                                 />
 
                                 <Divider />
@@ -525,14 +635,14 @@ export default function QuoteDetailsPage() {
                                             label: "Related Record",
                                             value: relatedToLabel,
                                         },
-                                        {
-                                            label: "Status",
-                                            value: <Tag color={getStatusColor(status)}>{status}</Tag>,
-                                        },
-                                        {
-                                            label: "Opportunity",
-                                            value: getText(details.opportunity_name, details.opportunity),
-                                        },
+                                        // {
+                                        //     label: "Status",
+                                        //     value: <Tag color={getStatusColor(status)}>{status}</Tag>,
+                                        // },
+                                        // {
+                                        //     label: "Opportunity",
+                                        //     value: getText(details.opportunity_name, details.opportunity),
+                                        // },
                                         {
                                             label: "Assigned To",
                                             value: toTitleCase(assignedTo as string),
@@ -699,43 +809,10 @@ export default function QuoteDetailsPage() {
                                 title="Quote Timeline"
                                 style={{ borderRadius: 18, marginTop: 16 }}
                             >
-                                <Timeline
-                                    items={[
-                                        {
-                                            color: "blue",
-                                            children: (
-                                                <>
-                                                    <Text strong>Quote Created</Text>
-                                                    <br />
-                                                    <Text type="secondary">
-                                                        {formatDateTime(details.created_at)}
-                                                    </Text>
-                                                </>
-                                            ),
-                                        },
-                                        {
-                                            color: "green",
-                                            children: (
-                                                <>
-                                                    <Text strong>Quote Updated</Text>
-                                                    <br />
-                                                    <Text type="secondary">
-                                                        {formatDateTime(details.updated_at)}
-                                                    </Text>
-                                                </>
-                                            ),
-                                        },
-                                        {
-                                            color: getStatusColor(status) === "error" ? "red" : "gray",
-                                            children: (
-                                                <>
-                                                    <Text strong>Current Stage</Text>
-                                                    <br />
-                                                    <Tag color={getStatusColor(status)}>{status}</Tag>
-                                                </>
-                                            ),
-                                        },
-                                    ]}
+                                <ActivityTimeline
+                                    data={timelineData}
+                                    loading={timelineLoading}
+                                    title="Quote Timeline"
                                 />
                             </Card>
                         </Col>
