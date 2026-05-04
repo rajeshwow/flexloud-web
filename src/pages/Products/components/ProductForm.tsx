@@ -1,14 +1,14 @@
 import {
     Button,
     Col,
-    Divider,
     Form,
     Input,
     InputNumber,
     Row,
     Select,
     Space,
-    Typography,
+    Tabs,
+    Typography
 } from "antd";
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -176,241 +176,265 @@ export default function ProductForm({
                 initialValues={defaultValues}
                 onFinish={handleFinish}
             >
-                <Title level={5} style={{ marginBottom: 16 }}>
-                    Sale Information
-                </Title>
+                <Tabs
+                    defaultActiveKey="sale_information"
+                    destroyInactiveTabPane={false}
+                    items={[
+                        {
+                            key: "sale_information",
+                            label: "Basic Information",
+                            children: (
+                                <>
+                                    <Title level={5} style={{ marginBottom: 16 }}>
+                                        Basic Information
+                                    </Title>
 
-                <Row gutter={16}>
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item
-                            label="Name"
-                            name="name"
-                            rules={[{ required: true, message: "Name is required" }]}
-                        >
-                            <Input placeholder="Enter product name" />
-                        </Form.Item>
-                    </Col>
+                                    <Row gutter={16}>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item
+                                                label="Name"
+                                                name="name"
+                                                rules={[{ required: true, message: "Name is required" }]}
+                                            >
+                                                <Input placeholder="Enter product name" />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Part Number" name="part_number">
-                            <Input placeholder="Enter part number" />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Part Number" name="part_number">
+                                                <Input placeholder="Enter part number" />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item
-                            label="HSN Code"
-                            name="hsn_code"
-                            rules={[{ required: true, message: "HSN code is required" }]}
-                        >
-                            <Input placeholder="Enter HSN code" />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item
+                                                label="HSN Code"
+                                                name="hsn_code"
+                                                rules={[{ required: true, message: "HSN code is required" }]}
+                                            >
+                                                <Input placeholder="Enter HSN code" />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Unit UQC" name="unit_uqc">
-                            <Select allowClear placeholder="Select unit" options={unitOptions} />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Unit UQC" name="unit_uqc">
+                                                <Select allowClear placeholder="Select unit" options={unitOptions} />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Category" name="category">
-                            <Select allowClear showSearch placeholder="Select category" options={categoryOptions} />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Category" name="category">
+                                                <Select allowClear showSearch placeholder="Select category" options={categoryOptions} />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Manufacturer" name="manufacturer">
-                            <Select
-                                allowClear
-                                showSearch
-                                placeholder="Select manufacturer"
-                                options={manufacturerOptions}
-                            />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Manufacturer" name="manufacturer">
+                                                <Select
+                                                    allowClear
+                                                    showSearch
+                                                    placeholder="Select manufacturer"
+                                                    options={manufacturerOptions}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Assigned To" name="assigned_to">
-                            <Select
-                                allowClear
-                                showSearch
-                                placeholder="Select assignee"
-                                options={userList.map((user: any) => ({
-                                    label: toTitleCase(user.name),
-                                    value: user.id,
-                                }))}
-                            />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Assigned To" name="assigned_to">
+                                                <Select
+                                                    allowClear
+                                                    showSearch
+                                                    placeholder="Select assignee"
+                                                    options={userList.map((user: any) => ({
+                                                        label: toTitleCase(user.name),
+                                                        value: user.id,
+                                                    }))}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Status" name="status">
-                            <Select allowClear placeholder="Select status" options={statusOptions} />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Status" name="status">
+                                                <Select allowClear placeholder="Select status" options={statusOptions} />
+                                            </Form.Item>
+                                        </Col>
 
 
 
-                    <Col xs={24} xl={16}>
-                        <Form.Item label="Description" name="description">
-                            <TextArea rows={5} placeholder="Enter description" />
-                        </Form.Item>
-                    </Col>
-                </Row>
+                                        <Col xs={24} xl={16}>
+                                            <Form.Item label="Description" name="description">
+                                                <TextArea rows={5} placeholder="Enter description" />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </>
+                            ),
+                        },
+                        {
+                            key: "sales_information",
+                            label: "Pricing Information",
+                            children: (
+                                <>
+                                    <Title level={5} style={{ marginBottom: 16 }}>
+                                        Pricing Information
+                                    </Title>
 
-                <Divider />
+                                    <Row gutter={16}>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Cost Price" style={{ marginBottom: 0 }}>
+                                                <Input.Group compact>
+                                                    <Form.Item name="cost_price_currency" noStyle>
+                                                        <Select style={{ width: "28%" }} options={currencyOptions} />
+                                                    </Form.Item>
+                                                    <Form.Item name="cost_price" noStyle>
+                                                        <InputNumber
+                                                            style={{ width: "72%" }}
+                                                            min={0}
+                                                            placeholder="Enter cost price"
+                                                            controls={false}
+                                                        />
+                                                    </Form.Item>
+                                                </Input.Group>
+                                            </Form.Item>
+                                        </Col>
 
-                <Title level={5} style={{ marginBottom: 16 }}>
-                    Sales Information
-                </Title>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="MSP" style={{ marginBottom: 0 }}>
+                                                <Input.Group compact>
+                                                    <Form.Item name="msp_currency" noStyle>
+                                                        <Select style={{ width: "28%" }} options={currencyOptions} />
+                                                    </Form.Item>
+                                                    <Form.Item name="msp" noStyle>
+                                                        <InputNumber
+                                                            style={{ width: "72%" }}
+                                                            min={0}
+                                                            placeholder="Enter MSP"
+                                                            controls={false}
+                                                        />
+                                                    </Form.Item>
+                                                </Input.Group>
+                                            </Form.Item>
+                                        </Col>
 
-                <Row gutter={16}>
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Cost Price" style={{ marginBottom: 0 }}>
-                            <Input.Group compact>
-                                <Form.Item name="cost_price_currency" noStyle>
-                                    <Select style={{ width: "28%" }} options={currencyOptions} />
-                                </Form.Item>
-                                <Form.Item name="cost_price" noStyle>
-                                    <InputNumber
-                                        style={{ width: "72%" }}
-                                        min={0}
-                                        placeholder="Enter cost price"
-                                        controls={false}
-                                    />
-                                </Form.Item>
-                            </Input.Group>
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Selling Price" style={{ marginBottom: 0 }}>
+                                                <Input.Group compact>
+                                                    <Form.Item name="selling_price_currency" noStyle>
+                                                        <Select style={{ width: "28%" }} options={currencyOptions} />
+                                                    </Form.Item>
+                                                    <Form.Item name="selling_price" noStyle>
+                                                        <InputNumber
+                                                            style={{ width: "72%" }}
+                                                            min={0}
+                                                            placeholder="Enter selling price"
+                                                            controls={false}
+                                                        />
+                                                    </Form.Item>
+                                                </Input.Group>
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="MSP" style={{ marginBottom: 0 }}>
-                            <Input.Group compact>
-                                <Form.Item name="msp_currency" noStyle>
-                                    <Select style={{ width: "28%" }} options={currencyOptions} />
-                                </Form.Item>
-                                <Form.Item name="msp" noStyle>
-                                    <InputNumber
-                                        style={{ width: "72%" }}
-                                        min={0}
-                                        placeholder="Enter MSP"
-                                        controls={false}
-                                    />
-                                </Form.Item>
-                            </Input.Group>
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Tax" name="tax">
+                                                <Select allowClear placeholder="Select tax" options={taxOptions} />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </>
+                            ),
+                        },
+                        {
+                            key: "inventory_information",
+                            label: "Inventory Information",
+                            children: (
+                                <>
+                                    <Title level={5} style={{ marginBottom: 16 }}>
+                                        Inventory Information
+                                    </Title>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Selling Price" style={{ marginBottom: 0 }}>
-                            <Input.Group compact>
-                                <Form.Item name="selling_price_currency" noStyle>
-                                    <Select style={{ width: "28%" }} options={currencyOptions} />
-                                </Form.Item>
-                                <Form.Item name="selling_price" noStyle>
-                                    <InputNumber
-                                        style={{ width: "72%" }}
-                                        min={0}
-                                        placeholder="Enter selling price"
-                                        controls={false}
-                                    />
-                                </Form.Item>
-                            </Input.Group>
-                        </Form.Item>
-                    </Col>
+                                    <Row gutter={16}>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Opening Stock" name="opening_stock">
+                                                <InputNumber
+                                                    style={{ width: "100%" }}
+                                                    min={0}
+                                                    placeholder="Enter opening stock"
+                                                    controls={false}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Tax" name="tax">
-                            <Select allowClear placeholder="Select tax" options={taxOptions} />
-                        </Form.Item>
-                    </Col>
-                </Row>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Opening Stock Value" name="opening_stock_value">
+                                                <InputNumber
+                                                    style={{ width: "100%" }}
+                                                    min={0}
+                                                    placeholder="Enter opening stock value"
+                                                    controls={false}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                <Divider />
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Stock On Hand" name="stock_on_hand">
+                                                <InputNumber
+                                                    style={{ width: "100%" }}
+                                                    min={0}
+                                                    placeholder="Enter stock on hand"
+                                                    controls={false}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                <Title level={5} style={{ marginBottom: 16 }}>
-                    Inventory Information
-                </Title>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Committed Stock" name="committed_stock">
+                                                <InputNumber
+                                                    style={{ width: "100%" }}
+                                                    min={0}
+                                                    placeholder="Enter committed stock"
+                                                    controls={false}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                <Row gutter={16}>
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Opening Stock" name="opening_stock">
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Enter opening stock"
-                                controls={false}
-                            />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Available For Sale" name="available_for_sale">
+                                                <InputNumber
+                                                    style={{ width: "100%" }}
+                                                    min={0}
+                                                    placeholder="Enter available for sale"
+                                                    controls={false}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Opening Stock Value" name="opening_stock_value">
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Enter opening stock value"
-                                controls={false}
-                            />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Qty To Be Invoiced / Shipped" name="qty_to_be_invoiced_shipped">
+                                                <InputNumber
+                                                    style={{ width: "100%" }}
+                                                    min={0}
+                                                    placeholder="Enter qty to be invoiced / shipped"
+                                                    controls={false}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Stock On Hand" name="stock_on_hand">
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Enter stock on hand"
-                                controls={false}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Committed Stock" name="committed_stock">
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Enter committed stock"
-                                controls={false}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Available For Sale" name="available_for_sale">
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Enter available for sale"
-                                controls={false}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Qty To Be Invoiced / Shipped" name="qty_to_be_invoiced_shipped">
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Enter qty to be invoiced / shipped"
-                                controls={false}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Qty To Be Received / Billed" name="qty_to_be_received_billed">
-                            <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                placeholder="Enter qty to be received / billed"
-                                controls={false}
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Qty To Be Received / Billed" name="qty_to_be_received_billed">
+                                                <InputNumber
+                                                    style={{ width: "100%" }}
+                                                    min={0}
+                                                    placeholder="Enter qty to be received / billed"
+                                                    controls={false}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </>
+                            ),
+                        },
+                    ]}
+                />
             </Form>
         </div>
     );

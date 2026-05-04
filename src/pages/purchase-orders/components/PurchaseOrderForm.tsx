@@ -42,6 +42,17 @@ type Props = {
     submitText?: string;
 };
 
+const DEFAULT_ITEM = {
+    product_id: undefined,
+    product_name: "",
+    sku: "",
+    quantity: 1,
+    price: 0,
+    discount: 0,
+    tax: 0,
+    amount: 0,
+};
+
 const num = (value: any) => {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;
@@ -82,9 +93,101 @@ export default function PurchaseOrderForm({
     productOptions = [],
     onSubmit,
     initialValues,
-    submitText
+    submitText,
 }: Props) {
     const [form] = Form.useForm();
+
+    const getProductPrice = (product: any) => {
+        return num(
+            product?.selling_price ??
+            0
+        );
+    };
+
+    const getProductTax = (product: any) => {
+        const cgst = num(
+            product?.cgst ??
+            product?.cgst_percentage ??
+            product?.cgst_percent ??
+            0
+        );
+
+        const sgst = num(
+            product?.sgst ??
+            product?.sgst_percentage ??
+            product?.sgst_percent ??
+            0
+        );
+
+        const directTax = num(
+            product?.tax ??
+            product?.tax_rate ??
+            product?.gst ??
+            product?.gst_rate ??
+            product?.tax_percentage ??
+            product?.tax_percent ??
+            product?.gst_percentage ??
+            product?.gst_percent ??
+            0
+        );
+
+        if (directTax > 0) return directTax;
+
+        return cgst + sgst;
+    };
+
+    const handleProductChange = (rowIndex: number, productId?: string) => {
+        const currentItems = form.getFieldValue("items") || [];
+        const product: any = productOptions.find((item: any) => item.id === productId);
+
+        if (!productId) {
+            currentItems[rowIndex] = {
+                ...currentItems[rowIndex],
+                product_id: undefined,
+                product_name: "",
+                sku: "",
+                price: 0,
+                tax: 0,
+                quantity: currentItems[rowIndex]?.quantity || 1,
+                discount: currentItems[rowIndex]?.discount || 0,
+                amount: 0,
+            };
+
+            form.setFieldsValue({ items: currentItems });
+
+            setTimeout(() => {
+                calculateTotals();
+            }, 0);
+
+            return;
+        }
+
+        if (!product) return;
+
+        const updatedItem = {
+            ...currentItems[rowIndex],
+            product_id: product.id,
+            product_name: product.name || product.product_name || "",
+            sku: product.sku || product.item_code || product.part_no || product.part_number || "",
+            quantity: currentItems[rowIndex]?.quantity || 1,
+            price: getProductPrice(product),
+            discount: currentItems[rowIndex]?.discount || 0,
+            tax: getProductTax(product),
+        };
+
+        const calc = calculateItemAmount(updatedItem);
+
+        currentItems[rowIndex] = {
+            ...updatedItem,
+            amount: calc.amount,
+        };
+
+        form.setFieldsValue({ items: currentItems });
+
+        setTimeout(() => {
+            calculateTotals();
+        }, 0);
+    };
 
     const calculateTotals = () => {
         const items = form.getFieldValue("items") || [];
@@ -102,13 +205,13 @@ export default function PurchaseOrderForm({
         }, 0);
 
         const shipping = num(form.getFieldValue("shipping"));
-        const discount = num(form.getFieldValue("discount"));
 
-        const subtotal = total - itemDiscount - discount;
+        const subtotal = Math.max(total - itemDiscount, 0);
         const grandTotal = subtotal + shipping + itemTax;
 
         form.setFieldsValue({
             total,
+            discount: itemDiscount,
             subtotal,
             tax: itemTax,
             cgst: itemTax / 2,
@@ -126,7 +229,7 @@ export default function PurchaseOrderForm({
                 quantity: num(item.quantity),
                 price: num(item.price),
                 discount: num(item.discount),
-                tax: num(item.tax), // GST %
+                tax: num(item.tax),
                 cgst: calc.cgst,
                 sgst: calc.sgst,
                 cgst_amount: calc.cgstAmount,
@@ -148,10 +251,10 @@ export default function PurchaseOrderForm({
             return sum + num(item.tax_amount);
         }, 0);
 
-        const discount = num(values.discount);
+        const discount = itemDiscount;
         const shipping = num(values.shipping);
 
-        const subtotal = total - itemDiscount - discount;
+        const subtotal = Math.max(total - discount, 0);
         const grand_total = subtotal + itemTax + shipping;
 
         onSubmit({
@@ -176,7 +279,7 @@ export default function PurchaseOrderForm({
                 expected_delivery_date: initialValues.expected_delivery_date
                     ? dayjs(initialValues.expected_delivery_date)
                     : dayjs(),
-                items: initialValues.items || [],
+                items: initialValues.items?.length ? initialValues.items : [DEFAULT_ITEM],
             });
 
             setTimeout(() => {
@@ -199,7 +302,7 @@ export default function PurchaseOrderForm({
                 shipping: 0,
                 tax: 0,
                 grand_total: 0,
-                items: [],
+                items: initialValues?.items?.length ? initialValues.items : [DEFAULT_ITEM],
                 ...initialValues,
             }}
             onValuesChange={calculateTotals}
@@ -217,7 +320,11 @@ export default function PurchaseOrderForm({
                 <Row gutter={18}>
                     <Col xs={24} md={8}>
                         <Form.Item label="PO Date" name="po_date">
-                            <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" disabledDate={(current) => current && current.isBefore(dayjs())} />
+                            <DatePicker
+                                style={{ width: "100%" }}
+                                format="DD/MM/YYYY"
+                                disabledDate={(current) => current && current.isBefore(dayjs())}
+                            />
                         </Form.Item>
                     </Col>
 
@@ -274,8 +381,6 @@ export default function PurchaseOrderForm({
                             />
                         </Form.Item>
                     </Col>
-
-
                 </Row>
             </Card>
 
@@ -299,17 +404,23 @@ export default function PurchaseOrderForm({
                                                 <Form.Item
                                                     label="Product"
                                                     name={[name, "product_id"]}
-                                                    rules={[{ required: true, message: "Product is required" }]}
+                                                    rules={[
+                                                        {
+                                                            required: true,
+                                                            message: "Product is required",
+                                                        },
+                                                    ]}
                                                 >
                                                     <Select
                                                         showSearch
                                                         allowClear
                                                         placeholder="Select product"
                                                         options={productOptions?.map((val: any) => ({
-                                                            label: val.name,
+                                                            label: val.name || val.product_name,
                                                             value: val.id,
                                                         }))}
                                                         optionFilterProp="label"
+                                                        onChange={(value) => handleProductChange(name, value)}
                                                     />
                                                 </Form.Item>
                                             </Col>
@@ -374,24 +485,12 @@ export default function PurchaseOrderForm({
                                                     danger
                                                     icon={<DeleteOutlined />}
                                                     onClick={() => remove(name)}
+                                                    disabled={fields.length === 1}
                                                 />
                                             </Col>
                                         </Row>
                                     </Card>
                                 ))}
-
-                                {!fields.length && (
-                                    <div
-                                        style={{
-                                            padding: 28,
-                                            border: "1px dashed var(--ant-color-border)",
-                                            borderRadius: 12,
-                                            textAlign: "center",
-                                        }}
-                                    >
-                                        <Text type="secondary">No products added yet.</Text>
-                                    </div>
-                                )}
                             </Space>
 
                             <Button
@@ -399,17 +498,7 @@ export default function PurchaseOrderForm({
                                 type="dashed"
                                 icon={<PlusOutlined />}
                                 style={{ marginTop: 14 }}
-                                onClick={() =>
-                                    add({
-                                        product_id: undefined,
-                                        sku: "",
-                                        quantity: 1,
-                                        price: 0,
-                                        discount: 0,
-                                        tax: 0,
-                                        amount: 0,
-                                    })
-                                }
+                                onClick={() => add({ ...DEFAULT_ITEM })}
                             >
                                 Add Product
                             </Button>
@@ -420,11 +509,12 @@ export default function PurchaseOrderForm({
 
             <Card title="Summary" style={{ borderRadius: 14 }}>
                 <Row gutter={[8, 8]}>
-
-
                     <Col span={16}>
                         <Col xs={24} md={24}>
-                            <Form.Item label="Payment Terms Description" name="payment_terms_description">
+                            <Form.Item
+                                label="Payment Terms Description"
+                                name="payment_terms_description"
+                            >
                                 <Input.TextArea rows={4} placeholder="Enter payment terms" />
                             </Form.Item>
                         </Col>
@@ -435,16 +525,26 @@ export default function PurchaseOrderForm({
                             </Form.Item>
                         </Col>
                     </Col>
+
                     <Col span={8}>
                         <Card style={{ borderRadius: 14 }} title="Summary">
                             <Form.Item shouldUpdate noStyle>
                                 {() => (
                                     <Space direction="vertical" style={{ width: "100%" }}>
-                                        <SummaryRow label="Subtotal" value={form.getFieldValue("subtotal")} />
-                                        <SummaryRow label="Discount" value={form.getFieldValue("discount")} />
+                                        <SummaryRow
+                                            label="Subtotal"
+                                            value={form.getFieldValue("subtotal")}
+                                        />
+                                        <SummaryRow
+                                            label="Discount"
+                                            value={form.getFieldValue("discount")}
+                                        />
                                         <SummaryRow label="CGST" value={form.getFieldValue("cgst")} />
                                         <SummaryRow label="SGST" value={form.getFieldValue("sgst")} />
-                                        <SummaryRow label="Total GST" value={form.getFieldValue("tax")} />
+                                        <SummaryRow
+                                            label="Total GST"
+                                            value={form.getFieldValue("tax")}
+                                        />
 
                                         <Form.Item name="shipping" label="Shipping">
                                             <InputNumber min={0} style={{ width: "100%" }} />
@@ -452,10 +552,18 @@ export default function PurchaseOrderForm({
 
                                         <Divider />
 
-                                        <Space style={{ width: "100%", justifyContent: "space-between" }}>
+                                        <Space
+                                            style={{
+                                                width: "100%",
+                                                justifyContent: "space-between",
+                                            }}
+                                        >
                                             <Title level={4}>Grand Total</Title>
                                             <Title level={4}>
-                                                ₹{Number(form.getFieldValue("grand_total") || 0).toFixed(2)}
+                                                ₹
+                                                {Number(
+                                                    form.getFieldValue("grand_total") || 0
+                                                ).toFixed(2)}
                                             </Title>
                                         </Space>
                                     </Space>
@@ -464,7 +572,6 @@ export default function PurchaseOrderForm({
                         </Card>
                     </Col>
                 </Row>
-
 
                 <Divider />
 

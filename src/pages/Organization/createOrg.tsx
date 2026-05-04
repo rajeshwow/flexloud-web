@@ -92,7 +92,6 @@ export default function CreateOrganizationPage() {
             </Space>
 
             <OrganizationForm
-                form={form}
                 mode="create"
                 loading={loading}
                 onSubmit={handleSubmit}

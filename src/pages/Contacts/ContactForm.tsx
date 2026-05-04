@@ -10,6 +10,7 @@ import {
     Row,
     Select,
     Space,
+    Tabs,
     Typography,
     message,
 } from "antd";
@@ -290,7 +291,7 @@ export default function ContactForm({
                 setCopyAddress(false);
                 message.success("Contact created successfully");
                 onSuccess?.();
-                navigate(`/${slug}/contacts`);
+                // navigate(`/${slug}/contacts`);
             }
         } catch (error) {
             message.error(mode === "edit" ? "Failed to update contact" : "Failed to create contact");
@@ -343,235 +344,258 @@ export default function ContactForm({
                 initialValues={initialFormValues}
                 onFinish={onFinish}
             >
-                <Title level={5} style={{ marginBottom: 16 }}>
-                    Basic Details
-                </Title>
+                <Tabs
+                    defaultActiveKey="basic"
+                    destroyInactiveTabPane={false}
+                    items={[
+                        {
+                            key: "basic",
+                            label: "Basic Details",
+                            children: (
+                                <>
+                                    <Title level={5} style={{ marginBottom: 16 }}>
+                                        Basic Details
+                                    </Title>
 
-                <Row gutter={16}>
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item
-                            label="First Name"
-                            name="first_name"
-                            rules={[
-                                { required: true, message: "First name is required" },
-                                { min: 2, message: "First name must be at least 2 characters" },
-                                { max: 50, message: "First name must be at most 50 characters" },
-                            ]}
-                        >
-                            <Input placeholder="Enter first name" />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item
-                            label="Last Name"
-                            name="last_name"
-                            rules={[
-                                { required: true, message: "Last name is required" },
-                                { min: 1, message: "Last name is required" },
-                                { max: 50, message: "Last name must be at most 50 characters" },
-                            ]}
-                        >
-                            <Input placeholder="Enter last name" />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Organization Name" name="organization_id">
-                            <Select
-                                showSearch
-                                allowClear
-                                loading={orgLoading}
-                                placeholder="Select organization"
-                                optionFilterProp="label"
-                                options={organization.map((org) => ({
-                                    label: toTitleCase(org.name),
-                                    value: org.id,
-                                }))}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item
-                            label="Mobile"
-                            name="mobile"
-                            rules={[
-                                { required: true, message: "Mobile number is required" },
-                                {
-                                    validator: async (_, value) => {
-                                        if (!value) return Promise.resolve();
-                                        const clean = String(value).replace(/\D/g, "");
-                                        if (!mobileRegex.test(clean)) {
-                                            return Promise.reject(
-                                                new Error("Enter a valid 10 digit Indian mobile number"),
-                                            );
-                                        }
-                                        return Promise.resolve();
-                                    },
-                                },
-                            ]}
-                            getValueFromEvent={(e) =>
-                                e?.target?.value?.replace(/\D/g, "").slice(0, 10)
-                            }
-                        >
-                            <Input placeholder="Enter mobile number" maxLength={10} />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Assigned To" name="assigned_to">
-                            <Select
-                                showSearch
-                                allowClear
-                                placeholder="Select assigned user"
-                                optionFilterProp="label"
-                                options={userOptions}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Birthdate" name="birthdate">
-                            <DatePicker
-                                style={{ width: "100%" }}
-                                format="DD MMM YYYY"
-                                placeholder="Select birthdate"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item
-                            label="Primary Contact"
-                            name="primary_contact"
-                            rules={[{ required: true, message: "Please select primary contact option" }]}
-                        >
-                            <Select
-                                placeholder="Select option"
-                                options={primaryContactOptions}
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Divider />
-
-                <Title level={5} style={{ marginBottom: 16 }}>
-                    Email Addresses
-                </Title>
-
-                <Form.List name="emails">
-                    {(fields, { add, remove }) => (
-                        <>
-                            {fields.map((field, index) => (
-                                <div
-                                    key={field.key}
-                                    style={{
-                                        marginBottom: 16,
-                                        padding: 16,
-                                        border: "1px solid var(--ant-color-border, #f0f0f0)",
-                                        borderRadius: 12,
-                                    }}
-                                >
-                                    <Row gutter={16} align="middle">
-                                        <Col xs={24} md={10} xl={10}>
+                                    <Row gutter={16}>
+                                        <Col xs={24} md={12} xl={8}>
                                             <Form.Item
-                                                {...field}
-                                                label={index === 0 ? "Email" : `Email ${index + 1}`}
-                                                name={[field.name, "email"]}
+                                                label="First Name"
+                                                name="first_name"
                                                 rules={[
-                                                    { required: true, message: "Email is required" },
-                                                    {
-                                                        type: "email",
-                                                        message: "Enter a valid email address",
-                                                    },
+                                                    { required: true, message: "First name is required" },
+                                                    { min: 2, message: "First name must be at least 2 characters" },
+                                                    { max: 50, message: "First name must be at most 50 characters" },
                                                 ]}
                                             >
-                                                <Input placeholder="Enter email address" />
+                                                <Input placeholder="Enter first name" />
                                             </Form.Item>
                                         </Col>
 
-                                        <Col xs={24} md={4} xl={4}>
+                                        <Col xs={24} md={12} xl={8}>
                                             <Form.Item
-                                                {...field}
-                                                label="Primary"
-                                                name={[field.name, "primary"]}
-                                                valuePropName="checked"
+                                                label="Last Name"
+                                                name="last_name"
+                                                rules={[
+                                                    { required: false, message: "Last name is required" },
+                                                    // { min: 1, message: "Last name is required" },
+                                                    { max: 50, message: "Last name must be at most 50 characters" },
+                                                ]}
                                             >
-                                                <Checkbox />
+                                                <Input placeholder="Enter last name" />
                                             </Form.Item>
                                         </Col>
 
-                                        <Col xs={24} md={4} xl={4}>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Organization Name" name="organization_id">
+                                                <Select
+                                                    showSearch
+                                                    allowClear
+                                                    loading={orgLoading}
+                                                    placeholder="Select organization"
+                                                    optionFilterProp="label"
+                                                    options={organization.map((org) => ({
+                                                        label: toTitleCase(org.name),
+                                                        value: org.id,
+                                                    }))}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col xs={24} md={12} xl={8}>
                                             <Form.Item
-                                                {...field}
-                                                label="Opt Out"
-                                                name={[field.name, "optOut"]}
-                                                valuePropName="checked"
+                                                label="Mobile"
+                                                name="mobile"
+                                                rules={[
+                                                    { required: true, message: "Mobile number is required" },
+                                                    {
+                                                        validator: async (_, value) => {
+                                                            if (!value) return Promise.resolve();
+                                                            const clean = String(value).replace(/\D/g, "");
+                                                            if (!mobileRegex.test(clean)) {
+                                                                return Promise.reject(
+                                                                    new Error("Enter a valid 10 digit Indian mobile number"),
+                                                                );
+                                                            }
+                                                            return Promise.resolve();
+                                                        },
+                                                    },
+                                                ]}
+                                                getValueFromEvent={(e) =>
+                                                    e?.target?.value?.replace(/\D/g, "").slice(0, 10)
+                                                }
                                             >
-                                                <Checkbox />
+                                                <Input placeholder="Enter mobile number" maxLength={10} />
                                             </Form.Item>
                                         </Col>
 
-                                        <Col xs={24} md={4} xl={4}>
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Assigned To" name="assigned_to">
+                                                <Select
+                                                    showSearch
+                                                    allowClear
+                                                    placeholder="Select assigned user"
+                                                    optionFilterProp="label"
+                                                    options={userOptions}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col xs={24} md={12} xl={8}>
+                                            <Form.Item label="Birthdate" name="birthdate">
+                                                <DatePicker
+                                                    style={{ width: "100%" }}
+                                                    format="DD MMM YYYY"
+                                                    placeholder="Select birthdate"
+                                                />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col xs={24} md={12} xl={8}>
                                             <Form.Item
-                                                {...field}
-                                                label="Invalid"
-                                                name={[field.name, "invalid"]}
-                                                valuePropName="checked"
+                                                label="Primary Contact"
+                                                name="primary_contact"
+                                            // rules={[{ required: true, message: "Please select primary contact option" }]}
                                             >
-                                                <Checkbox />
+                                                <Select
+                                                    placeholder="Select option"
+                                                    options={primaryContactOptions}
+                                                />
                                             </Form.Item>
-                                        </Col>
-
-                                        <Col xs={24} md={2} xl={2}>
-                                            <Space style={{ marginTop: 6 }}>
-                                                {fields.length > 1 && (
-                                                    <Button
-                                                        danger
-                                                        icon={<MinusOutlined />}
-                                                        onClick={() => remove(field.name)}
-                                                    />
-                                                )}
-                                            </Space>
                                         </Col>
                                     </Row>
-                                </div>
-                            ))}
+                                </>
+                            ),
+                        },
+                        {
+                            key: "emails",
+                            label: "Email Addresses",
+                            children: (
+                                <>
+                                    <Title level={5} style={{ marginBottom: 16 }}>
+                                        Email Addresses
+                                    </Title>
 
-                            <Button
-                                type="dashed"
-                                icon={<PlusOutlined />}
-                                onClick={() =>
-                                    add({
-                                        email: "",
-                                        primary: false,
-                                        optOut: false,
-                                        invalid: false,
-                                    })
-                                }
-                            >
-                                Add Email
-                            </Button>
-                        </>
-                    )}
-                </Form.List>
+                                    <Form.List name="emails">
+                                        {(fields, { add, remove }) => (
+                                            <>
+                                                {fields.map((field, index) => (
+                                                    <div
+                                                        key={field.key}
+                                                        style={{
+                                                            marginBottom: 16,
+                                                            padding: 16,
+                                                            border: "1px solid var(--ant-color-border, #f0f0f0)",
+                                                            borderRadius: 12,
+                                                        }}
+                                                    >
+                                                        <Row gutter={16} align="middle">
+                                                            <Col xs={24} md={10} xl={10}>
+                                                                <Form.Item
+                                                                    {...field}
+                                                                    label={index === 0 ? "Email" : `Email ${index + 1}`}
+                                                                    name={[field.name, "email"]}
+                                                                    rules={[
+                                                                        { required: false, message: "Email is required" },
+                                                                        {
+                                                                            type: "email",
+                                                                            message: "Enter a valid email address",
+                                                                        },
+                                                                    ]}
+                                                                >
+                                                                    <Input placeholder="Enter email address" />
+                                                                </Form.Item>
+                                                            </Col>
 
-                <Divider />
+                                                            <Col xs={24} md={4} xl={4}>
+                                                                <Form.Item
+                                                                    {...field}
+                                                                    label="Primary"
+                                                                    name={[field.name, "primary"]}
+                                                                    valuePropName="checked"
+                                                                >
+                                                                    <Checkbox />
+                                                                </Form.Item>
+                                                            </Col>
 
-                <Title level={5} style={{ marginBottom: 16 }}>
-                    Primary Address
-                </Title>
+                                                            <Col xs={24} md={4} xl={4}>
+                                                                <Form.Item
+                                                                    {...field}
+                                                                    label="Opt Out"
+                                                                    name={[field.name, "optOut"]}
+                                                                    valuePropName="checked"
+                                                                >
+                                                                    <Checkbox />
+                                                                </Form.Item>
+                                                            </Col>
 
-                <AddressSection
-                    countryOptions={countryList}
-                    stateOptions={stateList}
-                    cityOptions={cityList}
-                    copyAddress={copyAddress}
-                    onCopyAddressChange={handleCopyAddressChange}
+                                                            <Col xs={24} md={4} xl={4}>
+                                                                <Form.Item
+                                                                    {...field}
+                                                                    label="Invalid"
+                                                                    name={[field.name, "invalid"]}
+                                                                    valuePropName="checked"
+                                                                >
+                                                                    <Checkbox />
+                                                                </Form.Item>
+                                                            </Col>
+
+                                                            <Col xs={24} md={2} xl={2}>
+                                                                <Space style={{ marginTop: 6 }}>
+                                                                    {fields.length > 1 && (
+                                                                        <Button
+                                                                            danger
+                                                                            icon={<MinusOutlined />}
+                                                                            onClick={() => remove(field.name)}
+                                                                        />
+                                                                    )}
+                                                                </Space>
+                                                            </Col>
+                                                        </Row>
+                                                    </div>
+                                                ))}
+
+                                                <Button
+                                                    type="dashed"
+                                                    icon={<PlusOutlined />}
+                                                    onClick={() =>
+                                                        add({
+                                                            email: "",
+                                                            primary: false,
+                                                            optOut: false,
+                                                            invalid: false,
+                                                        })
+                                                    }
+                                                >
+                                                    Add Email
+                                                </Button>
+                                            </>
+                                        )}
+                                    </Form.List>
+                                </>
+                            ),
+                        },
+                        {
+                            key: "address",
+                            label: "Primary Address",
+                            children: (
+                                <>
+                                    <Title level={5} style={{ marginBottom: 16 }}>
+                                        Primary Address
+                                    </Title>
+
+                                    <AddressSection
+                                        countryOptions={countryList}
+                                        stateOptions={stateList}
+                                        cityOptions={cityList}
+                                        copyAddress={copyAddress}
+                                        onCopyAddressChange={handleCopyAddressChange}
+                                    />
+                                </>
+                            ),
+                        },
+                    ]}
                 />
-
             </Form>
         </div>
     );

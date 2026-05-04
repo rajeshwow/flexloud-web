@@ -763,6 +763,7 @@ export default function QuoteForm({
     };
 
     const handleSubmit = async (values: any) => {
+        debugger
         try {
             // setLoading(true);
 
@@ -840,27 +841,34 @@ export default function QuoteForm({
                 destroyOnHidden
                 footer={null}
             >
-                <Form
-                    form={quickCreateForm}
-                    layout="vertical"
-                    onFinish={handleQuickCreateSubmit}
-                >
 
-                    {
-                        relatedToType === "organization" ? (
-                            <OrganizationForm form={form}
-                                mode="create"
-                                loading={loading}
-                                onSubmit={handleSubmit} />
-                        ) : relatedToType === "contact" ? (
-                            <ContactForm />
-                        ) : relatedToType === "lead" ? (
-                            <CreateLeadForm />
-                        ) : relatedToType === 'opportunity' ? (
-                            <CreateOpportunityPage />
-                        ) : null
-                    }
-                </Form></Modal>
+
+                {
+                    relatedToType === "organization" ? (
+                        <OrganizationForm
+                            mode="create"
+                            loading={loading}
+                            onSubmit={handleSubmit} />
+                    ) : relatedToType === "contact" ? (
+                        <ContactForm onSuccess={() => {
+                            quickCreateForm.resetFields();
+                            setQuickCreateOpen(false);
+                        }} />
+                    ) : relatedToType === "lead" ? (
+                        <CreateLeadForm
+                            redirectOnSuccess={false}
+                            onSuccess={(lead) => {
+                                setQuickCreateOpen(false);
+                                fetchLeads();
+
+                            }}
+                            onCancel={() => setQuickCreateOpen(false)}
+                        />
+                    ) : relatedToType === 'opportunity' ? (
+                        <CreateOpportunityPage />
+                    ) : null
+                }
+            </Modal>
 
             <Form layout="vertical" form={form} onFinish={submitHandler}>
                 <Card bordered={false}>
@@ -1054,7 +1062,7 @@ export default function QuoteForm({
                                                 <Form.Item
                                                     name="organization_id"
                                                     label="Organization"
-                                                    rules={[{ required: true, message: "Organization is required" }]}
+                                                // rules={[{ required: true, message: "Organization is required" }]}
                                                 >
                                                     <Select
                                                         allowClear
@@ -1071,7 +1079,7 @@ export default function QuoteForm({
                                                 <Form.Item
                                                     name="contact_id"
                                                     label="Contact"
-                                                    rules={[{ required: true, message: "Contact is required" }]}
+                                                // rules={[{ required: true, message: "Contact is required" }]}
                                                 >
                                                     <Select
                                                         allowClear

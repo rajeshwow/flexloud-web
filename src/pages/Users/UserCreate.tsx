@@ -180,7 +180,7 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
                             label="Email"
                             name="email"
                             rules={[
-                                { required: true, message: "Email is required" },
+                                // { required: true, message: "Email is required" },
                                 { type: "email", message: "Invalid email" },
                             ]}
                         >
@@ -241,7 +241,7 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item label="Department" name="department" rules={[{ required: true, message: "Department is required" }]}>
+                        <Form.Item label="Department" name="department" >
                             <Input placeholder="Sales / Operations / HR" />
                         </Form.Item>
                     </Col>
@@ -253,13 +253,13 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item label="Employee Code" name="employee_code" rules={[{ required: true, message: "Employee Code is required" }]}>
+                        <Form.Item label="Employee Code" name="employee_code" >
                             <Input placeholder="EMP001" />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item label="Country" name="country" rules={[{ required: true, message: "Country is required" }]}>
+                        <Form.Item label="Country" name="country" >
                             <Select
                                 showSearch
                                 allowClear
@@ -278,7 +278,7 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item label="State" name="state" rules={[{ required: true, message: "State is required" }]}>
+                        <Form.Item label="State" name="state" >
                             <Select
                                 showSearch
                                 allowClear
@@ -297,7 +297,7 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item label="City" name="city" rules={[{ required: true, message: "City is required" }]}>
+                        <Form.Item label="City" name="city" >
                             <Select
                                 showSearch
                                 allowClear

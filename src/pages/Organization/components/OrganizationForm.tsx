@@ -79,7 +79,7 @@ type SelectOption = {
 };
 
 type Props = {
-    form: any;
+    // form: any;
     mode: "create" | "edit";
     loading?: boolean;
     onSubmit: (values: OrganizationFormValues) => void | Promise<void>;
@@ -94,7 +94,7 @@ type Props = {
 };
 
 export default function OrganizationForm({
-    form,
+    // form,
     mode,
     loading,
     onSubmit,
@@ -102,6 +102,9 @@ export default function OrganizationForm({
 
 }: Props) {
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+
+    const [form] = Form.useForm<OrganizationFormValues>();
+
     const copyBillingToShipping = (branchIndex: number) => {
         const branches = form.getFieldValue("branches") || [];
         const branch = branches?.[branchIndex] || {};

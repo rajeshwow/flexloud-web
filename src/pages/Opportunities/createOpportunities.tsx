@@ -17,6 +17,7 @@ import {
     Select,
     Space,
     Table,
+    Tabs,
     Typography,
     message,
 } from "antd";
@@ -591,285 +592,304 @@ export default function CreateOpportunityPage() {
                     opportunity_amount_currency: "₹ (INR)",
                 }}
             >
-                <Row gutter={[20, 6]}>
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            label="Opportunity Name"
-                            name="opportunity_name"
-                            rules={[
-                                { required: true, message: "Please enter opportunity name" },
-                            ]}
-                        >
-                            <Input placeholder="Enter opportunity name" />
-                        </Form.Item>
-                    </Col>
+                <Tabs
+                    defaultActiveKey="details"
+                    destroyInactiveTabPane={false}
+                    items={[
+                        {
+                            key: "details",
+                            label: "Opportunity Details",
+                            children: (
+                                <>
+                                    <Row gutter={[20, 6]}>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item
+                                                label="Opportunity Name"
+                                                name="opportunity_name"
+                                                rules={[
+                                                    { required: true, message: "Please enter opportunity name" },
+                                                ]}
+                                            >
+                                                <Input placeholder="Enter opportunity name" />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            label="Sales Person"
-                            name="contact_name"
-                            rules={[{ required: true, message: "Please select contact" }]}
-                        >
-                            <Select
-                                onChange={handleContactChange}
-                                onClear={() => {
-                                    form.setFieldsValue({
-                                        contact_name: undefined,
-                                        contact_number: undefined,
-                                        contact_email: undefined,
-                                    });
-                                }}
-                                placeholder="Select contact"
-                                allowClear
-                                showSearch
-                                optionFilterProp="label"
-                                options={contactOptions?.map((contact: any) => ({
-                                    label: `${toTitleCase(contact.first_name || "")} ${toTitleCase(contact.last_name || "")}`.trim(),
-                                    value: contact.id,
-                                }))}
-                            />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item
+                                                label="Sales Person"
+                                                name="contact_name"
+                                                rules={[{ required: true, message: "Please select contact" }]}
+                                            >
+                                                <Select
+                                                    onChange={handleContactChange}
+                                                    onClear={() => {
+                                                        form.setFieldsValue({
+                                                            contact_name: undefined,
+                                                            contact_number: undefined,
+                                                            contact_email: undefined,
+                                                        });
+                                                    }}
+                                                    placeholder="Select contact"
+                                                    allowClear
+                                                    showSearch
+                                                    optionFilterProp="label"
+                                                    options={contactOptions?.map((contact: any) => ({
+                                                        label: `${toTitleCase(contact.first_name || "")} ${toTitleCase(contact.last_name || "")}`.trim(),
+                                                        value: contact.id,
+                                                    }))}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            label="Organization Name"
-                            name="organization_name"
-                            rules={[
-                                { required: true, message: "Please select organization" },
-                            ]}
-                        >
-                            <Select
-                                showSearch
-                                allowClear
-                                placeholder="Select organization"
-                                optionFilterProp="label"
-                                options={organization.map((org) => ({
-                                    label: toTitleCase(org.name),
-                                    value: org.id,
-                                }))}
-                            />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item
+                                                label="Organization Name"
+                                                name="organization_name"
+                                                rules={[
+                                                    { required: true, message: "Please select organization" },
+                                                ]}
+                                            >
+                                                <Select
+                                                    showSearch
+                                                    allowClear
+                                                    placeholder="Select organization"
+                                                    optionFilterProp="label"
+                                                    options={organization.map((org) => ({
+                                                        label: toTitleCase(org.name),
+                                                        value: org.id,
+                                                    }))}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Contact Number" name="contact_number">
-                            <Input placeholder="Enter contact number" />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Contact Number" name="contact_number">
+                                                <Input placeholder="Enter contact number" />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Contact Email" name="contact_email">
-                            <Input placeholder="Enter contact email" />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Contact Email" name="contact_email">
+                                                <Input placeholder="Enter contact email" />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Lead Source" name="lead_source">
-                            <Input placeholder="Enter lead source" />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Lead Source" name="lead_source">
+                                                <Input placeholder="Enter lead source" />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Company" name="company">
-                            <Input placeholder="My company" />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Company" name="company">
+                                                <Input placeholder="My company" />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Probability (%)" name="probability">
-                            <InputNumber min={0} max={100} style={{ width: "100%" }} />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Probability (%)" name="probability">
+                                                <InputNumber min={0} max={100} style={{ width: "100%" }} />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            label="Sales Stage"
-                            name="sales_stage"
-                            rules={[
-                                { required: true, message: "Please select sales stage" },
-                            ]}
-                        >
-                            <Select placeholder="Select sales stage">
-                                {salesStageOptions.map((item) => (
-                                    <Option key={item} value={item}>
-                                        {item}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item
+                                                label="Sales Stage"
+                                                name="sales_stage"
+                                            // rules={[
+                                            //     { required: true, message: "Please select sales stage" },
+                                            // ]}
+                                            >
+                                                <Select placeholder="Select sales stage">
+                                                    {salesStageOptions.map((item) => (
+                                                        <Option key={item} value={item}>
+                                                            {item}
+                                                        </Option>
+                                                    ))}
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Type" name="type">
-                            <Select placeholder="Select type" allowClear>
-                                <Option value="New Business">New Business</Option>
-                                <Option value="Existing Business">Existing Business</Option>
-                            </Select>
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Type" name="type">
+                                                <Select placeholder="Select type" allowClear>
+                                                    <Option value="New Business">New Business</Option>
+                                                    <Option value="Existing Business">Existing Business</Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Dealer Contact" name="dealer_contact">
-                            <Input placeholder="Enter dealer contact" />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Dealer Contact" name="dealer_contact">
+                                                <Input placeholder="Enter dealer contact" />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            label="Expected Close Date"
-                            name="expected_close_date"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please select expected close date",
-                                },
-                            ]}
-                        >
-                            <DatePicker
-                                style={{ width: "100%" }}
-                                format="DD/MM/YYYY"
-                                suffixIcon={<CalendarOutlined />}
-                            />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item
+                                                label="Expected Close Date"
+                                                name="expected_close_date"
+                                            // rules={[
+                                            //     {
+                                            //         required: true,
+                                            //         message: "Please select expected close date",
+                                            //     },
+                                            // ]}
+                                            >
+                                                <DatePicker
+                                                    style={{ width: "100%" }}
+                                                    format="DD/MM/YYYY"
+                                                    suffixIcon={<CalendarOutlined />}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Opportunity Amount">
-                            <Input.Group compact>
-                                <Form.Item name="opportunity_amount_currency" noStyle>
-                                    <Select style={{ width: "28%" }}>
-                                        {currencyOptions.map((item) => (
-                                            <Option key={item} value={item}>
-                                                {item}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                </Form.Item>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Opportunity Amount">
+                                                <Input.Group compact>
+                                                    <Form.Item name="opportunity_amount_currency" noStyle>
+                                                        <Select style={{ width: "28%" }}>
+                                                            {currencyOptions.map((item) => (
+                                                                <Option key={item} value={item}>
+                                                                    {item}
+                                                                </Option>
+                                                            ))}
+                                                        </Select>
+                                                    </Form.Item>
 
-                                <Form.Item name="opportunity_amount" noStyle>
-                                    <InputNumber
-                                        min={0}
-                                        readOnly
-                                        style={{ width: "72%" }}
-                                        placeholder="Auto from items"
-                                    />
-                                </Form.Item>
-                            </Input.Group>
-                        </Form.Item>
-                    </Col>
+                                                    <Form.Item name="opportunity_amount" noStyle>
+                                                        <InputNumber
+                                                            min={0}
+                                                            readOnly
+                                                            style={{ width: "72%" }}
+                                                            placeholder="Auto from items"
+                                                        />
+                                                    </Form.Item>
+                                                </Input.Group>
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            label="Next Followup"
-                            name="next_followup"
-                            rules={[
-                                { required: true, message: "Please select next followup" },
-                            ]}
-                        >
-                            <DatePicker
-                                showTime={{ format: "hh:mm a", use12Hours: true }}
-                                style={{ width: "100%" }}
-                                format="DD/MM/YYYY hh:mm a"
-                                suffixIcon={<CalendarOutlined />}
-                            />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item
+                                                label="Next Followup"
+                                                name="next_followup"
+                                            // rules={[
+                                            //     { required: true, message: "Please select next followup" },
+                                            // ]}
+                                            >
+                                                <DatePicker
+                                                    showTime={{ format: "hh:mm a", use12Hours: true }}
+                                                    style={{ width: "100%" }}
+                                                    format="DD/MM/YYYY hh:mm a"
+                                                    suffixIcon={<CalendarOutlined />}
+                                                />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Followup Type" name="followup_type">
-                            <Select placeholder="Select followup type" allowClear>
-                                {followupTypeOptions.map((item) => (
-                                    <Option key={item} value={item}>
-                                        {item}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Followup Type" name="followup_type">
+                                                <Select placeholder="Select followup type" allowClear>
+                                                    {followupTypeOptions.map((item) => (
+                                                        <Option key={item} value={item}>
+                                                            {item}
+                                                        </Option>
+                                                    ))}
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Description" name="description">
-                            <TextArea rows={5} placeholder="Enter description" />
-                        </Form.Item>
-                    </Col>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Description" name="description">
+                                                <TextArea rows={5} placeholder="Enter description" />
+                                            </Form.Item>
+                                        </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item label="Assigned To" name="assigned_to">
-                            <Select
-                                placeholder="Select assignee"
-                                allowClear
-                                showSearch
-                                optionFilterProp="label"
-                                options={users?.map((user: any) => ({
-                                    value: user.id,
-                                    label: toTitleCase(user.name || user.full_name || user.email),
-                                }))}
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
+                                        <Col xs={24} md={8}>
+                                            <Form.Item label="Assigned To" name="assigned_to">
+                                                <Select
+                                                    placeholder="Select assignee"
+                                                    allowClear
+                                                    showSearch
+                                                    optionFilterProp="label"
+                                                    options={users?.map((user: any) => ({
+                                                        value: user.id,
+                                                        label: toTitleCase(user.name || user.full_name || user.email),
+                                                    }))}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </>
+                            ),
+                        },
+                        {
+                            key: "items",
+                            label: "Order Items",
+                            children: (
+                                <>
+                                    <Card
+                                        style={{ borderRadius: 14, marginBottom: 16 }}
+                                        title={
+                                            <Space>
+                                                <ShoppingCartOutlined />
+                                                <span>Order Items</span>
+                                            </Space>
+                                        }
+                                        extra={
+                                            <Button type="primary" icon={<PlusOutlined />} onClick={addLineItem}>
+                                                Add Product
+                                            </Button>
+                                        }
+                                    >
+                                        <Table<LineItem>
+                                            rowKey="key"
+                                            columns={columns}
+                                            dataSource={lineItems}
+                                            pagination={false}
+                                            scroll={{ x: 1400 }}
+                                            className="op-line-table"
+                                        />
 
-                <Divider />
+                                        <Divider />
 
-                <Card
-                    style={{ borderRadius: 14, marginBottom: 16 }}
-                    title={
-                        <Space>
-                            <ShoppingCartOutlined />
-                            <span>Order Items</span>
-                        </Space>
-                    }
-                    extra={
-                        <Button type="primary" icon={<PlusOutlined />} onClick={addLineItem}>
-                            Add Product
-                        </Button>
-                    }
-                >
-                    <Table<LineItem>
-                        rowKey="key"
-                        columns={columns}
-                        dataSource={lineItems}
-                        pagination={false}
-                        scroll={{ x: 1400 }}
-                        className="op-line-table"
-                    />
+                                        <Row justify="end">
+                                            <Col xs={24} md={8} lg={6}>
+                                                <Space direction="vertical" style={{ width: "100%" }} size={8}>
+                                                    <Row justify="space-between">
+                                                        <Text type="secondary">Subtotal</Text>
+                                                        <Text>₹{totals.subtotal.toFixed(2)}</Text>
+                                                    </Row>
 
-                    <Divider />
+                                                    <Row justify="space-between">
+                                                        <Text type="secondary">Discount</Text>
+                                                        <Text>₹{totals.discount.toFixed(2)}</Text>
+                                                    </Row>
 
-                    <Row justify="end">
-                        <Col xs={24} md={8} lg={6}>
-                            <Space direction="vertical" style={{ width: "100%" }} size={8}>
-                                <Row justify="space-between">
-                                    <Text type="secondary">Subtotal</Text>
-                                    <Text>₹{totals.subtotal.toFixed(2)}</Text>
-                                </Row>
+                                                    <Row justify="space-between">
+                                                        <Text type="secondary">CGST</Text>
+                                                        <Text>₹{totals.cgst.toFixed(2)}</Text>
+                                                    </Row>
 
-                                <Row justify="space-between">
-                                    <Text type="secondary">Discount</Text>
-                                    <Text>₹{totals.discount.toFixed(2)}</Text>
-                                </Row>
+                                                    <Row justify="space-between">
+                                                        <Text type="secondary">SGST</Text>
+                                                        <Text>₹{totals.sgst.toFixed(2)}</Text>
+                                                    </Row>
 
-                                <Row justify="space-between">
-                                    <Text type="secondary">CGST</Text>
-                                    <Text>₹{totals.cgst.toFixed(2)}</Text>
-                                </Row>
+                                                    <Divider style={{ margin: "8px 0" }} />
 
-                                <Row justify="space-between">
-                                    <Text type="secondary">SGST</Text>
-                                    <Text>₹{totals.sgst.toFixed(2)}</Text>
-                                </Row>
-
-                                <Divider style={{ margin: "8px 0" }} />
-
-                                <Row justify="space-between">
-                                    <Text strong>Grand Total</Text>
-                                    <Text strong>₹{totals.grandTotal.toFixed(2)}</Text>
-                                </Row>
-                            </Space>
-                        </Col>
-                    </Row>
-                </Card>
+                                                    <Row justify="space-between">
+                                                        <Text strong>Grand Total</Text>
+                                                        <Text strong>₹{totals.grandTotal.toFixed(2)}</Text>
+                                                    </Row>
+                                                </Space>
+                                            </Col>
+                                        </Row>
+                                    </Card>
+                                </>
+                            ),
+                        },
+                    ]}
+                />
 
                 <Divider />
             </Form>

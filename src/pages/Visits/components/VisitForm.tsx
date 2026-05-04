@@ -20,6 +20,7 @@ import {
     Row,
     Select,
     Space,
+    Tabs,
     Tag,
     Typography,
 } from "antd";
@@ -316,655 +317,687 @@ export default function VisitForm({
     }, [checkinLat, checkinLng, checkoutLat, checkoutLng]);
 
     return (
-        <Space direction="vertical" size={16} style={{ width: "100%" }}>
-            <SectionCard
-                title="Basic Information"
-                subtitle="Primary visit details, ownership and scheduling"
-                icon={<InfoCircleOutlined />}
-            >
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item
-                            label="Name"
-                            name="name"
-                            rules={[{ required: true, message: "Please enter name" }]}
+        <Tabs
+            defaultActiveKey="basic"
+            destroyInactiveTabPane={false}
+            items={[
+                {
+                    key: "basic",
+                    label: "Basic Information",
+                    children: (
+                        <SectionCard
+                            title="Basic Information"
+                            subtitle="Primary visit details, ownership and scheduling"
+                            icon={<InfoCircleOutlined />}
                         >
-                            <Input placeholder="Enter visit name" />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Status" name="status">
-                            <Select
-                                placeholder="Select status"
-                                options={VISIT_STATUS_OPTIONS}
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item
-                            label="Regarding"
-                            name="regarding"
-                            rules={[{ required: true, message: "Please select regarding" }]}
-                        >
-                            <Select
-                                placeholder="Select regarding"
-                                options={VISIT_REGARDING_OPTIONS}
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Ticket Status" name="ticket_status">
-                            <Select
-                                placeholder="Select ticket status"
-                                options={VISIT_TICKET_STATUS_OPTIONS}
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Assigned To" name="assigned_to_user_id">
-                            <Select
-                                placeholder="Select user"
-                                options={usersOptions}
-                                allowClear
-                                showSearch
-                                optionFilterProp="label"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Organization" name="organization_id">
-                            <Select
-                                placeholder="Select organization"
-                                options={organizationOptions}
-                                allowClear
-                                showSearch
-                                optionFilterProp="label"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Contact" name="contact_id">
-                            <Select
-                                placeholder="Select contact"
-                                options={contactOptions}
-                                allowClear
-                                showSearch
-                                optionFilterProp="label"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Lead" name="lead_id">
-                            <Select
-                                placeholder="Select lead"
-                                options={leadOptions}
-                                allowClear
-                                showSearch
-                                optionFilterProp="label"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Case ID" name="case_id">
-                            <Input placeholder="Enter case id if available" />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24}>
-                        <Form.Item
-                            label="Remarks"
-                            name="remarks"
-                            rules={[{ required: true, message: "Please enter remarks" }]}
-                        >
-                            <TextArea rows={5} placeholder="Enter visit remarks / summary" />
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </SectionCard>
-
-            <SectionCard
-                title="Schedule & Follow-up"
-                subtitle="Timing, duration and next action planning"
-                icon={<CalendarOutlined />}
-            >
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Start Date" name="start_date">
-                            <DatePicker
-                                showTime
-                                format="DD/MM/YYYY hh:mm A"
-                                style={{ width: "100%" }}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="End Date" name="end_date">
-                            <DatePicker
-                                showTime
-                                format="DD/MM/YYYY hh:mm A"
-                                style={{ width: "100%" }}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item
-                            label="Next Follow-up Date"
-                            name="next_followup_date"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please select next followup date",
-                                },
-                            ]}
-                        >
-                            <DatePicker
-                                showTime
-                                format="DD/MM/YYYY hh:mm A"
-                                style={{ width: "100%" }}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Duration" name="duration">
-                            <Input disabled placeholder="Auto calculated" />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Duration In Minutes" name="duration_in_minutes">
-                            <InputNumber
-                                disabled
-                                style={{ width: "100%" }}
-                                placeholder="Auto calculated"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <div
-                            style={{
-                                height: "100%",
-                                minHeight: 78,
-                                border: "1px dashed var(--fl-border, #d9d9d9)",
-                                borderRadius: 14,
-                                padding: 12,
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <Text type="secondary">Quick Summary</Text>
-                            <Space wrap style={{ marginTop: 8 }}>
-                                <Tag>{durationText || "No Duration"}</Tag>
-                                <Tag color="blue">
-                                    {startDate ? dayjs(startDate).format("DD MMM YYYY") : "No Start"}
-                                </Tag>
-                                <Tag color="gold">
-                                    {form.getFieldValue("next_followup_date")
-                                        ? dayjs(form.getFieldValue("next_followup_date")).format("DD MMM YYYY")
-                                        : "No Follow-up"}
-                                </Tag>
-                            </Space>
-                        </div>
-                    </Col>
-                </Row>
-            </SectionCard>
-
-            <SectionCard
-                title="Location Details"
-                subtitle="Use live location to auto-fill address, coordinates and capture time"
-                icon={<EnvironmentOutlined />}
-            >
-                <Row gutter={[16, 16]}>
-                    <Col xs={24}>
-                        <Space wrap>
-                            <Button
-                                type="primary"
-                                icon={capturing === "checkin" ? <LoadingOutlined /> : <AimOutlined />}
-                                loading={capturing === "checkin"}
-                                onClick={() => captureLocation("checkin")}
-                            >
-                                {checkinLat && checkinLng ? "Re-capture Check-in" : "Capture Check-in"}
-                            </Button>
-
-                            <Button
-                                icon={capturing === "checkout" ? <LoadingOutlined /> : <AimOutlined />}
-                                loading={capturing === "checkout"}
-                                onClick={() => captureLocation("checkout")}
-                            >
-                                {checkoutLat && checkoutLng ? "Re-capture Checkout" : "Capture Checkout"}
-                            </Button>
-                        </Space>
-                    </Col>
-
-                    <Col xs={24} md={12}>
-                        <Space
-                            align="center"
-                            style={{ width: "100%", justifyContent: "space-between", marginBottom: 8 }}
-                        >
-                            <Text strong>Check-in Address</Text>
-                            <Button
-                                size="small"
-                                icon={<AimOutlined />}
-                                loading={capturing === "checkin"}
-                                onClick={() => captureLocation("checkin")}
-                            >
-                                Use current location
-                            </Button>
-                        </Space>
-                        <Form.Item name="checkin_address" style={{ marginBottom: 0 }}>
-                            <TextArea rows={4} placeholder="Auto-filled or enter manually" />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12}>
-                        <Space
-                            align="center"
-                            style={{ width: "100%", justifyContent: "space-between", marginBottom: 8 }}
-                        >
-                            <Text strong>Checkout Address</Text>
-                            <Button
-                                size="small"
-                                icon={<AimOutlined />}
-                                loading={capturing === "checkout"}
-                                onClick={() => captureLocation("checkout")}
-                            >
-                                Use current location
-                            </Button>
-                        </Space>
-                        <Form.Item name="checkout_address" style={{ marginBottom: 0 }}>
-                            <TextArea rows={4} placeholder="Auto-filled or enter manually" />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={6}>
-                        <Form.Item
-                            label="Check-in Latitude"
-                            name="checkin_latitude"
-                            rules={[
-                                {
-                                    validator: (_, value) => {
-                                        if (value === undefined || value === null || value === "") {
-                                            return Promise.resolve();
-                                        }
-                                        if (Number(value) < -90 || Number(value) > 90) {
-                                            return Promise.reject(
-                                                new Error("Check-in latitude must be between -90 and 90"),
-                                            );
-                                        }
-                                        return Promise.resolve();
-                                    },
-                                },
-                            ]}
-                        >
-                            <InputNumber
-                                step={0.0000001}
-                                min={-90}
-                                max={90}
-                                precision={7}
-                                style={{ width: "100%" }}
-                                placeholder="Latitude"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={6}>
-                        <Form.Item
-                            label="Check-in Longitude"
-                            name="checkin_longitude"
-                            rules={[
-                                {
-                                    validator: (_, value) => {
-                                        if (value === undefined || value === null || value === "") {
-                                            return Promise.resolve();
-                                        }
-                                        if (Number(value) < -180 || Number(value) > 180) {
-                                            return Promise.reject(
-                                                new Error("Check-in longitude must be between -180 and 180"),
-                                            );
-                                        }
-                                        return Promise.resolve();
-                                    },
-                                },
-                            ]}
-                        >
-                            <InputNumber
-                                step={0.0000001}
-                                min={-180}
-                                max={180}
-                                precision={7}
-                                style={{ width: "100%" }}
-                                placeholder="Longitude"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={6}>
-                        <Form.Item label="Check-in Captured At" name="checkin_captured_at">
-                            <DatePicker
-                                showTime
-                                format="DD/MM/YYYY hh:mm A"
-                                style={{ width: "100%" }}
-                                placeholder="Auto captured"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={6}>
-                        <div
-                            style={{
-                                minHeight: 78,
-                                border: "1px solid var(--fl-border, #f0f0f0)",
-                                borderRadius: 14,
-                                padding: 12,
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <Text type="secondary">Check-in Capture</Text>
-                            <Space style={{ marginTop: 6 }}>
-                                <ClockCircleOutlined />
-                                <Text>{formatDateTime(checkinCapturedAt ? dayjs(checkinCapturedAt).toISOString() : null)}</Text>
-                            </Space>
-                        </div>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={6}>
-                        <Form.Item
-                            label="Checkout Latitude"
-                            name="checkout_latitude"
-                            rules={[
-                                {
-                                    validator: (_, value) => {
-                                        if (value === undefined || value === null || value === "") {
-                                            return Promise.resolve();
-                                        }
-                                        if (Number(value) < -90 || Number(value) > 90) {
-                                            return Promise.reject(
-                                                new Error("Checkout latitude must be between -90 and 90"),
-                                            );
-                                        }
-                                        return Promise.resolve();
-                                    },
-                                },
-                            ]}
-                        >
-                            <InputNumber
-                                step={0.0000001}
-                                min={-90}
-                                max={90}
-                                precision={7}
-                                style={{ width: "100%" }}
-                                placeholder="Latitude"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={6}>
-                        <Form.Item
-                            label="Checkout Longitude"
-                            name="checkout_longitude"
-                            rules={[
-                                {
-                                    validator: (_, value) => {
-                                        if (value === undefined || value === null || value === "") {
-                                            return Promise.resolve();
-                                        }
-                                        if (Number(value) < -180 || Number(value) > 180) {
-                                            return Promise.reject(
-                                                new Error("Checkout longitude must be between -180 and 180"),
-                                            );
-                                        }
-                                        return Promise.resolve();
-                                    },
-                                },
-                            ]}
-                        >
-                            <InputNumber
-                                step={0.0000001}
-                                min={-180}
-                                max={180}
-                                precision={7}
-                                style={{ width: "100%" }}
-                                placeholder="Longitude"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={6}>
-                        <Form.Item label="Checkout Captured At" name="checkout_captured_at">
-                            <DatePicker
-                                showTime
-                                format="DD/MM/YYYY hh:mm A"
-                                style={{ width: "100%" }}
-                                placeholder="Auto captured"
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={6}>
-                        <div
-                            style={{
-                                minHeight: 78,
-                                border: "1px solid var(--fl-border, #f0f0f0)",
-                                borderRadius: 14,
-                                padding: 12,
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <Text type="secondary">Checkout Capture</Text>
-                            <Space style={{ marginTop: 6 }}>
-                                <ClockCircleOutlined />
-                                <Text>{formatDateTime(checkoutCapturedAt ? dayjs(checkoutCapturedAt).toISOString() : null)}</Text>
-                            </Space>
-                        </div>
-                    </Col>
-
-                    <Col xs={24}>
-                        <Card
-                            bordered={false}
-                            style={{
-                                borderRadius: 18,
-                                background: "var(--fl-panel, #fff)",
-                            }}
-                            bodyStyle={{ padding: 12 }}
-                        >
-                            <div style={{ marginBottom: 10 }}>
-                                <Text strong>Map Preview</Text>
-                            </div>
-
-                            {mapState.checkin || mapState.checkout ? (
-                                <div
-                                    style={{
-                                        height: 320,
-                                        borderRadius: 16,
-                                        overflow: "hidden",
-                                    }}
-                                >
-                                    <MapContainer
-                                        center={mapState.center}
-                                        zoom={13}
-                                        scrollWheelZoom
-                                        style={{ height: "100%", width: "100%" }}
+                            <Row gutter={[16, 16]}>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item
+                                        label="Name"
+                                        name="name"
+                                        rules={[{ required: true, message: "Please enter name" }]}
                                     >
-                                        <TileLayer
-                                            attribution='&copy; OpenStreetMap contributors'
-                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                        <Input placeholder="Enter visit name" />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Status" name="status">
+                                        <Select
+                                            placeholder="Select status"
+                                            options={VISIT_STATUS_OPTIONS}
+                                            allowClear
                                         />
+                                    </Form.Item>
+                                </Col>
 
-                                        {mapState.checkin ? (
-                                            <Marker position={mapState.checkin}>
-                                                <Popup>
-                                                    <div>
-                                                        <strong>Check-in</strong>
-                                                        <br />
-                                                        {form.getFieldValue("checkin_address") || "Address not available"}
-                                                    </div>
-                                                </Popup>
-                                            </Marker>
-                                        ) : null}
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item
+                                        label="Regarding"
+                                        name="regarding"
+                                        rules={[{ required: true, message: "Please select regarding" }]}
+                                    >
+                                        <Select
+                                            placeholder="Select regarding"
+                                            options={VISIT_REGARDING_OPTIONS}
+                                            allowClear
+                                        />
+                                    </Form.Item>
+                                </Col>
 
-                                        {mapState.checkout ? (
-                                            <Marker position={mapState.checkout}>
-                                                <Popup>
-                                                    <div>
-                                                        <strong>Checkout</strong>
-                                                        <br />
-                                                        {form.getFieldValue("checkout_address") || "Address not available"}
-                                                    </div>
-                                                </Popup>
-                                            </Marker>
-                                        ) : null}
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Ticket Status" name="ticket_status">
+                                        <Select
+                                            placeholder="Select ticket status"
+                                            options={VISIT_TICKET_STATUS_OPTIONS}
+                                            allowClear
+                                        />
+                                    </Form.Item>
+                                </Col>
 
-                                        {mapState.checkin && mapState.checkout ? (
-                                            <Polyline positions={[mapState.checkin, mapState.checkout]} />
-                                        ) : null}
-                                    </MapContainer>
-                                </div>
-                            ) : (
-                                <div
-                                    style={{
-                                        minHeight: 100,
-                                        border: "1px dashed var(--fl-border, #d9d9d9)",
-                                        borderRadius: 14,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                    }}
-                                >
-                                    <Text type="secondary">
-                                        Capture check-in or checkout to preview route on map
-                                    </Text>
-                                </div>
-                            )}
-                        </Card>
-                    </Col>
-                </Row>
-            </SectionCard>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Assigned To" name="assigned_to_user_id">
+                                        <Select
+                                            placeholder="Select user"
+                                            options={usersOptions}
+                                            allowClear
+                                            showSearch
+                                            optionFilterProp="label"
+                                        />
+                                    </Form.Item>
+                                </Col>
 
-            <SectionCard
-                title="Cost Details"
-                subtitle="Track visit expenses with auto total calculation"
-                icon={<DollarOutlined />}
-            >
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Spare Cost" name="spare_cost">
-                            <InputNumber min={0} style={{ width: "100%" }} />
-                        </Form.Item>
-                    </Col>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Organization" name="organization_id">
+                                        <Select
+                                            placeholder="Select organization"
+                                            options={organizationOptions}
+                                            allowClear
+                                            showSearch
+                                            optionFilterProp="label"
+                                        />
+                                    </Form.Item>
+                                </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Employee Cost" name="employee_cost">
-                            <InputNumber min={0} style={{ width: "100%" }} />
-                        </Form.Item>
-                    </Col>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Contact" name="contact_id">
+                                        <Select
+                                            placeholder="Select contact"
+                                            options={contactOptions}
+                                            allowClear
+                                            showSearch
+                                            optionFilterProp="label"
+                                        />
+                                    </Form.Item>
+                                </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Travelling Cost" name="travelling_cost">
-                            <InputNumber min={0} style={{ width: "100%" }} />
-                        </Form.Item>
-                    </Col>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Lead" name="lead_id">
+                                        <Select
+                                            placeholder="Select lead"
+                                            options={leadOptions}
+                                            allowClear
+                                            showSearch
+                                            optionFilterProp="label"
+                                        />
+                                    </Form.Item>
+                                </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Other Cost" name="other_cost">
-                            <InputNumber min={0} style={{ width: "100%" }} />
-                        </Form.Item>
-                    </Col>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Case ID" name="case_id">
+                                        <Input placeholder="Enter case id if available" />
+                                    </Form.Item>
+                                </Col>
 
-                    <Col xs={24} md={12} xl={8}>
-                        <Form.Item label="Total Cost" name="total_cost">
-                            <InputNumber disabled style={{ width: "100%" }} />
-                        </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={12} xl={8}>
-                        <div
-                            style={{
-                                height: "100%",
-                                minHeight: 78,
-                                border: "1px solid var(--fl-border, #f0f0f0)",
-                                borderRadius: 14,
-                                padding: 12,
-                                background: "var(--fl-panel, #fff)",
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                            }}
+                                <Col xs={24}>
+                                    <Form.Item
+                                        label="Remarks"
+                                        name="remarks"
+                                    // rules={[{ required: true, message: "Please enter remarks" }]}
+                                    >
+                                        <TextArea rows={5} placeholder="Enter visit remarks / summary" />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </SectionCard>
+                    ),
+                },
+                {
+                    key: "schedule",
+                    label: "Schedule & Follow-up",
+                    children: (
+                        <SectionCard
+                            title="Schedule & Follow-up"
+                            subtitle="Timing, duration and next action planning"
+                            icon={<CalendarOutlined />}
                         >
-                            <Text type="secondary">Cost Summary</Text>
-                            <Title level={5} style={{ margin: "6px 0 0" }}>
-                                ₹{Number(totalCost || 0).toLocaleString("en-IN")}
-                            </Title>
-                        </div>
-                    </Col>
-                </Row>
-            </SectionCard>
+                            <Row gutter={[16, 16]}>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Start Date" name="start_date">
+                                        <DatePicker
+                                            showTime
+                                            format="DD/MM/YYYY hh:mm A"
+                                            style={{ width: "100%" }}
+                                        />
+                                    </Form.Item>
+                                </Col>
 
-            {isEdit ? (
-                <SectionCard
-                    title="Audit Information"
-                    subtitle="Read-only system generated details"
-                    icon={<UserOutlined />}
-                >
-                    <Row gutter={[16, 16]}>
-                        <Col xs={24} md={12} xl={6}>
-                            <Form.Item label="Created By Name" name="created_by_name">
-                                <Input disabled placeholder="Auto" />
-                            </Form.Item>
-                        </Col>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="End Date" name="end_date">
+                                        <DatePicker
+                                            showTime
+                                            format="DD/MM/YYYY hh:mm A"
+                                            style={{ width: "100%" }}
+                                        />
+                                    </Form.Item>
+                                </Col>
 
-                        <Col xs={24} md={12} xl={6}>
-                            <Form.Item label="Date Created" name="created_at">
-                                <Input
-                                    disabled
-                                    value={
-                                        initialValues?.created_at
-                                            ? dayjs(initialValues.created_at).format("DD/MM/YYYY hh:mm A")
-                                            : ""
-                                    }
-                                />
-                            </Form.Item>
-                        </Col>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item
+                                        label="Next Follow-up Date"
+                                        name="next_followup_date"
+                                    // rules={[
+                                    //     {
+                                    //         required: true,
+                                    //         message: "Please select next followup date",
+                                    //     },
+                                    // ]}
+                                    >
+                                        <DatePicker
+                                            showTime
+                                            format="DD/MM/YYYY hh:mm A"
+                                            style={{ width: "100%" }}
+                                        />
+                                    </Form.Item>
+                                </Col>
 
-                        <Col xs={24} md={12} xl={6}>
-                            <Form.Item label="Modified By Name" name="updated_by_name">
-                                <Input disabled placeholder="Auto" />
-                            </Form.Item>
-                        </Col>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Duration" name="duration">
+                                        <Input disabled placeholder="Auto calculated" />
+                                    </Form.Item>
+                                </Col>
 
-                        <Col xs={24} md={12} xl={6}>
-                            <Form.Item label="Date Modified" name="updated_at">
-                                <Input
-                                    disabled
-                                    value={
-                                        initialValues?.updated_at
-                                            ? dayjs(initialValues.updated_at).format("DD/MM/YYYY hh:mm A")
-                                            : ""
-                                    }
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </SectionCard>
-            ) : null}
-        </Space>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Duration In Minutes" name="duration_in_minutes">
+                                        <InputNumber
+                                            disabled
+                                            style={{ width: "100%" }}
+                                            placeholder="Auto calculated"
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={8}>
+                                    <div
+                                        style={{
+                                            height: "100%",
+                                            minHeight: 78,
+                                            border: "1px dashed var(--fl-border, #d9d9d9)",
+                                            borderRadius: 14,
+                                            padding: 12,
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <Text type="secondary">Quick Summary</Text>
+                                        <Space wrap style={{ marginTop: 8 }}>
+                                            <Tag>{durationText || "No Duration"}</Tag>
+                                            <Tag color="blue">
+                                                {startDate ? dayjs(startDate).format("DD MMM YYYY") : "No Start"}
+                                            </Tag>
+                                            <Tag color="gold">
+                                                {form.getFieldValue("next_followup_date")
+                                                    ? dayjs(form.getFieldValue("next_followup_date")).format("DD MMM YYYY")
+                                                    : "No Follow-up"}
+                                            </Tag>
+                                        </Space>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </SectionCard>
+                    ),
+                },
+                {
+                    key: "location",
+                    label: "Location Details",
+                    children: (
+                        <SectionCard
+                            title="Location Details"
+                            subtitle="Use live location to auto-fill address, coordinates and capture time"
+                            icon={<EnvironmentOutlined />}
+                        >
+                            <Row gutter={[16, 16]}>
+                                <Col xs={24}>
+                                    <Space wrap>
+                                        <Button
+                                            type="primary"
+                                            icon={capturing === "checkin" ? <LoadingOutlined /> : <AimOutlined />}
+                                            loading={capturing === "checkin"}
+                                            onClick={() => captureLocation("checkin")}
+                                        >
+                                            {checkinLat && checkinLng ? "Re-capture Check-in" : "Capture Check-in"}
+                                        </Button>
+
+                                        <Button
+                                            icon={capturing === "checkout" ? <LoadingOutlined /> : <AimOutlined />}
+                                            loading={capturing === "checkout"}
+                                            onClick={() => captureLocation("checkout")}
+                                        >
+                                            {checkoutLat && checkoutLng ? "Re-capture Checkout" : "Capture Checkout"}
+                                        </Button>
+                                    </Space>
+                                </Col>
+
+                                <Col xs={24} md={12}>
+                                    <Space
+                                        align="center"
+                                        style={{ width: "100%", justifyContent: "space-between", marginBottom: 8 }}
+                                    >
+                                        <Text strong>Check-in Address</Text>
+                                        <Button
+                                            size="small"
+                                            icon={<AimOutlined />}
+                                            loading={capturing === "checkin"}
+                                            onClick={() => captureLocation("checkin")}
+                                        >
+                                            Use current location
+                                        </Button>
+                                    </Space>
+                                    <Form.Item name="checkin_address" style={{ marginBottom: 0 }}>
+                                        <TextArea rows={4} placeholder="Auto-filled or enter manually" />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12}>
+                                    <Space
+                                        align="center"
+                                        style={{ width: "100%", justifyContent: "space-between", marginBottom: 8 }}
+                                    >
+                                        <Text strong>Checkout Address</Text>
+                                        <Button
+                                            size="small"
+                                            icon={<AimOutlined />}
+                                            loading={capturing === "checkout"}
+                                            onClick={() => captureLocation("checkout")}
+                                        >
+                                            Use current location
+                                        </Button>
+                                    </Space>
+                                    <Form.Item name="checkout_address" style={{ marginBottom: 0 }}>
+                                        <TextArea rows={4} placeholder="Auto-filled or enter manually" />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={6}>
+                                    <Form.Item
+                                        label="Check-in Latitude"
+                                        name="checkin_latitude"
+                                        rules={[
+                                            {
+                                                validator: (_, value) => {
+                                                    if (value === undefined || value === null || value === "") {
+                                                        return Promise.resolve();
+                                                    }
+                                                    if (Number(value) < -90 || Number(value) > 90) {
+                                                        return Promise.reject(
+                                                            new Error("Check-in latitude must be between -90 and 90"),
+                                                        );
+                                                    }
+                                                    return Promise.resolve();
+                                                },
+                                            },
+                                        ]}
+                                    >
+                                        <InputNumber
+                                            step={0.0000001}
+                                            min={-90}
+                                            max={90}
+                                            precision={7}
+                                            style={{ width: "100%" }}
+                                            placeholder="Latitude"
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={6}>
+                                    <Form.Item
+                                        label="Check-in Longitude"
+                                        name="checkin_longitude"
+                                        rules={[
+                                            {
+                                                validator: (_, value) => {
+                                                    if (value === undefined || value === null || value === "") {
+                                                        return Promise.resolve();
+                                                    }
+                                                    if (Number(value) < -180 || Number(value) > 180) {
+                                                        return Promise.reject(
+                                                            new Error("Check-in longitude must be between -180 and 180"),
+                                                        );
+                                                    }
+                                                    return Promise.resolve();
+                                                },
+                                            },
+                                        ]}
+                                    >
+                                        <InputNumber
+                                            step={0.0000001}
+                                            min={-180}
+                                            max={180}
+                                            precision={7}
+                                            style={{ width: "100%" }}
+                                            placeholder="Longitude"
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={6}>
+                                    <Form.Item label="Check-in Captured At" name="checkin_captured_at">
+                                        <DatePicker
+                                            showTime
+                                            format="DD/MM/YYYY hh:mm A"
+                                            style={{ width: "100%" }}
+                                            placeholder="Auto captured"
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={6}>
+                                    <div
+                                        style={{
+                                            minHeight: 78,
+                                            border: "1px solid var(--fl-border, #f0f0f0)",
+                                            borderRadius: 14,
+                                            padding: 12,
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <Text type="secondary">Check-in Capture</Text>
+                                        <Space style={{ marginTop: 6 }}>
+                                            <ClockCircleOutlined />
+                                            <Text>{formatDateTime(checkinCapturedAt ? dayjs(checkinCapturedAt).toISOString() : null)}</Text>
+                                        </Space>
+                                    </div>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={6}>
+                                    <Form.Item
+                                        label="Checkout Latitude"
+                                        name="checkout_latitude"
+                                        rules={[
+                                            {
+                                                validator: (_, value) => {
+                                                    if (value === undefined || value === null || value === "") {
+                                                        return Promise.resolve();
+                                                    }
+                                                    if (Number(value) < -90 || Number(value) > 90) {
+                                                        return Promise.reject(
+                                                            new Error("Checkout latitude must be between -90 and 90"),
+                                                        );
+                                                    }
+                                                    return Promise.resolve();
+                                                },
+                                            },
+                                        ]}
+                                    >
+                                        <InputNumber
+                                            step={0.0000001}
+                                            min={-90}
+                                            max={90}
+                                            precision={7}
+                                            style={{ width: "100%" }}
+                                            placeholder="Latitude"
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={6}>
+                                    <Form.Item
+                                        label="Checkout Longitude"
+                                        name="checkout_longitude"
+                                        rules={[
+                                            {
+                                                validator: (_, value) => {
+                                                    if (value === undefined || value === null || value === "") {
+                                                        return Promise.resolve();
+                                                    }
+                                                    if (Number(value) < -180 || Number(value) > 180) {
+                                                        return Promise.reject(
+                                                            new Error("Checkout longitude must be between -180 and 180"),
+                                                        );
+                                                    }
+                                                    return Promise.resolve();
+                                                },
+                                            },
+                                        ]}
+                                    >
+                                        <InputNumber
+                                            step={0.0000001}
+                                            min={-180}
+                                            max={180}
+                                            precision={7}
+                                            style={{ width: "100%" }}
+                                            placeholder="Longitude"
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={6}>
+                                    <Form.Item label="Checkout Captured At" name="checkout_captured_at">
+                                        <DatePicker
+                                            showTime
+                                            format="DD/MM/YYYY hh:mm A"
+                                            style={{ width: "100%" }}
+                                            placeholder="Auto captured"
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={6}>
+                                    <div
+                                        style={{
+                                            minHeight: 78,
+                                            border: "1px solid var(--fl-border, #f0f0f0)",
+                                            borderRadius: 14,
+                                            padding: 12,
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <Text type="secondary">Checkout Capture</Text>
+                                        <Space style={{ marginTop: 6 }}>
+                                            <ClockCircleOutlined />
+                                            <Text>{formatDateTime(checkoutCapturedAt ? dayjs(checkoutCapturedAt).toISOString() : null)}</Text>
+                                        </Space>
+                                    </div>
+                                </Col>
+
+                                <Col xs={24}>
+                                    <Card
+                                        bordered={false}
+                                        style={{
+                                            borderRadius: 18,
+                                            background: "var(--fl-panel, #fff)",
+                                        }}
+                                        bodyStyle={{ padding: 12 }}
+                                    >
+                                        <div style={{ marginBottom: 10 }}>
+                                            <Text strong>Map Preview</Text>
+                                        </div>
+
+                                        {mapState.checkin || mapState.checkout ? (
+                                            <div
+                                                style={{
+                                                    height: 320,
+                                                    borderRadius: 16,
+                                                    overflow: "hidden",
+                                                }}
+                                            >
+                                                <MapContainer
+                                                    center={mapState.center}
+                                                    zoom={13}
+                                                    scrollWheelZoom
+                                                    style={{ height: "100%", width: "100%" }}
+                                                >
+                                                    <TileLayer
+                                                        attribution='&copy; OpenStreetMap contributors'
+                                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                    />
+
+                                                    {mapState.checkin ? (
+                                                        <Marker position={mapState.checkin}>
+                                                            <Popup>
+                                                                <div>
+                                                                    <strong>Check-in</strong>
+                                                                    <br />
+                                                                    {form.getFieldValue("checkin_address") || "Address not available"}
+                                                                </div>
+                                                            </Popup>
+                                                        </Marker>
+                                                    ) : null}
+
+                                                    {mapState.checkout ? (
+                                                        <Marker position={mapState.checkout}>
+                                                            <Popup>
+                                                                <div>
+                                                                    <strong>Checkout</strong>
+                                                                    <br />
+                                                                    {form.getFieldValue("checkout_address") || "Address not available"}
+                                                                </div>
+                                                            </Popup>
+                                                        </Marker>
+                                                    ) : null}
+
+                                                    {mapState.checkin && mapState.checkout ? (
+                                                        <Polyline positions={[mapState.checkin, mapState.checkout]} />
+                                                    ) : null}
+                                                </MapContainer>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                style={{
+                                                    minHeight: 100,
+                                                    border: "1px dashed var(--fl-border, #d9d9d9)",
+                                                    borderRadius: 14,
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                }}
+                                            >
+                                                <Text type="secondary">
+                                                    Capture check-in or checkout to preview route on map
+                                                </Text>
+                                            </div>
+                                        )}
+                                    </Card>
+                                </Col>
+                            </Row>
+                        </SectionCard>
+                    ),
+                },
+                {
+                    key: "cost",
+                    label: "Cost Details",
+                    children: (
+                        <SectionCard
+                            title="Cost Details"
+                            subtitle="Track visit expenses with auto total calculation"
+                            icon={<DollarOutlined />}
+                        >
+                            <Row gutter={[16, 16]}>
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Spare Cost" name="spare_cost">
+                                        <InputNumber min={0} style={{ width: "100%" }} />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Employee Cost" name="employee_cost">
+                                        <InputNumber min={0} style={{ width: "100%" }} />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Travelling Cost" name="travelling_cost">
+                                        <InputNumber min={0} style={{ width: "100%" }} />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Other Cost" name="other_cost">
+                                        <InputNumber min={0} style={{ width: "100%" }} />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={8}>
+                                    <Form.Item label="Total Cost" name="total_cost">
+                                        <InputNumber disabled style={{ width: "100%" }} />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={24} md={12} xl={8}>
+                                    <div
+                                        style={{
+                                            height: "100%",
+                                            minHeight: 78,
+                                            border: "1px solid var(--fl-border, #f0f0f0)",
+                                            borderRadius: 14,
+                                            padding: 12,
+                                            background: "var(--fl-panel, #fff)",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <Text type="secondary">Cost Summary</Text>
+                                        <Title level={5} style={{ margin: "6px 0 0" }}>
+                                            ₹{Number(totalCost || 0).toLocaleString("en-IN")}
+                                        </Title>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </SectionCard>
+                    ),
+                },
+                ...(isEdit
+                    ? [
+                        {
+                            key: "audit",
+                            label: "Audit Information",
+                            children: (
+                                <SectionCard
+                                    title="Audit Information"
+                                    subtitle="Read-only system generated details"
+                                    icon={<UserOutlined />}
+                                >
+                                    <Row gutter={[16, 16]}>
+                                        <Col xs={24} md={12} xl={6}>
+                                            <Form.Item label="Created By Name" name="created_by_name">
+                                                <Input disabled placeholder="Auto" />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col xs={24} md={12} xl={6}>
+                                            <Form.Item label="Date Created" name="created_at">
+                                                <Input
+                                                    disabled
+                                                    value={
+                                                        initialValues?.created_at
+                                                            ? dayjs(initialValues.created_at).format("DD/MM/YYYY hh:mm A")
+                                                            : ""
+                                                    }
+                                                />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col xs={24} md={12} xl={6}>
+                                            <Form.Item label="Modified By Name" name="updated_by_name">
+                                                <Input disabled placeholder="Auto" />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col xs={24} md={12} xl={6}>
+                                            <Form.Item label="Date Modified" name="updated_at">
+                                                <Input
+                                                    disabled
+                                                    value={
+                                                        initialValues?.updated_at
+                                                            ? dayjs(initialValues.updated_at).format("DD/MM/YYYY hh:mm A")
+                                                            : ""
+                                                    }
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </SectionCard>
+                            ),
+                        },
+                    ]
+                    : []),
+            ]}
+        />
     );
 }
