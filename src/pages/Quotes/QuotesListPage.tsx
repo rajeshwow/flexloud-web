@@ -28,7 +28,7 @@ export default function QuotesListPage() {
             title: "Quote No",
             dataIndex: "quote_number",
             key: "quote_number",
-            width: 140,
+            width: 160,
         },
         {
             title: "Title",

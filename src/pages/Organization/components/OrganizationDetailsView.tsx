@@ -1,4 +1,5 @@
 import { Card, Col, Row, Typography } from "antd";
+import { formatDateTime } from "../../../shared/Utils/utils";
 import OrganizationBranchesSection from "./OrganizationBranchesSection";
 import OrganizationQuickInfoCard from "./OrganizationQuickInfoCard";
 
@@ -37,12 +38,12 @@ export default function OrganizationDetailsView({ organization }: Props) {
 
                     <Col xs={24} md={6}>
                         <Text type="secondary">Created At</Text>
-                        <div>{organization?.created_at || "-"}</div>
+                        <div>{formatDateTime(organization?.created_at) || "-"}</div>
                     </Col>
 
                     <Col xs={24} md={6}>
                         <Text type="secondary">Updated At</Text>
-                        <div>{organization?.updated_at || "-"}</div>
+                        <div>{formatDateTime(organization?.updated_at) || "-"}</div>
                     </Col>
                 </Row>
             </Card>

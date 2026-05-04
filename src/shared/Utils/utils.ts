@@ -33,3 +33,10 @@ export const toTitleCase = (str: string = ""): string => {
 
   // return lower.charAt(0).toUpperCase() + lower.slice(1);
 };
+
+export const typeOptions = [
+  { label: "Customer", value: "customer" },
+  { label: "Partner", value: "partner" },
+  { label: "Vendor", value: "vendor" },
+  { label: "Other", value: "other" },
+];

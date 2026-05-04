@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+
 
 import {
     Button,
@@ -9,9 +9,12 @@ import {
     Divider,
     Form,
     Input,
+    message,
+    Modal,
     Row,
     Select,
     Space,
+    Tabs,
     Typography
 } from "antd";
 import dayjs from "dayjs";
@@ -30,6 +33,10 @@ import { getProducts } from "../../../redux/reducers/products.slice";
 import type { AppDispatch, RootState } from "../../../redux/store";
 import { Client } from "../../../shared/Utils/api-client";
 import { toTitleCase, withTenant } from "../../../shared/Utils/utils";
+import ContactForm from "../../Contacts/ContactForm";
+import CreateOpportunityPage from "../../Opportunities/createOpportunities";
+import OrganizationForm from "../../Organization/components/OrganizationForm";
+import CreateLeadForm from "../../leads/CreateLeads";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -67,12 +74,6 @@ const quoteStageOptions = [
 
 const currencyOptions = [{ label: "Indian Rupee : ₹", value: "INR" }];
 
-const freightTypeOptions = [
-    { label: "None", value: "" },
-    { label: "Included", value: "included" },
-    { label: "Extra", value: "extra" },
-];
-
 const paymentTermOptions = [
     { label: "Advance", value: "advance" },
     { label: "Partial", value: "partial" },
@@ -94,22 +95,6 @@ function toDate(value?: string | null) {
     return value ? dayjs(value) : undefined;
 }
 
-function getLineTotal(item: any) {
-    const quantity = Number(item?.quantity || 0);
-    const salePrice = Number(item?.sale_price || 0);
-    const discountValue = Number(item?.discount_value || 0);
-    const discountType = item?.discount_type || "pct";
-    const taxAmount = Number(item?.tax_amount || 0);
-
-    const base = quantity * salePrice;
-    const discount =
-        discountType === "pct" ? (base * discountValue) / 100 : discountValue;
-
-    return Math.max(base - discount + taxAmount, 0);
-}
-
-
-
 export default function QuoteForm({
     form,
     initialValues,
@@ -120,7 +105,6 @@ export default function QuoteForm({
 }: Props) {
     const [organizationOptions, setOrganizationOptions] = useState<OptionItem[]>([]);
     const [contactOptions, setContactOptions] = useState<OptionItem[]>([]);
-    const [opportunityOptions, setOpportunityOptions] = useState<OptionItem[]>([]);
     const [userOptions, setUserOptions] = useState<OptionItem[]>([]);
 
     const [countryOptions, setCountryOptions] = useState<OptionItem[]>([]);
@@ -130,9 +114,7 @@ export default function QuoteForm({
     const [allStates, setAllStates] = useState<MasterValueItem[]>([]);
     const [allCities, setAllCities] = useState<MasterValueItem[]>([]);
 
-    const watchedLineItems = Form.useWatch("line_items", form);
     const watchedFreight = Form.useWatch("freight_charges", form);
-    const watchedTax = Form.useWatch("tax", form);
     const watchedTaxOnFreight = Form.useWatch("tax_on_freight", form);
     const sameAsBilling = Form.useWatch("same_as_billing", form);
 
@@ -140,10 +122,12 @@ export default function QuoteForm({
     const billingState = Form.useWatch("billing_state", form);
     const shippingCountry = Form.useWatch("shipping_country", form);
     const shippingState = Form.useWatch("shipping_state", form);
+
+
     const products = useSelector(
-        (state: RootState) =>
-            state.products?.productList
+        (state: RootState) => state.products?.productList
     );
+
     const [lineItems, setLineItems] = useState<OpportunityLineItem[]>([
         createDefaultOpportunityLineItem(),
     ]);
@@ -152,11 +136,161 @@ export default function QuoteForm({
 
     const relatedToType = Form.useWatch("related_to_type", form);
     const [relatedToOptions, setRelatedToOptions] = useState<OptionItem[]>([]);
+    const [quickCreateOpen, setQuickCreateOpen] = useState(false);
+    const [quickCreateLoading, setQuickCreateLoading] = useState(false);
+    const [quickCreateForm] = Form.useForm();
+
+    const getRelatedCreateLabel = () => {
+        switch (relatedToType) {
+            case "organization":
+                return "Organization";
+            case "contact":
+                return "Contact";
+            case "lead":
+                return "Lead";
+            case "opportunity":
+                return "Opportunity";
+            default:
+                return "Record";
+        }
+    };
+
+    const openQuickCreateModal = () => {
+        if (!relatedToType) {
+            message.warning("Please select Related To first");
+            return;
+        }
+
+        quickCreateForm.resetFields();
+        setQuickCreateOpen(true);
+    };
+
+    const getCreatedRecord = (res: any) => {
+        return (
+            res?.data?.data ||
+            res?.data?.record ||
+            res?.data?.organization ||
+            res?.data?.contact ||
+            res?.data?.lead ||
+            res?.data?.opportunity ||
+            res?.data
+        );
+    };
+
+    const buildQuickCreatePayload = (values: any) => {
+        if (relatedToType === "organization") {
+            return {
+                name: values.name,
+                email: values.email || null,
+                phone: values.phone || null,
+                website: values.website || null,
+                source: "system",
+            };
+        }
+
+        if (relatedToType === "contact") {
+            return {
+                first_name: values.first_name,
+                last_name: values.last_name || null,
+                email: values.email || null,
+                phone: values.phone || null,
+                source: "system",
+            };
+        }
+
+        if (relatedToType === "lead") {
+            return {
+                first_name: values.first_name,
+                last_name: values.last_name || null,
+                email: values.email || null,
+                phone: values.phone || null,
+                company: values.company || null,
+                lead_source: "system",
+                source: "system",
+            };
+        }
+
+        if (relatedToType === "opportunity") {
+            return {
+                name: values.name,
+                sales_stage: values.sales_stage || "Qualification",
+                amount: Number(values.amount || 0),
+                company: values.company || null,
+                type: values.type || "New Business",
+                source: "system",
+            };
+        }
+
+        return values;
+    };
+
+    const getQuickCreateEndpoint = () => {
+        switch (relatedToType) {
+            case "organization":
+                return "/organizations";
+            case "contact":
+                return "/contacts";
+            case "lead":
+                return "/leads";
+            case "opportunity":
+                return "/opportunities";
+            default:
+                return "";
+        }
+    };
+
+    const handleQuickCreateSubmit = async (values: any) => {
+        if (!relatedToType) return;
+
+        const endpoint = getQuickCreateEndpoint();
+
+        if (!endpoint) {
+            message.error("Invalid related type");
+            return;
+        }
+
+        try {
+            setQuickCreateLoading(true);
+
+            const payload = buildQuickCreatePayload(values);
+            const res = await Client.post(withTenant(endpoint), payload);
+
+            const createdRecord = getCreatedRecord(res);
+
+            await loadRelatedOptions(relatedToType);
+
+            const newOption = normalizeRelatedOptions(
+                createdRecord ? [createdRecord] : [],
+                relatedToType
+            )[0];
+
+            if (newOption?.value) {
+                form.setFieldsValue({
+                    related_to_id: newOption.value,
+                });
+
+                setRelatedToOptions((prev) => {
+                    const exists = prev.some((item) => item.value === newOption.value);
+                    return exists ? prev : [newOption, ...prev];
+                });
+            }
+
+            message.success(`${getRelatedCreateLabel()} created successfully`);
+            quickCreateForm.resetFields();
+            setQuickCreateOpen(false);
+        } catch (error: any) {
+            message.error(
+                error?.response?.data?.message ||
+                `Failed to create ${getRelatedCreateLabel().toLowerCase()}`
+            );
+        } finally {
+            setQuickCreateLoading(false);
+        }
+    };
 
     useEffect(() => {
         dispatch(getProducts({ page: 1, limit: 100 }));
     }, [dispatch]);
-
 
     const normalizeRelatedOptions = (list: any[], type: string): OptionItem[] => {
         switch (type) {
@@ -283,8 +417,8 @@ export default function QuoteForm({
                 related_to_id: undefined,
             });
         }
-        if (initialValues?.line_items?.length) {
 
+        if (initialValues?.line_items?.length) {
             setLineItems(
                 initialValues.line_items.map((item: any) => ({
                     key: item.id || crypto.randomUUID(),
@@ -341,7 +475,6 @@ export default function QuoteForm({
 
                 const orgData = orgRes?.data?.data || [];
                 const contactData = contactRes?.data?.data || [];
-                const oppData = oppRes?.data?.data || [];
                 const userData = userRes?.data?.data || [];
                 const countries = countryRes?.data?.data || [];
                 const states = stateRes?.data?.data || [];
@@ -361,14 +494,6 @@ export default function QuoteForm({
                             `${item.first_name || ""} ${item.last_name || ""}`.trim() ||
                             item.name ||
                             item.email,
-                        value: item.id,
-                        raw: item,
-                    }))
-                );
-
-                setOpportunityOptions(
-                    oppData.map((item: any) => ({
-                        label: item.title || item.name || item.opportunity_name,
                         value: item.id,
                         raw: item,
                     }))
@@ -504,9 +629,6 @@ export default function QuoteForm({
         };
     }, [lineItems, watchedFreight, watchedTaxOnFreight]);
 
-
-
-
     const totals = {
         subtotal: Number(computedSummary.subtotal || 0),
         discount: Number(computedSummary.discount || 0),
@@ -640,385 +762,533 @@ export default function QuoteForm({
         onSubmit(payload);
     };
 
+    const handleSubmit = async (values: any) => {
+        try {
+            // setLoading(true);
+
+            const payload = {
+                ...values,
+                gst_number: values.gst_number || null,
+                email: values.email || null,
+                type: values.type || null,
+                industry: values.industry || null,
+                assigned_to: values.assigned_to || null,
+                source: 'system',
+                registered_address: {
+                    street: values.registered_address?.street || null,
+                    area: values.registered_address?.area || null,
+                    postal_code: values.registered_address?.postal_code || null,
+                    city_id: values.registered_address?.city_id || null,
+                    state_id: values.registered_address?.state_id || null,
+                    country_id: values.registered_address?.country_id || null,
+                },
+                branches: (values.branches || []).map((branch: any) => ({
+                    ...branch,
+                    code: branch.code || null,
+                    contact_person: branch.contact_person || null,
+                    phone: branch.phone || null,
+                    email: branch.email || null,
+                    gst_number: branch.gst_number || null,
+                    assigned_to: branch.assigned_to || null,
+
+                    billing_street: branch.billing_street || null,
+                    billing_area: branch.billing_area || null,
+                    billing_postal_code: branch.billing_postal_code || null,
+                    billing_city_id: branch.billing_city_id || null,
+                    billing_state_id: branch.billing_state_id || null,
+                    billing_country_id: branch.billing_country_id || null,
+
+                    shipping_street: branch.shipping_street || null,
+                    shipping_area: branch.shipping_area || null,
+                    shipping_postal_code: branch.shipping_postal_code || null,
+                    shipping_city_id: branch.shipping_city_id || null,
+                    shipping_state_id: branch.shipping_state_id || null,
+                    shipping_country_id: branch.shipping_country_id || null,
+
+                    is_head_office: !!branch.is_head_office,
+                    is_shipping_same_as_billing: !!branch.is_shipping_same_as_billing,
+                    status: branch.status || "active",
+                })),
+            };
+
+            const response = await Client.post(withTenant("/organizations"), payload);
+
+            message.success(response?.data?.message || "Organization created successfully");
+            form.resetFields();
+            // navigate(`/${slug}/organization/view`);
+        } catch (error: any) {
+            message.error(error?.response?.data?.message || "Failed to create organization");
+        } finally {
+            // setLoading(false);
+        }
+    };
+
     return (
-        <Form layout="vertical" form={form} onFinish={submitHandler}>
-            <Card bordered={false}>
-                <Title level={4} style={{ marginTop: 0 }}>
-                    Overview
-                </Title>
+        <>
 
-                <Row gutter={16}>
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            name="title"
-                            label="Title"
-                            rules={[{ required: true, message: "Title is required" }]}
-                        >
-                            <Input placeholder="Enter quote title" />
-                        </Form.Item>
-                    </Col>
+            <Modal
+                // title={`Add New ${getRelatedCreateLabel()}`}
+                open={quickCreateOpen}
+                onCancel={() => {
+                    quickCreateForm.resetFields();
+                    setQuickCreateOpen(false);
+                }}
+                // onOk={() => quickCreateForm.submit()}
+                confirmLoading={quickCreateLoading}
+                // okText={`Create ${getRelatedCreateLabel()}`}
+                width={1000}
+                destroyOnHidden
+                footer={null}
+            >
+                <Form
+                    form={quickCreateForm}
+                    layout="vertical"
+                    onFinish={handleQuickCreateSubmit}
+                >
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="related_to_type" label="Related To">
-                            <Select
-                                allowClear
-                                placeholder="Select type"
-                                onChange={handleRelatedToTypeChange}
-                                options={[
-                                    { label: "Organization", value: "organization" },
-                                    { label: "Contact", value: "contact" },
-                                    { label: "Lead", value: "lead" },
-                                    { label: "Opportunity", value: "opportunity" },
-                                ]}
-                            />
-                        </Form.Item>
-                    </Col>
+                    {
+                        relatedToType === "organization" ? (
+                            <OrganizationForm form={form}
+                                mode="create"
+                                loading={loading}
+                                onSubmit={handleSubmit} />
+                        ) : relatedToType === "contact" ? (
+                            <ContactForm />
+                        ) : relatedToType === "lead" ? (
+                            <CreateLeadForm />
+                        ) : relatedToType === 'opportunity' ? (
+                            <CreateOpportunityPage />
+                        ) : null
+                    }
+                </Form></Modal>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="related_to_id" label="Related Record">
-                            <Select
-                                allowClear
-                                showSearch
-                                placeholder="Select related record"
-                                disabled={!relatedToType}
-                                options={relatedToOptions}
-                                optionFilterProp="label"
-                            />
-                        </Form.Item>
-                    </Col>
+            <Form layout="vertical" form={form} onFinish={submitHandler}>
+                <Card bordered={false}>
+                    <Tabs
+                        defaultActiveKey="overview"
+                        items={[
+                            {
+                                key: "overview",
+                                label: "Overview",
+                                forceRender: true,
+                                children: (
+                                    <>
+                                        <Title level={4} style={{ marginTop: 0 }}>
+                                            Overview
+                                        </Title>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            name="quotation_date"
-                            label="Quotation Date"
-                            rules={[{ required: true, message: "Quotation date is required" }]}
-                        >
-                            <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
-                        </Form.Item>
-                    </Col>
+                                        <Row gutter={16}>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item
+                                                    name="title"
+                                                    label="Title"
+                                                    rules={[{ required: true, message: "Title is required" }]}
+                                                >
+                                                    <Input placeholder="Enter quote title" />
+                                                </Form.Item>
+                                            </Col>
 
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="related_to_type" label="Related To">
+                                                    <Select
+                                                        allowClear
+                                                        placeholder="Select type"
+                                                        onChange={handleRelatedToTypeChange}
+                                                        options={[
+                                                            { label: "Organization", value: "organization" },
+                                                            { label: "Contact", value: "contact" },
+                                                            { label: "Lead", value: "lead" },
+                                                            { label: "Opportunity", value: "opportunity" },
+                                                        ]}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
 
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="related_to_id" label="Related Record">
+                                                    <Select
+                                                        allowClear
+                                                        showSearch
+                                                        placeholder="Select related record"
+                                                        disabled={!relatedToType}
+                                                        options={relatedToOptions}
+                                                        optionFilterProp="label"
+                                                        popupRender={(menu) => (
+                                                            <>
+                                                                {menu}
 
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            name="valid_until"
-                            label="Valid Until"
-                            rules={[{ required: true, message: "Valid until is required" }]}
-                        >
-                            <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
-                        </Form.Item>
-                    </Col>
+                                                                <Divider style={{ margin: "8px 0" }} />
 
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            name="validation_period"
-                            label="Validation Period"
-                            rules={[{ required: true, message: "Validation period is required" }]}
-                        >
-                            <Select options={validationOptions} placeholder="Select validation period" />
-                        </Form.Item>
-                    </Col>
+                                                                <Button
+                                                                    type="link"
+                                                                    block
+                                                                    onMouseDown={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                    }}
+                                                                    onClick={openQuickCreateModal}
+                                                                    disabled={!relatedToType}
+                                                                    style={{
+                                                                        textAlign: "left",
+                                                                        paddingLeft: 8,
+                                                                        fontWeight: 600,
+                                                                    }}
+                                                                >
+                                                                    + Add New {getRelatedCreateLabel()}
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            name="quote_stage"
-                            label="Quote Stage"
-                            rules={[{ required: true, message: "Quote stage is required" }]}
-                        >
-                            <Select options={quoteStageOptions} placeholder="Select stage" />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item
+                                                    name="quotation_date"
+                                                    label="Quotation Date"
+                                                    rules={[{ required: true, message: "Quotation date is required" }]}
+                                                >
+                                                    <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
+                                                </Form.Item>
+                                            </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="company_name" label="Company">
-                            <Input placeholder="Enter company name" />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item
+                                                    name="valid_until"
+                                                    label="Valid Until"
+                                                    rules={[{ required: true, message: "Valid until is required" }]}
+                                                >
+                                                    <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
+                                                </Form.Item>
+                                            </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="terms_condition" label="Terms Condition">
-                            <Select options={termsConditionOptions} placeholder="Select terms condition" />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item
+                                                    name="validation_period"
+                                                    label="Validation Period"
+                                                    rules={[{ required: true, message: "Validation period is required" }]}
+                                                >
+                                                    <Select options={validationOptions} placeholder="Select validation period" />
+                                                </Form.Item>
+                                            </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="material_delivery_time" label="Material Delivery Time">
-                            <Input placeholder="e.g. 15 days after PO copy" />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item
+                                                    name="quote_stage"
+                                                    label="Quote Stage"
+                                                    rules={[{ required: true, message: "Quote stage is required" }]}
+                                                >
+                                                    <Select options={quoteStageOptions} placeholder="Select stage" />
+                                                </Form.Item>
+                                            </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="payment_terms" label="Payment Terms">
-                            <Select options={paymentTermOptions} placeholder="Select payment terms" />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="company_name" label="Company">
+                                                    <Input placeholder="Enter company name" />
+                                                </Form.Item>
+                                            </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="assigned_to" label="Assigned To">
-                            <Select
-                                allowClear
-                                showSearch
-                                options={userOptions}
-                                placeholder="Select user"
-                                optionFilterProp="label"
-                            />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="terms_condition" label="Terms Condition">
+                                                    <Select options={termsConditionOptions} placeholder="Select terms condition" />
+                                                </Form.Item>
+                                            </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="currency" label="Currency">
-                            <Select options={currencyOptions} placeholder="Select currency" />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="material_delivery_time" label="Material Delivery Time">
+                                                    <Input placeholder="e.g. 15 days after PO copy" />
+                                                </Form.Item>
+                                            </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="terms_condition_description" label="Terms Condition ">
-                            <TextArea rows={4} placeholder="Enter terms condition description" />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="payment_terms" label="Payment Terms">
+                                                    <Select options={paymentTermOptions} placeholder="Select payment terms" />
+                                                </Form.Item>
+                                            </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="payment_terms_description" label="Payment Terms ">
-                            <TextArea rows={4} placeholder="Enter payment terms description" />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="assigned_to" label="Assigned To">
+                                                    <Select
+                                                        allowClear
+                                                        showSearch
+                                                        options={userOptions}
+                                                        placeholder="Select user"
+                                                        optionFilterProp="label"
+                                                    />
+                                                </Form.Item>
+                                            </Col>
 
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="currency" label="Currency">
+                                                    <Select options={currencyOptions} placeholder="Select currency" />
+                                                </Form.Item>
+                                            </Col>
 
-                </Row>
+                                            <Col xs={24} md={12}>
+                                                <Form.Item name="terms_condition_description" label="Terms Condition">
+                                                    <TextArea rows={4} placeholder="Enter terms condition description" />
+                                                </Form.Item>
+                                            </Col>
 
-                <Divider />
+                                            <Col xs={24} md={12}>
+                                                <Form.Item name="payment_terms_description" label="Payment Terms">
+                                                    <TextArea rows={4} placeholder="Enter payment terms description" />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+                                    </>
+                                ),
+                            },
+                            {
+                                key: "address",
+                                label: "Customer & Address",
+                                forceRender: true,
+                                children: (
+                                    <>
+                                        <Title level={4} style={{ marginTop: 0 }}>
+                                            Address Information
+                                        </Title>
 
-                <Title level={4}>Address Information</Title>
+                                        <Row gutter={16}>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item
+                                                    name="organization_id"
+                                                    label="Organization"
+                                                    rules={[{ required: true, message: "Organization is required" }]}
+                                                >
+                                                    <Select
+                                                        allowClear
+                                                        showSearch
+                                                        options={organizationOptions}
+                                                        placeholder="Select organization"
+                                                        optionFilterProp="label"
+                                                        onChange={handleOrganizationChange}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
 
-                <Row gutter={16}>
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            name="organization_id"
-                            label="Organization"
-                            rules={[{ required: true, message: "Organization is required" }]}
-                        >
-                            <Select
-                                allowClear
-                                showSearch
-                                options={organizationOptions}
-                                placeholder="Select organization"
-                                optionFilterProp="label"
-                                onChange={handleOrganizationChange}
-                            />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item
+                                                    name="contact_id"
+                                                    label="Contact"
+                                                    rules={[{ required: true, message: "Contact is required" }]}
+                                                >
+                                                    <Select
+                                                        allowClear
+                                                        showSearch
+                                                        options={contactOptions}
+                                                        placeholder="Select contact"
+                                                        optionFilterProp="label"
+                                                    />
+                                                </Form.Item>
+                                            </Col>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item
-                            name="contact_id"
-                            label="Contact"
-                            rules={[{ required: true, message: "Contact is required" }]}
-                        >
-                            <Select
-                                allowClear
-                                showSearch
-                                options={contactOptions}
-                                placeholder="Select contact"
-                                optionFilterProp="label"
-                            />
-                        </Form.Item>
-                    </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="gstin" label="GSTIN">
+                                                    <Input placeholder="Enter GSTIN" />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
 
-                    <Col xs={24} md={8}>
-                        <Form.Item name="gstin" label="GSTIN">
-                            <Input placeholder="Enter GSTIN" />
-                        </Form.Item>
-                    </Col>
-                </Row>
+                                        <Row gutter={16}>
+                                            <Col xs={24} md={12}>
+                                                <Card size="small" title="Billing Address">
+                                                    <Row gutter={12}>
+                                                        <Col span={24}>
+                                                            <Form.Item name="billing_street" label="Street">
+                                                                <TextArea rows={3} />
+                                                            </Form.Item>
+                                                        </Col>
 
-                <Row gutter={16}>
-                    <Col xs={24} md={12}>
-                        <Card size="small" title="Billing Address">
-                            <Row gutter={12}>
-                                <Col span={24}>
-                                    <Form.Item name="billing_street" label="Street">
-                                        <TextArea rows={3} />
-                                    </Form.Item>
-                                </Col>
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item name="billing_area" label="Area">
+                                                                <Input />
+                                                            </Form.Item>
+                                                        </Col>
 
-                                <Col xs={24} md={12}>
-                                    <Form.Item name="billing_area" label="Area">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item name="billing_country" label="Country">
+                                                                <Select
+                                                                    allowClear
+                                                                    showSearch
+                                                                    options={countryOptions}
+                                                                    placeholder="Select country"
+                                                                    optionFilterProp="label"
+                                                                    onChange={() => {
+                                                                        form.setFieldsValue({
+                                                                            billing_state: undefined,
+                                                                            billing_city: undefined,
+                                                                        });
+                                                                    }}
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
 
-                                <Col xs={24} md={12}>
-                                    <Form.Item name="billing_country" label="Country">
-                                        <Select
-                                            allowClear
-                                            showSearch
-                                            options={countryOptions}
-                                            placeholder="Select country"
-                                            optionFilterProp="label"
-                                            onChange={() => {
-                                                form.setFieldsValue({
-                                                    billing_state: undefined,
-                                                    billing_city: undefined,
-                                                });
-                                            }}
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item name="billing_state" label="State/Region">
+                                                                <Select
+                                                                    allowClear
+                                                                    showSearch
+                                                                    options={stateOptions}
+                                                                    placeholder="Select state"
+                                                                    optionFilterProp="label"
+                                                                    onChange={() => {
+                                                                        form.setFieldsValue({
+                                                                            billing_city: undefined,
+                                                                        });
+                                                                    }}
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item name="billing_city" label="City">
+                                                                <Select
+                                                                    allowClear
+                                                                    showSearch
+                                                                    options={cityOptions}
+                                                                    placeholder="Select city"
+                                                                    optionFilterProp="label"
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item name="billing_postal_code" label="Postal Code">
+                                                                <Input />
+                                                            </Form.Item>
+                                                        </Col>
+                                                    </Row>
+                                                </Card>
+                                            </Col>
+
+                                            <Col xs={24} md={12}>
+                                                <Card
+                                                    size="small"
+                                                    title="Shipping Address"
+                                                    extra={
+                                                        <Form.Item name="same_as_billing" valuePropName="checked" noStyle>
+                                                            <Checkbox>Same as billing address</Checkbox>
+                                                        </Form.Item>
+                                                    }
+                                                >
+                                                    <Row gutter={12}>
+                                                        <Col span={24}>
+                                                            <Form.Item name="shipping_street" label="Street">
+                                                                <TextArea rows={3} />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item name="shipping_area" label="Area">
+                                                                <Input />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item name="shipping_country" label="Country">
+                                                                <Select
+                                                                    allowClear
+                                                                    showSearch
+                                                                    options={countryOptions}
+                                                                    placeholder="Select country"
+                                                                    optionFilterProp="label"
+                                                                    onChange={() => {
+                                                                        form.setFieldsValue({
+                                                                            shipping_state: undefined,
+                                                                            shipping_city: undefined,
+                                                                        });
+                                                                    }}
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item name="shipping_state" label="State/Region">
+                                                                <Select
+                                                                    allowClear
+                                                                    showSearch
+                                                                    options={shippingStateOptions}
+                                                                    placeholder="Select state"
+                                                                    optionFilterProp="label"
+                                                                    onChange={() => {
+                                                                        form.setFieldsValue({
+                                                                            shipping_city: undefined,
+                                                                        });
+                                                                    }}
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item name="shipping_city" label="City">
+                                                                <Select
+                                                                    allowClear
+                                                                    showSearch
+                                                                    options={shippingCityOptions}
+                                                                    placeholder="Select city"
+                                                                    optionFilterProp="label"
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item name="shipping_postal_code" label="Postal Code">
+                                                                <Input />
+                                                            </Form.Item>
+                                                        </Col>
+                                                    </Row>
+                                                </Card>
+                                            </Col>
+                                        </Row>
+                                    </>
+                                ),
+                            },
+                            {
+                                key: "items",
+                                label: "Items & Totals",
+                                forceRender: true,
+                                children: (
+                                    <>
+                                        <OpportunityOrderItems
+                                            products={products}
+                                            lineItems={lineItems}
+                                            setLineItems={setLineItems}
+                                            totals={totals}
                                         />
-                                    </Form.Item>
-                                </Col>
 
-                                <Col xs={24} md={12}>
-                                    <Form.Item name="billing_state" label="State/Region">
-                                        <Select
-                                            allowClear
-                                            showSearch
-                                            options={stateOptions}
-                                            placeholder="Select state"
-                                            optionFilterProp="label"
-                                            onChange={() => {
-                                                form.setFieldsValue({
-                                                    billing_city: undefined,
-                                                });
-                                            }}
-                                        />
-                                    </Form.Item>
-                                </Col>
+                                        {isEdit && initialValues?.created_at ? (
+                                            <>
+                                                <Divider />
+                                                <Row gutter={16}>
+                                                    <Col xs={24} md={8}>
+                                                        <Text type="secondary">
+                                                            Created At: {dayjs(initialValues.created_at).format("DD MMM YYYY, hh:mm A")}
+                                                        </Text>
+                                                    </Col>
+                                                    <Col xs={24} md={8}>
+                                                        <Text type="secondary">
+                                                            Updated At: {dayjs(initialValues.updated_at).format("DD MMM YYYY, hh:mm A")}
+                                                        </Text>
+                                                    </Col>
+                                                </Row>
+                                            </>
+                                        ) : null}
+                                    </>
+                                ),
+                            },
+                        ]}
+                    />
 
-                                <Col xs={24} md={12}>
-                                    <Form.Item name="billing_city" label="City">
-                                        <Select
-                                            allowClear
-                                            showSearch
-                                            options={cityOptions}
-                                            placeholder="Select city"
-                                            optionFilterProp="label"
-                                        />
-                                    </Form.Item>
-                                </Col>
+                    <Divider />
 
-                                <Col xs={24} md={12}>
-                                    <Form.Item name="billing_postal_code" label="Postal Code">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Card>
-                    </Col>
-
-                    <Col xs={24} md={12}>
-                        <Card
-                            size="small"
-                            title="Shipping Address"
-                            extra={
-                                <Form.Item name="same_as_billing" valuePropName="checked" noStyle>
-                                    <Checkbox>Same as billing address</Checkbox>
-                                </Form.Item>
-                            }
-                        >
-                            <Row gutter={12}>
-                                <Col span={24}>
-                                    <Form.Item name="shipping_street" label="Street">
-                                        <TextArea rows={3} />
-                                    </Form.Item>
-                                </Col>
-
-                                <Col xs={24} md={12}>
-                                    <Form.Item name="shipping_area" label="Area">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
-
-                                <Col xs={24} md={12}>
-                                    <Form.Item name="shipping_country" label="Country">
-                                        <Select
-                                            allowClear
-                                            showSearch
-                                            options={countryOptions}
-                                            placeholder="Select country"
-                                            optionFilterProp="label"
-                                            onChange={() => {
-                                                form.setFieldsValue({
-                                                    shipping_state: undefined,
-                                                    shipping_city: undefined,
-                                                });
-                                            }}
-                                        />
-                                    </Form.Item>
-                                </Col>
-
-                                <Col xs={24} md={12}>
-                                    <Form.Item name="shipping_state" label="State/Region">
-                                        <Select
-                                            allowClear
-                                            showSearch
-                                            options={shippingStateOptions}
-                                            placeholder="Select state"
-                                            optionFilterProp="label"
-                                            onChange={() => {
-                                                form.setFieldsValue({
-                                                    shipping_city: undefined,
-                                                });
-                                            }}
-                                        />
-                                    </Form.Item>
-                                </Col>
-
-                                <Col xs={24} md={12}>
-                                    <Form.Item name="shipping_city" label="City">
-                                        <Select
-                                            allowClear
-                                            showSearch
-                                            options={shippingCityOptions}
-                                            placeholder="Select city"
-                                            optionFilterProp="label"
-                                        />
-                                    </Form.Item>
-                                </Col>
-
-                                <Col xs={24} md={12}>
-                                    <Form.Item name="shipping_postal_code" label="Postal Code">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Card>
-                    </Col>
-                </Row>
-
-                <Divider />
-
-                <OpportunityOrderItems
-                    products={products}
-                    lineItems={lineItems}
-                    setLineItems={setLineItems}
-                    totals={totals}
-                />
-
-
-                {isEdit && initialValues?.created_at ? (
-                    <>
-                        <Divider />
-                        <Row gutter={16}>
-                            <Col xs={24} md={8}>
-                                <Text type="secondary">
-                                    Created At: {dayjs(initialValues.created_at).format("DD MMM YYYY, hh:mm A")}
-                                </Text>
-                            </Col>
-                            <Col xs={24} md={8}>
-                                <Text type="secondary">
-                                    Updated At: {dayjs(initialValues.updated_at).format("DD MMM YYYY, hh:mm A")}
-                                </Text>
-                            </Col>
-                        </Row>
-                    </>
-                ) : null}
-
-                <Divider />
-
-                <Space>
-                    <Button type="primary" htmlType="submit" loading={loading}>
-                        {submitText}
-                    </Button>
-                </Space>
-            </Card>
-        </Form>
+                    <Space>
+                        <Button type="primary" htmlType="submit" loading={loading}>
+                            {submitText}
+                        </Button>
+                    </Space>
+                </Card>
+            </Form>
+        </>
     );
 }
