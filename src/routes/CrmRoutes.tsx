@@ -5,7 +5,12 @@ import ContactDetailsPage from "../pages/Contacts/ContactDetailsPage";
 import ContactEditPage from "../pages/Contacts/ContactEditPage";
 import ContactForm from "../pages/Contacts/ContactForm";
 import ContactsList from "../pages/Contacts/ContactsList";
+import CreateDeliveryChallanPage from "../pages/deliveryChallans/CreateDeliveryChallanPage";
+import DeliveryChallanDetailsPage from "../pages/deliveryChallans/DeliveryChallanDetailsPage";
+import DeliveryChallanListPage from "../pages/deliveryChallans/DeliveryChallanListPage";
+import EditDeliveryChallanPage from "../pages/deliveryChallans/EditDeliveryChallanPage";
 import StunningDashboard from "../pages/Home/dashboard";
+import DashboardPage from "../pages/Home/dashboard2";
 import ImportDataPage from "../pages/Imports/importPage";
 import CreateInteractionPage from "../pages/interactions/CreateInteractionPage";
 import EditInteractionPage from "../pages/interactions/EditInteractionPage";
@@ -57,15 +62,12 @@ export default function CrmRoutes() {
 
       {/* Auth protected */}
       <Route path="/:slug" element={<ProtectedRoute />}>
-
         {/* 👇 COMMON LAYOUT */}
         <Route element={<AppShell children={<Outlet />} />}>
 
           <Route index element={<Navigate to="dashboard" replace />} />
-
           <Route path="dashboard" element={<StunningDashboard />} />
-          <Route path="home" element={<StunningDashboard />} />
-
+          <Route path="home" element={<DashboardPage />} />
 
           {/* --------------------------------------------------------------------------------------------------- */}
 
@@ -249,6 +251,44 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="products.create">
                 <CreateProductPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ----------------------------------------------------------------------------------- */}
+
+          <Route
+            path="delivery-challans"
+            element={
+              <ProtectedRoute required="delivery_challans.view">
+                <DeliveryChallanListPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="delivery-challans/create"
+            element={
+              <ProtectedRoute required="delivery_challans.create">
+                <CreateDeliveryChallanPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="delivery-challans/:id"
+            element={
+              <ProtectedRoute required="delivery_challans.view">
+                <DeliveryChallanDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="delivery-challans/:id/edit"
+            element={
+              <ProtectedRoute required="delivery_challans.update">
+                <EditDeliveryChallanPage />
               </ProtectedRoute>
             }
           />

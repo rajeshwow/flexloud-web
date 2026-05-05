@@ -11,7 +11,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
   // ---------------- Core ----------------
   {
     key: "core",
-    label: "Core",
+    label: "Dashboard",
     icon: "HomeOutlined",
     children: [
       {
@@ -41,28 +41,14 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "organization.view",
         label: "Organization",
         path: "/organization/view",
-        icon: "EyeOutlined",
+        icon: "BankOutlined",
         requiresAny: ["org.view"],
-      },
-      {
-        key: "organization.import",
-        label: "Import Organization",
-        path: "/organization/import",
-        icon: "ImportOutlined",
-        requiresAny: ["org.import"],
-      },
-      {
-        key: "organization.recent",
-        label: "Recently Viewed",
-        path: "/organization/recent",
-        icon: "HistoryOutlined",
-        requiresAny: ["org.recent"],
       },
       {
         key: "attendance.view",
         label: " Attendance",
         path: "/attendance",
-        icon: "EyeOutlined",
+        icon: "FieldTimeOutlined",
         requiresAny: ["attendance.view"],
       },
       {
@@ -77,7 +63,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         label: "Events",
         path: "/events",
         requiresAny: ["interactions.view"],
-        icon: "EyeOutlined",
+        icon: "ScheduleOutlined",
       },
       {
         key: "tag.create",
@@ -104,7 +90,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "productCatalog.view",
         label: "View Item Master",
         path: "/product-catalog",
-        icon: "EyeOutlined",
+        icon: "AppstoreOutlined",
         requiresAny: ["product_catalog.view"],
       },
       {
@@ -134,7 +120,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "contacts.view",
         label: "Contacts",
         path: "/contacts",
-        icon: "EyeOutlined",
+        icon: "ContactsOutlined",
         requiresAny: ["contacts.view"],
       },
       {
@@ -162,7 +148,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "leads.view",
         label: "Leads",
         path: "/leads/view",
-        icon: "EyeOutlined",
+        icon: "FireOutlined",
         requiresAny: ["leads.view"],
       },
       {
@@ -183,7 +169,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "opportunities.view",
         label: " Opportunities",
         path: "/opportunities",
-        icon: "EyeOutlined",
+        icon: "TrophyOutlined",
         requiresAny: ["opportunities.view"],
       },
       {
@@ -197,7 +183,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "quotes.view",
         label: " Quotes",
         path: "/quotes",
-        icon: "EyeOutlined",
+        icon: "FileProtectOutlined",
         requiresAny: ["quotes.view"],
       },
       {
@@ -214,33 +200,34 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "ImportOutlined",
         requiresAny: ["quotes.import_line_items"],
       },
+      {
+        key: "delivery_challans.view",
+        label: "Delivery Challans",
+        path: "/delivery-challans",
+        icon: "TruckOutlined",
+        requiresAny: ["delivery_challans.view"],
+      },
     ],
   },
 
-  //tally operations option add kr usme submenu PO SO etc add krna h with permission and icon
-  //tally operations option add kr usme submenu PO SO etc add krna h with permission and icon
-  //tally operations option add kr usme submenu PO SO etc add krna h with permission and icon
-  //tally operations option add kr usme submenu PO SO etc add krna h with permission and icon
-  //tally operations option add kr usme submenu PO SO etc add krna h with permission and icon
-
   {
     key: "tally-operations",
-    label: "Tally Operations",
-    icon: "EyeOutlined",
+    label: "Accounts",
+    icon: "AuditOutlined",
     requiresAny: ["tally-operations.view"],
     children: [
       {
         key: "purchase-orders.view",
         label: "Purchase Orders",
         path: "/purchase-orders",
-        icon: "EyeOutlined",
+        icon: "ShoppingOutlined",
         requiresAny: ["purchase-orders.view"],
       },
       {
         key: "sales-orders.view",
         label: "Sales Orders",
         path: "/sales-orders",
-        icon: "EyeOutlined",
+        icon: "SolutionOutlined",
         requiresAny: ["sales-orders.view"],
       },
     ],
@@ -256,7 +243,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "my-day",
         label: "My Day",
         path: "/my-day",
-        icon: "CalendarOutlined",
+        icon: "ScheduleOutlined",
         requiresAny: [
           "dashboard.view",
           "tasks.view",
@@ -296,7 +283,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "products.view",
         label: "Products",
         path: "/products",
-        icon: "EyeOutlined",
+        icon: "AppstoreOutlined",
         requiresAny: ["products.view"],
       },
       {
@@ -324,16 +311,10 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "tasks.view",
         label: "Tasks",
         path: "/tasks",
-        icon: "EyeOutlined",
+        icon: "CheckSquareOutlined",
         requiresAny: ["tasks.view"],
       },
-      {
-        key: "tasks.import",
-        label: "Import Tasks",
-        path: "/tasks/import",
-        icon: "ImportOutlined",
-        requiresAny: ["tasks.import"],
-      },
+
       {
         key: "notes.create",
         label: "Create Note or Attachment",
@@ -380,7 +361,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "visit.view",
         label: "Visits",
         path: "/visits",
-        icon: "EyeOutlined",
+        icon: "EnvironmentOutlined",
         requiresAny: ["visits.view"],
       },
       {
@@ -408,76 +389,76 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
   },
 
   // ---------------- Reports & Templates ----------------
-  {
-    key: "reports_templates",
-    label: "Reports & Templates",
-    icon: "BarChartOutlined",
-    children: [
-      {
-        key: "pdfTemplates.create",
-        label: "Create PDF Template",
-        path: "/pdf-templates/create",
-        icon: "PlusOutlined",
-        requiresAny: ["pdf_templates.create"],
-      },
-      {
-        key: "pdfTemplates.view",
-        label: "View PDF Templates",
-        path: "/pdf-templates",
-        icon: "EyeOutlined",
-        requiresAny: ["pdf_templates.view"],
-      },
-      {
-        key: "pdfTemplates.import",
-        label: "Import",
-        path: "/pdf-templates/import",
-        icon: "ImportOutlined",
-        requiresAny: ["pdf_templates.import"],
-      },
-      {
-        key: "dreamReports.create",
-        label: "Create Reports",
-        path: "/dream-reports/create",
-        icon: "PlusOutlined",
-        requiresAny: ["dream_reports.create"],
-      },
-      {
-        key: "dreamReports.view",
-        label: "View Reports",
-        path: "/dream-reports",
-        icon: "EyeOutlined",
-        requiresAny: ["dream_reports.view"],
-      },
-      {
-        key: "emailTemplates.create",
-        label: "Create Email Template",
-        path: "/email-templates/create",
-        icon: "PlusOutlined",
-        requiresAny: ["email_templates.create"],
-      },
-      {
-        key: "emailTemplates.view",
-        label: "View Email Templates",
-        path: "/email-templates",
-        icon: "EyeOutlined",
-        requiresAny: ["email_templates.view"],
-      },
-      {
-        key: "holidays",
-        label: "Holidays",
-        path: "/holidays",
-        icon: "GiftOutlined",
-        requiresAny: ["holidays.view"],
-      },
-      {
-        key: "subTask",
-        label: "Sub Task",
-        path: "/sub-task",
-        icon: "PartitionOutlined",
-        requiresAny: ["sub_task.view"],
-      },
-    ],
-  },
+  // {
+  //   key: "reports_templates",
+  //   label: "Reports & Templates",
+  //   icon: "BarChartOutlined",
+  //   children: [
+  //     {
+  //       key: "pdfTemplates.create",
+  //       label: "Create PDF Template",
+  //       path: "/pdf-templates/create",
+  //       icon: "PlusOutlined",
+  //       requiresAny: ["pdf_templates.create"],
+  //     },
+  //     {
+  //       key: "pdfTemplates.view",
+  //       label: "View PDF Templates",
+  //       path: "/pdf-templates",
+  //       icon: "EyeOutlined",
+  //       requiresAny: ["pdf_templates.view"],
+  //     },
+  //     {
+  //       key: "pdfTemplates.import",
+  //       label: "Import",
+  //       path: "/pdf-templates/import",
+  //       icon: "ImportOutlined",
+  //       requiresAny: ["pdf_templates.import"],
+  //     },
+  //     {
+  //       key: "dreamReports.create",
+  //       label: "Create Reports",
+  //       path: "/dream-reports/create",
+  //       icon: "PlusOutlined",
+  //       requiresAny: ["dream_reports.create"],
+  //     },
+  //     {
+  //       key: "dreamReports.view",
+  //       label: "View Reports",
+  //       path: "/dream-reports",
+  //       icon: "EyeOutlined",
+  //       requiresAny: ["dream_reports.view"],
+  //     },
+  //     {
+  //       key: "emailTemplates.create",
+  //       label: "Create Email Template",
+  //       path: "/email-templates/create",
+  //       icon: "PlusOutlined",
+  //       requiresAny: ["email_templates.create"],
+  //     },
+  //     {
+  //       key: "emailTemplates.view",
+  //       label: "View Email Templates",
+  //       path: "/email-templates",
+  //       icon: "EyeOutlined",
+  //       requiresAny: ["email_templates.view"],
+  //     },
+  //     {
+  //       key: "holidays",
+  //       label: "Holidays",
+  //       path: "/holidays",
+  //       icon: "GiftOutlined",
+  //       requiresAny: ["holidays.view"],
+  //     },
+  //     {
+  //       key: "subTask",
+  //       label: "Sub Task",
+  //       path: "/sub-task",
+  //       icon: "PartitionOutlined",
+  //       requiresAny: ["sub_task.view"],
+  //     },
+  //   ],
+  // },
 
   // ---------------- Settings ----------------
   {
@@ -489,7 +470,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "rbac.view",
         label: "RBAC",
         path: "/rbac",
-        icon: "EyeOutlined",
+        icon: "SafetyCertificateOutlined",
         requiresAny: ["rbac.view"],
       },
       {
@@ -503,7 +484,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "users.view",
         label: " Users",
         path: "/users",
-        icon: "EyeOutlined",
+        icon: "TeamOutlined",
         requiresAny: ["users.view"],
       },
       {
@@ -524,7 +505,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         key: "imports.view",
         label: "View Imports",
         path: "/imports",
-        icon: "EyeOutlined",
+        icon: "CloudUploadOutlined",
         requiresAny: ["imports.view"],
       },
       {

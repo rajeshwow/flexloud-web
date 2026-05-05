@@ -191,7 +191,7 @@ export default function QuoteDetailsPage() {
         details.status_label,
         details.status_name,
         details.status,
-        details.status_id
+        details.quote_stage
     );
 
     const customerName = getText(
@@ -476,7 +476,7 @@ export default function QuoteDetailsPage() {
                                                     {quoteNumber}
                                                 </Title>
                                                 <Tag color={getStatusColor(status)}>{status}</Tag>
-                                            </Space>
+                                            </Space> <br />
 
                                             <Text type="secondary">
                                                 Quote for <Text strong>{toTitleCase(customerName as string)}</Text>
@@ -502,11 +502,13 @@ export default function QuoteDetailsPage() {
                                         <Col xs={24} sm={12}>
                                             <Card size="small" style={{ borderRadius: 14 }}>
                                                 <Statistic title="Subtotal" value={money(subtotal)} />
+                                                <small>Excluding Tax</small>
                                             </Card>
                                         </Col>
                                         <Col xs={24} sm={12}>
                                             <Card size="small" style={{ borderRadius: 14 }}>
                                                 <Statistic title="Grand Total" value={money(grandTotal)} />
+                                                <small>Including Tax</small>
                                             </Card>
                                         </Col>
                                     </Row>

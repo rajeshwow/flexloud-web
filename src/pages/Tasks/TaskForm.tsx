@@ -324,7 +324,7 @@ export default function TaskForm({
                         <Form.Item
                             label={<span style={labelStyle}>Status</span>}
                             name="status"
-                            rules={[{ required: true, message: "Please select status" }]}
+                        // rules={[{ required: true, message: "Please select status" }]}
                         >
                             <Select
                                 size="large"
@@ -338,7 +338,7 @@ export default function TaskForm({
                         <Form.Item
                             label={<span style={labelStyle}>Priority</span>}
                             name="priority_id"
-                            rules={[{ required: true, message: "Please select priority" }]}
+                        // rules={[{ required: true, message: "Please select priority" }]}
                         >
                             <Select
                                 size="large"

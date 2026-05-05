@@ -124,6 +124,7 @@ export default function QuoteForm({
     const shippingState = Form.useWatch("shipping_state", form);
 
 
+
     const products = useSelector(
         (state: RootState) => state.products?.productList
     );
@@ -165,128 +166,9 @@ export default function QuoteForm({
         setQuickCreateOpen(true);
     };
 
-    const getCreatedRecord = (res: any) => {
-        return (
-            res?.data?.data ||
-            res?.data?.record ||
-            res?.data?.organization ||
-            res?.data?.contact ||
-            res?.data?.lead ||
-            res?.data?.opportunity ||
-            res?.data
-        );
-    };
 
-    const buildQuickCreatePayload = (values: any) => {
-        if (relatedToType === "organization") {
-            return {
-                name: values.name,
-                email: values.email || null,
-                phone: values.phone || null,
-                website: values.website || null,
-                source: "system",
-            };
-        }
 
-        if (relatedToType === "contact") {
-            return {
-                first_name: values.first_name,
-                last_name: values.last_name || null,
-                email: values.email || null,
-                phone: values.phone || null,
-                source: "system",
-            };
-        }
 
-        if (relatedToType === "lead") {
-            return {
-                first_name: values.first_name,
-                last_name: values.last_name || null,
-                email: values.email || null,
-                phone: values.phone || null,
-                company: values.company || null,
-                lead_source: "system",
-                source: "system",
-            };
-        }
-
-        if (relatedToType === "opportunity") {
-            return {
-                name: values.name,
-                sales_stage: values.sales_stage || "Qualification",
-                amount: Number(values.amount || 0),
-                company: values.company || null,
-                type: values.type || "New Business",
-                source: "system",
-            };
-        }
-
-        return values;
-    };
-
-    const getQuickCreateEndpoint = () => {
-        switch (relatedToType) {
-            case "organization":
-                return "/organizations";
-            case "contact":
-                return "/contacts";
-            case "lead":
-                return "/leads";
-            case "opportunity":
-                return "/opportunities";
-            default:
-                return "";
-        }
-    };
-
-    const handleQuickCreateSubmit = async (values: any) => {
-        if (!relatedToType) return;
-
-        const endpoint = getQuickCreateEndpoint();
-
-        if (!endpoint) {
-            message.error("Invalid related type");
-            return;
-        }
-
-        try {
-            setQuickCreateLoading(true);
-
-            const payload = buildQuickCreatePayload(values);
-            const res = await Client.post(withTenant(endpoint), payload);
-
-            const createdRecord = getCreatedRecord(res);
-
-            await loadRelatedOptions(relatedToType);
-
-            const newOption = normalizeRelatedOptions(
-                createdRecord ? [createdRecord] : [],
-                relatedToType
-            )[0];
-
-            if (newOption?.value) {
-                form.setFieldsValue({
-                    related_to_id: newOption.value,
-                });
-
-                setRelatedToOptions((prev) => {
-                    const exists = prev.some((item) => item.value === newOption.value);
-                    return exists ? prev : [newOption, ...prev];
-                });
-            }
-
-            message.success(`${getRelatedCreateLabel()} created successfully`);
-            quickCreateForm.resetFields();
-            setQuickCreateOpen(false);
-        } catch (error: any) {
-            message.error(
-                error?.response?.data?.message ||
-                `Failed to create ${getRelatedCreateLabel().toLowerCase()}`
-            );
-        } finally {
-            setQuickCreateLoading(false);
-        }
-    };
 
     useEffect(() => {
         dispatch(getProducts({ page: 1, limit: 100 }));

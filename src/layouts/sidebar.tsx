@@ -1,5 +1,6 @@
 import {
   AppstoreOutlined,
+  AuditOutlined,
   BankOutlined,
   BarChartOutlined,
   BellOutlined,
@@ -7,12 +8,19 @@ import {
   BulbOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
+  CheckSquareOutlined,
   ClockCircleOutlined,
+  CloudUploadOutlined,
+  ContactsOutlined,
   DashboardOutlined,
   DollarOutlined,
+  EnvironmentOutlined,
   EyeOutlined,
+  FieldTimeOutlined,
   FilePdfOutlined,
+  FileProtectOutlined,
   FileTextOutlined,
+  FireOutlined,
   FolderOutlined,
   GiftOutlined,
   HistoryOutlined,
@@ -28,10 +36,15 @@ import {
   PhoneOutlined,
   PlusOutlined,
   RiseOutlined,
+  SafetyCertificateOutlined,
   ScheduleOutlined,
   SettingOutlined,
+  ShoppingOutlined,
+  SolutionOutlined,
   TagOutlined,
   TeamOutlined,
+  TrophyOutlined,
+  TruckOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { Avatar, Badge, Button, Grid, Layout, Menu, message, Popover, Space, Switch, Typography } from "antd";
@@ -91,6 +104,19 @@ const iconMap: Record<string, React.ReactNode> = {
   EyeOutlined: <EyeOutlined />,
   ImportOutlined: <ImportOutlined />,
   HistoryOutlined: <HistoryOutlined />,
+  ContactsOutlined: <ContactsOutlined />,
+  FireOutlined: <FireOutlined />,
+  TrophyOutlined: <TrophyOutlined />,
+  FileProtectOutlined: <FileProtectOutlined />,
+  TruckOutlined: <TruckOutlined />,
+  FieldTimeOutlined: <FieldTimeOutlined />,
+  ShoppingOutlined: <ShoppingOutlined />,
+  SolutionOutlined: <SolutionOutlined />,
+  CheckSquareOutlined: <CheckSquareOutlined />,
+  EnvironmentOutlined: <EnvironmentOutlined />,
+  SafetyCertificateOutlined: <SafetyCertificateOutlined />,
+  CloudUploadOutlined: <CloudUploadOutlined />,
+  AuditOutlined: <AuditOutlined />,
 };
 
 type AttendanceWatchProps = {
@@ -576,8 +602,19 @@ export default function AppShell({ children, user }: Props) {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   useEffect(() => {
-    setOpenKeys(parentKeys);
+    setOpenKeys(parentKeys.slice(-1));
   }, [parentKeys]);
+
+  const handleOpenChange = (keys: string[]) => {
+    const latestOpenKey = keys.find((key) => !openKeys.includes(key));
+
+    if (!latestOpenKey) {
+      setOpenKeys([]);
+      return;
+    }
+
+    setOpenKeys([latestOpenKey]);
+  };
 
 
 
@@ -841,7 +878,7 @@ export default function AppShell({ children, user }: Props) {
             mode="inline"
             selectedKeys={selectedKey}
             openKeys={openKeys}
-            onOpenChange={(keys) => setOpenKeys(keys as string[])}
+            onOpenChange={(keys) => handleOpenChange(keys as string[])}
             items={navItems}
             onClick={(e) => {
               // ✅ only navigate leaf routes (they start with base + "/")

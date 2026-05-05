@@ -55,12 +55,16 @@ export type DashboardSummary = {
 
 export type GetDashboardSummaryParams = {
   period?: DashboardPeriod;
+  start_date?: string;
+  end_date?: string;
+  assigned_to?: string;
+  source?: string;
 };
 
 type DashboardState = {
   summary: DashboardSummary | null;
   summaryLoading: boolean;
-  summaryError: string | null;
+  summaryError: any | null;
 };
 
 const initialState: DashboardState = {
@@ -69,27 +73,33 @@ const initialState: DashboardState = {
   summaryError: null,
 };
 
-export const fetchDashboardSummary = createAsyncThunk<
-  DashboardSummary,
-  GetDashboardSummaryParams | undefined,
-  { rejectValue: string }
->("dashboard/fetchDashboardSummary", async (params, { rejectWithValue }) => {
-  try {
-    const response = await Client.get(withTenant("/dashboard/summary"), {
-      params: {
-        period: params?.period || "month",
-      },
-    });
+export const fetchDashboardSummary = createAsyncThunk(
+  "dashboard/fetchDashboardSummary",
+  async (
+    params: {
+      period?: "today" | "week" | "month" | "all";
+      start_date?: string;
+      end_date?: string;
+      assigned_to?: string;
+      source?: string;
+    } = {},
+    { rejectWithValue },
+  ) => {
+    try {
+      const response = await Client.get(withTenant("/dashboard/summary"), {
+        params,
+      });
 
-    return response.data.data as DashboardSummary;
-  } catch (error: any) {
-    return rejectWithValue(
-      error?.response?.data?.message ||
-        error?.message ||
-        "Failed to fetch dashboard summary",
-    );
-  }
-});
+      return response.data?.data || response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to fetch dashboard summary",
+      );
+    }
+  },
+);
 
 const dashboardSlice = createSlice({
   name: "dashboard",
