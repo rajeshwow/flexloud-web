@@ -9,7 +9,6 @@ import CreateDeliveryChallanPage from "../pages/deliveryChallans/CreateDeliveryC
 import DeliveryChallanDetailsPage from "../pages/deliveryChallans/DeliveryChallanDetailsPage";
 import DeliveryChallanListPage from "../pages/deliveryChallans/DeliveryChallanListPage";
 import EditDeliveryChallanPage from "../pages/deliveryChallans/EditDeliveryChallanPage";
-import StunningDashboard from "../pages/Home/dashboard";
 import DashboardPage from "../pages/Home/dashboard2";
 import ImportDataPage from "../pages/Imports/importPage";
 import CreateInteractionPage from "../pages/interactions/CreateInteractionPage";
@@ -66,7 +65,7 @@ export default function CrmRoutes() {
         <Route element={<AppShell children={<Outlet />} />}>
 
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<StunningDashboard />} />
+          <Route path="dashboard" element={<DashboardPage />} />
           <Route path="home" element={<DashboardPage />} />
 
           {/* --------------------------------------------------------------------------------------------------- */}
