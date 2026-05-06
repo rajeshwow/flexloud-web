@@ -13,6 +13,7 @@ import {
     Form,
     Input,
     InputNumber,
+    Modal,
     Row,
     Select,
     Space,
@@ -23,7 +24,7 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchContacts } from "../../redux/reducers/contacts.slice";
@@ -39,6 +40,7 @@ import { getProducts } from "../../redux/reducers/products.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch } from "../../redux/store";
 import { toTitleCase } from "../../shared/Utils/utils";
+import OrganizationForm from "../Organization/components/OrganizationForm";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -116,6 +118,8 @@ export default function CreateOpportunityPage() {
     const navigate = useNavigate();
 
     const [organization, setOrganization] = useState<OrganizationItem[]>([]);
+    const [orgModalOpen, setOrgModalOpen] = useState(false);
+    const [orgLoading, setOrgLoading] = useState(false);
     const [contactOptions, setContactOptions] = useState<any[]>([]);
     const [saving, setSaving] = useState(false);
     const [lineItems, setLineItems] = useState<LineItem[]>([DEFAULT_LINE_ITEM]);
@@ -128,13 +132,37 @@ export default function CreateOpportunityPage() {
             state.products?.data ||
             []
     );
+    const fetchOrganizations = useCallback(
+        async (selectedOrgId?: string) => {
+            try {
+                setOrgLoading(true);
+
+                const res = await dispatch(getOrganization()).unwrap();
+                const orgList = res?.data || [];
+
+                setOrganization(orgList);
+
+                if (selectedOrgId) {
+                    form.setFieldValue("organization_name", selectedOrgId);
+                }
+
+                return orgList;
+            } catch {
+                message.error("Failed to load organizations");
+                return [];
+            } finally {
+                setOrgLoading(false);
+            }
+        },
+        [dispatch, form],
+    );
 
     useEffect(() => {
         fetchOrganizations();
         fetchContactsFn();
         dispatch(getUsers());
         dispatch(getProducts({}));
-    }, []);
+    }, [fetchOrganizations, dispatch]);
 
     const fetchContactsFn = async () => {
         try {
@@ -145,14 +173,7 @@ export default function CreateOpportunityPage() {
         }
     };
 
-    const fetchOrganizations = async () => {
-        try {
-            const res = await dispatch(getOrganization()).unwrap();
-            setOrganization(res.data || []);
-        } catch {
-            message.error("Failed to load organizations");
-        }
-    };
+
 
     const calculateLineItem = (item: LineItem) => {
         const quantity = Number(item.quantity || 0);
@@ -652,12 +673,32 @@ export default function CreateOpportunityPage() {
                                                 <Select
                                                     showSearch
                                                     allowClear
+                                                    loading={orgLoading}
                                                     placeholder="Select organization"
                                                     optionFilterProp="label"
                                                     options={organization.map((org) => ({
                                                         label: toTitleCase(org.name),
                                                         value: org.id,
                                                     }))}
+                                                    dropdownRender={(menu) => (
+                                                        <>
+                                                            <div style={{ padding: 8 }}>
+                                                                <Button
+                                                                    type="dashed"
+                                                                    icon={<PlusOutlined />}
+                                                                    block
+                                                                    onMouseDown={(e) => e.preventDefault()}
+                                                                    onClick={() => setOrgModalOpen(true)}
+                                                                >
+                                                                    Add New Organization
+                                                                </Button>
+                                                            </div>
+
+                                                            <Divider style={{ margin: "4px 0" }} />
+
+                                                            {menu}
+                                                        </>
+                                                    )}
                                                 />
                                             </Form.Item>
                                         </Col>
@@ -893,6 +934,29 @@ export default function CreateOpportunityPage() {
 
                 <Divider />
             </Form>
+
+            <Modal
+                title="Create Organization"
+                open={orgModalOpen}
+                footer={null}
+                width={1100}
+                destroyOnHidden
+                onCancel={() => setOrgModalOpen(false)}
+            >
+                <OrganizationForm
+                    mode="create"
+                    onSubmit={async (values?: any) => {
+                        setOrgModalOpen(false);
+
+                        await fetchOrganizations();
+                        form.setFieldsValue({
+                            organization_name: values?.id,
+                        });
+
+                        // message.success("Organization created successfully");
+                    }}
+                />
+            </Modal>
         </div>
     );
 }

@@ -54,6 +54,7 @@ export type CreateOrganizationPayload = {
 };
 
 export type OrganizationItem = {
+  data: any;
   id: string;
   name: string;
   gst_number: string | null;

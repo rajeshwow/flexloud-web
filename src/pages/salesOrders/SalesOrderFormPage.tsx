@@ -14,6 +14,7 @@ import {
     Form,
     Input,
     InputNumber,
+    Modal,
     Row,
     Select,
     Space,
@@ -35,6 +36,7 @@ import {
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch } from "../../redux/store";
 import { toTitleCase } from "../../shared/Utils/utils";
+import OrganizationForm from "../Organization/components/OrganizationForm";
 
 const { Title, Text } = Typography;
 
@@ -81,6 +83,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     const { slug, id } = useParams();
+    const [orgModalOpen, setOrgModalOpen] = useState(false);
 
     const { detail, detailLoading } = useSelector((s: any) => s.salesOrders);
 
@@ -307,10 +310,30 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                             <Form.Item name="customer_id" label="Customer" rules={[{ required: true }]}>
                                 <Select
                                     showSearch
+                                    allowClear
                                     loading={loadingOptions}
                                     placeholder="Select customer"
                                     optionFilterProp="label"
                                     options={customerOptions}
+                                    dropdownRender={(menu) => (
+                                        <>
+                                            <div style={{ padding: 8 }}>
+                                                <Button
+                                                    type="dashed"
+                                                    icon={<PlusOutlined />}
+                                                    block
+                                                    onMouseDown={(e) => e.preventDefault()}
+                                                    onClick={() => setOrgModalOpen(true)}
+                                                >
+                                                    Add New Organization
+                                                </Button>
+                                            </div>
+
+                                            <Divider style={{ margin: "4px 0" }} />
+
+                                            {menu}
+                                        </>
+                                    )}
                                 />
                             </Form.Item>
                         </Col>
@@ -519,6 +542,32 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                     </Col>
                 </Row>
             </Form>
+
+            <Modal
+                title="Create Organization"
+                open={orgModalOpen}
+                footer={null}
+                width={1100}
+                destroyOnHidden
+                onCancel={() => setOrgModalOpen(false)}
+            >
+                <OrganizationForm
+                    mode="create"
+                    onSubmit={async (createdOrg?: any) => {
+                        setOrgModalOpen(false);
+
+
+                        const res = await dispatch(getOrganization({ limit: 1000 })).unwrap();
+                        setCustomers(res?.data || []);
+
+                        if (createdOrg?.id) {
+                            form.setFieldValue("customer_id", createdOrg.id);
+                        }
+
+                        // message.success("Organization created successfully");
+                    }}
+                />
+            </Modal>
         </div>
     );
 }

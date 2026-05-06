@@ -7,6 +7,7 @@ import {
     Divider,
     Form,
     Input,
+    Modal,
     Row,
     Select,
     Space,
@@ -15,7 +16,7 @@ import {
     message,
 } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import AddressSection from "../../layouts/addressSection";
@@ -29,6 +30,7 @@ import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { Client } from "../../shared/Utils/api-client";
 import { toTitleCase, withTenant } from "../../shared/Utils/utils";
+import OrganizationForm from "../Organization/components/OrganizationForm";
 
 const { Title, Text } = Typography;
 
@@ -104,29 +106,43 @@ export default function ContactForm({
     const countryList = useMemo(() => masterValues?.country || [], [masterValues]);
     const stateList = useMemo(() => masterValues?.state || [], [masterValues]);
     const cityList = useMemo(() => masterValues?.city || [], [masterValues]);
-
+    const [orgModalOpen, setOrgModalOpen] = useState(false);
     useEffect(() => {
         dispatch(fetchMasterValues({ type_code: "country", page: 1, limit: 500 }));
         dispatch(fetchMasterValues({ type_code: "state", page: 1, limit: 1000 }));
         dispatch(fetchMasterValues({ type_code: "city", page: 1, limit: 2000 }));
     }, [dispatch]);
 
-    useEffect(() => {
-        const fetchOrganizations = async () => {
+    const fetchOrganizations = useCallback(
+        async (selectedOrgId?: string) => {
             try {
                 setOrgLoading(true);
-                const res = await dispatch(getOrganization()).unwrap();
-                setOrganization(res?.data || []);
+                const res = await dispatch(getOrganization({ limit: 100, page: 1 })).unwrap();
+                const orgList = res?.data || [];
+
+                setOrganization(orgList);
+
+                if (selectedOrgId) {
+                    form.setFieldValue("organization_id", selectedOrgId);
+                }
+
+                return orgList;
             } catch (error) {
                 message.error("Failed to load organizations");
+                return [];
             } finally {
                 setOrgLoading(false);
             }
-        };
+        },
+        [dispatch, form],
+    );
 
+
+
+    useEffect(() => {
         fetchOrganizations();
         dispatch(getUsers() as any);
-    }, [dispatch]);
+    }, [dispatch, fetchOrganizations]);
 
     const primaryStreet = Form.useWatch("primary_address_street", form);
     const primaryArea = Form.useWatch("primary_address_area", form);
@@ -398,6 +414,25 @@ export default function ContactForm({
                                                         label: toTitleCase(org.name),
                                                         value: org.id,
                                                     }))}
+                                                    dropdownRender={(menu) => (
+                                                        <>
+                                                            <div style={{ padding: 8 }}>
+                                                                <Button
+                                                                    type="dashed"
+                                                                    icon={<PlusOutlined />}
+                                                                    block
+                                                                    onMouseDown={(e) => e.preventDefault()}
+                                                                    onClick={() => setOrgModalOpen(true)}
+                                                                >
+                                                                    Add New Organization
+                                                                </Button>
+                                                            </div>
+
+                                                            <Divider style={{ margin: "4px 0" }} />
+
+                                                            {menu}
+                                                        </>
+                                                    )}
                                                 />
                                             </Form.Item>
                                         </Col>
@@ -597,6 +632,28 @@ export default function ContactForm({
                     ]}
                 />
             </Form>
+            <Modal
+                title="Create Organization"
+                open={orgModalOpen}
+                footer={null}
+                width={1100}
+                destroyOnHidden
+                onCancel={() => setOrgModalOpen(false)}
+            >
+                <OrganizationForm
+                    mode="create"
+                    onSubmit={async (values?: any) => {
+                        setOrgModalOpen(false);
+
+                        await fetchOrganizations();
+                        form.setFieldsValue({
+                            organization_id: values?.id,
+                        });
+
+                        // message.success("Organization created successfully");
+                    }}
+                />
+            </Modal>
         </div>
     );
 }

@@ -6,6 +6,7 @@ import {
     Divider,
     Form,
     Input,
+    message,
     Row,
     Select,
     Space,
@@ -15,7 +16,9 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { fetchMasterValues } from "../../../redux/reducers/masters.slice";
+import { createOrganization } from "../../../redux/reducers/organization.slice";
 import { getUsers } from "../../../redux/reducers/user.slice";
 import type { AppDispatch } from "../../../redux/store";
 import { toTitleCase, typeOptions } from "../../../shared/Utils/utils";
@@ -104,6 +107,8 @@ export default function OrganizationForm({
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
     const [form] = Form.useForm<OrganizationFormValues>();
+    const navigate = useNavigate();
+    const { slug } = useParams();
 
     const copyBillingToShipping = (branchIndex: number) => {
         const branches = form.getFieldValue("branches") || [];
@@ -123,6 +128,66 @@ export default function OrganizationForm({
     const [cityOptions, setCityOptions] = useState([] as any[]);
     const [stateOptions, setStateOptions] = useState([] as any[]);
     const [countryOptions, setCountryOptions] = useState([] as any[]);
+
+    const handleSubmit = async (values: OrganizationFormValues) => {
+        try {
+
+            const payload = {
+                ...values,
+                gst_number: values.gst_number || null,
+                email: values.email || null,
+                type: values.type || null,
+                industry: values.industry || null,
+                assigned_to: values.assigned_to || null,
+                source: 'system',
+                registered_address: {
+                    street: values.registered_address?.street || null,
+                    area: values.registered_address?.area || null,
+                    postal_code: values.registered_address?.postal_code || null,
+                    city_id: values.registered_address?.city_id || null,
+                    state_id: values.registered_address?.state_id || null,
+                    country_id: values.registered_address?.country_id || null,
+                },
+                branches: (values.branches || []).map((branch) => ({
+                    ...branch,
+                    code: branch.code || null,
+                    contact_person: branch.contact_person || null,
+                    phone: branch.phone || null,
+                    email: branch.email || null,
+                    gst_number: branch.gst_number || null,
+                    assigned_to: branch.assigned_to || null,
+
+                    billing_street: branch.billing_street || null,
+                    billing_area: branch.billing_area || null,
+                    billing_postal_code: branch.billing_postal_code || null,
+                    billing_city_id: branch.billing_city_id || null,
+                    billing_state_id: branch.billing_state_id || null,
+                    billing_country_id: branch.billing_country_id || null,
+
+                    shipping_street: branch.shipping_street || null,
+                    shipping_area: branch.shipping_area || null,
+                    shipping_postal_code: branch.shipping_postal_code || null,
+                    shipping_city_id: branch.shipping_city_id || null,
+                    shipping_state_id: branch.shipping_state_id || null,
+                    shipping_country_id: branch.shipping_country_id || null,
+
+                    is_head_office: !!branch.is_head_office,
+                    is_shipping_same_as_billing: !!branch.is_shipping_same_as_billing,
+                    status: branch.status || "active",
+                })),
+            };
+
+            const response = await dispatch(createOrganization(payload)).unwrap();
+
+            message.success(response?.data?.message || "Organization created successfully");
+            form.resetFields();
+            onSubmit(response?.data);
+        } catch (error: any) {
+            message.error(error?.response?.data?.message || "Failed to create organization");
+        } finally {
+            console.log("Organization created successfully");
+        }
+    };
 
 
     const fetchMasterOptions = async () => {
@@ -204,7 +269,7 @@ export default function OrganizationForm({
     };
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+
         fetchMasterOptions();
     }, [dispatch]);
 
@@ -213,7 +278,7 @@ export default function OrganizationForm({
             <Form
                 form={form}
                 layout="vertical"
-                onFinish={onSubmit}
+                onFinish={handleSubmit}
                 initialValues={{
                     registered_address: {},
                     branches: [

@@ -1,9 +1,6 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button, Form, message, Space } from "antd";
-import { useState } from "react";
+import { Button, Space } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
-import { Client } from "../../shared/Utils/api-client";
-import { withTenant } from "../../shared/Utils/utils";
 import OrganizationForm, {
     type OrganizationFormValues,
 } from "./components/OrganizationForm";
@@ -20,67 +17,11 @@ type SelectOption = {
 export default function CreateOrganizationPage() {
     const navigate = useNavigate();
     const { slug } = useParams<RouteParams>();
-    const [form] = Form.useForm<OrganizationFormValues>();
-    const [loading, setLoading] = useState(false);
+
     const handleSubmit = async (values: OrganizationFormValues) => {
-        try {
-            setLoading(true);
+        navigate(`/${slug}/organization/view`);
 
-            const payload = {
-                ...values,
-                gst_number: values.gst_number || null,
-                email: values.email || null,
-                type: values.type || null,
-                industry: values.industry || null,
-                assigned_to: values.assigned_to || null,
-                source: 'system',
-                registered_address: {
-                    street: values.registered_address?.street || null,
-                    area: values.registered_address?.area || null,
-                    postal_code: values.registered_address?.postal_code || null,
-                    city_id: values.registered_address?.city_id || null,
-                    state_id: values.registered_address?.state_id || null,
-                    country_id: values.registered_address?.country_id || null,
-                },
-                branches: (values.branches || []).map((branch) => ({
-                    ...branch,
-                    code: branch.code || null,
-                    contact_person: branch.contact_person || null,
-                    phone: branch.phone || null,
-                    email: branch.email || null,
-                    gst_number: branch.gst_number || null,
-                    assigned_to: branch.assigned_to || null,
-
-                    billing_street: branch.billing_street || null,
-                    billing_area: branch.billing_area || null,
-                    billing_postal_code: branch.billing_postal_code || null,
-                    billing_city_id: branch.billing_city_id || null,
-                    billing_state_id: branch.billing_state_id || null,
-                    billing_country_id: branch.billing_country_id || null,
-
-                    shipping_street: branch.shipping_street || null,
-                    shipping_area: branch.shipping_area || null,
-                    shipping_postal_code: branch.shipping_postal_code || null,
-                    shipping_city_id: branch.shipping_city_id || null,
-                    shipping_state_id: branch.shipping_state_id || null,
-                    shipping_country_id: branch.shipping_country_id || null,
-
-                    is_head_office: !!branch.is_head_office,
-                    is_shipping_same_as_billing: !!branch.is_shipping_same_as_billing,
-                    status: branch.status || "active",
-                })),
-            };
-
-            const response = await Client.post(withTenant("/organizations"), payload);
-
-            message.success(response?.data?.message || "Organization created successfully");
-            form.resetFields();
-            navigate(`/${slug}/organization/view`);
-        } catch (error: any) {
-            message.error(error?.response?.data?.message || "Failed to create organization");
-        } finally {
-            setLoading(false);
-        }
+        console.log("");
     };
 
     return (
@@ -93,7 +34,6 @@ export default function CreateOrganizationPage() {
 
             <OrganizationForm
                 mode="create"
-                loading={loading}
                 onSubmit={handleSubmit}
 
             />
