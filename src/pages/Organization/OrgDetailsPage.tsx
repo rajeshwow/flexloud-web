@@ -237,7 +237,7 @@ export default function OrgDetailsPage() {
                 <OrganizationDetailsView organization={organization} />
             ) : (
                 <OrganizationForm
-                    form={form}
+                    // form={form}
                     mode="edit"
                     loading={saveLoading}
                     onSubmit={handleSubmit}
