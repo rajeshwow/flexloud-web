@@ -1,0 +1,70 @@
+Arguments: 
+  C:\nodejs\node.exe C:\Users\Hp\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js dev
+
+PATH: 
+  C:\Program Files\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Users\Hp\AppData\Roaming\nvm;%NVM_SYMLINK%;C:\wamp64\bin\php\php5.6.40;C:\composer;C:\Program Files\Amazon\AWSCLIV2\;C:\Program Files\Netbird;C:\Program Files\PostgreSQL\18\bin;C:\Program Files\nodejs\;C:\Users\Hp\AppData\Local\pnpm;C:\Users\Hp\AppData\Roaming\nvm;C:\nodejs;C:\Users\Hp\AppData\Local\Microsoft\WindowsApps;C:\Users\Hp\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Hp\AppData\Local\GitHubDesktop\bin;C:\Program Files (x86)\Sophos\Sophos SSL VPN Client\bin;C:\Users\Hp\AppData\Roaming\Composer\vendor\bin;C:\Users\Hp\AppData\Local\Programs\cursor\resources\app\bin;C:\Users\Hp\AppData\Local\Programs\Antigravity\bin;C:\Users\Hp\AppData\Roaming\npm
+
+Yarn version: 
+  1.22.11
+
+Node version: 
+  20.19.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: Failed to replace env in config: ${NPM_TOKEN}
+      at C:\Users\Hp\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:98884:13
+      at String.replace (<anonymous>)
+      at envReplace (C:\Users\Hp\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:98879:16)
+      at Function.normalizeConfig (C:\Users\Hp\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:31891:69)
+      at NpmRegistry.<anonymous> (C:\Users\Hp\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:31921:34)
+      at Generator.next (<anonymous>)
+      at step (C:\Users\Hp\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:310:30)
+      at C:\Users\Hp\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:321:13
+
+npm manifest: 
+  {
+    "name": "flexloud-crm-web",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+      "dev": "vite",
+      "build": "tsc -b && vite build",
+      "lint": "eslint .",
+      "preview": "vite preview"
+    },
+    "dependencies": {
+      "@ant-design/icons": "^6.1.0",
+      "@reduxjs/toolkit": "^2.11.2",
+      "@tanstack/react-query": "^5.90.21",
+      "antd": "^6.3.1",
+      "axios": "^1.13.6",
+      "react": "^19.2.0",
+      "react-dom": "^19.2.0",
+      "react-redux": "^9.2.0",
+      "react-router-dom": "^7.13.1"
+    },
+    "devDependencies": {
+      "@eslint/js": "^9.39.1",
+      "@types/node": "^24.10.1",
+      "@types/react": "^19.2.7",
+      "@types/react-dom": "^19.2.3",
+      "@vitejs/plugin-react": "^5.1.1",
+      "eslint": "^9.39.1",
+      "eslint-plugin-react-hooks": "^7.0.1",
+      "eslint-plugin-react-refresh": "^0.4.24",
+      "globals": "^16.5.0",
+      "typescript": "~5.9.3",
+      "typescript-eslint": "^8.48.0",
+      "vite": "^7.3.1"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
