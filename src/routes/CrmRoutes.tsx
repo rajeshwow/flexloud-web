@@ -1,6 +1,6 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import AppShell from "../layouts/sidebar";
-import AccountSlugRequiredPage from "../pages/account/AccountSlugRequiredPage";
+import AccountSlugRequiredPage2 from "../pages/account/AccountSlugRequiredPage2";
 import AttendanceView from "../pages/Attendance/AttendanceView";
 import ContactDetailsPage from "../pages/Contacts/ContactDetailsPage";
 import ContactEditPage from "../pages/Contacts/ContactEditPage";
@@ -20,7 +20,7 @@ import CreateLeadForm from "../pages/leads/CreateLeads";
 import LeadDetailsPage from "../pages/leads/LeadDetailsPage";
 import LeadsPage from "../pages/leads/LeadsPage";
 import LeaveListPage from "../pages/Leaves/LeaveListPage";
-import LoginPage2 from "../pages/LoginPage2";
+import LoginPage3 from "../pages/LoginPage3";
 import MyDayPage from "../pages/my-day/MyDayPage";
 import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
 import EditOpportunityPage from "../pages/Opportunities/EditOpportunityPage";
@@ -58,8 +58,8 @@ import ProtectedRoute from "./ProtectedRoutes";
 export default function CrmRoutes() {
   return (
     <Routes>
-      <Route path="/:slug/login" element={<LoginPage2 />} />
-      <Route path="/" element={<AccountSlugRequiredPage />} />
+      <Route path="/:slug/login" element={<LoginPage3 />} />
+      <Route path="/" element={<AccountSlugRequiredPage2 />} />
 
       {/* Auth protected */}
       <Route path="/:slug" element={<ProtectedRoute />}>
