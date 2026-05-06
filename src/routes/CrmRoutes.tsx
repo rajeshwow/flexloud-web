@@ -20,7 +20,7 @@ import CreateLeadForm from "../pages/leads/CreateLeads";
 import LeadDetailsPage from "../pages/leads/LeadDetailsPage";
 import LeadsPage from "../pages/leads/LeadsPage";
 import LeaveListPage from "../pages/Leaves/LeaveListPage";
-import LoginPage from "../pages/LoginPage";
+import LoginPage2 from "../pages/LoginPage2";
 import MyDayPage from "../pages/my-day/MyDayPage";
 import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
 import EditOpportunityPage from "../pages/Opportunities/EditOpportunityPage";
@@ -58,7 +58,7 @@ import ProtectedRoute from "./ProtectedRoutes";
 export default function CrmRoutes() {
   return (
     <Routes>
-      <Route path="/:slug/login" element={<LoginPage />} />
+      <Route path="/:slug/login" element={<LoginPage2 />} />
       <Route path="/" element={<AccountSlugRequiredPage />} />
 
       {/* Auth protected */}
