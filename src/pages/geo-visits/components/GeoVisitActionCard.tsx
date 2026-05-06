@@ -63,7 +63,10 @@ function getCurrentPositionAsync(): Promise<BrowserLocation> {
     });
 }
 
+
 async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+    console.log("lat", lat);
+    console.log("lng", lng);
     try {
         const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
