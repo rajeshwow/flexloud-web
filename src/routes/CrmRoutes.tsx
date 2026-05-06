@@ -1,5 +1,6 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import AppShell from "../layouts/sidebar";
+import AccountSlugRequiredPage from "../pages/account/AccountSlugRequiredPage";
 import AttendanceView from "../pages/Attendance/AttendanceView";
 import ContactDetailsPage from "../pages/Contacts/ContactDetailsPage";
 import ContactEditPage from "../pages/Contacts/ContactEditPage";
@@ -58,6 +59,7 @@ export default function CrmRoutes() {
   return (
     <Routes>
       <Route path="/:slug/login" element={<LoginPage />} />
+      <Route path="/" element={<AccountSlugRequiredPage />} />
 
       {/* Auth protected */}
       <Route path="/:slug" element={<ProtectedRoute />}>
