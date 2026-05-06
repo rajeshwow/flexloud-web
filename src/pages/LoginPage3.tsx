@@ -1,24 +1,24 @@
 import {
-    ArrowRightOutlined,
-    CheckCircleOutlined,
-    CrownOutlined,
-    LockOutlined,
-    SafetyCertificateOutlined,
-    TeamOutlined,
-    ThunderboltOutlined,
-    UserOutlined,
+  ArrowRightOutlined,
+  CheckCircleOutlined,
+  CrownOutlined,
+  LockOutlined,
+  SafetyCertificateOutlined,
+  TeamOutlined,
+  ThunderboltOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import {
-    Button,
-    Card,
-    Col,
-    Form,
-    Grid,
-    Input,
-    Row,
-    Space,
-    Typography,
-    message,
+  Button,
+  Card,
+  Col,
+  Form,
+  Grid,
+  Input,
+  Row,
+  Space,
+  Typography,
+  message,
 } from "antd";
 import type { CSSProperties, ReactNode } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,255 +30,256 @@ const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
 
 export default function LoginPage3() {
-    const { slug = "" } = useParams();
-    const navigate = useNavigate();
-    const dispatch: any = useDispatch();
-    const screens = useBreakpoint();
+  const { slug = "" } = useParams();
+  const navigate = useNavigate();
+  const dispatch: any = useDispatch();
+  const screens = useBreakpoint();
 
-    const loading = useSelector((s: any) => s.auth.loading);
+  const loading = useSelector((s: any) => s.auth.loading);
 
-    const onFinish = async (values: any) => {
-        if (!slug) return message.error("Tenant slug missing in URL");
+  const onFinish = async (values: any) => {
+    if (!slug) return message.error("Tenant slug missing in URL");
 
-        dispatch(setTenantSlug(slug));
+    dispatch(setTenantSlug(slug));
 
-        const res = await dispatch(
-            login({
-                slug,
-                email: values.email,
-                password: values.password,
-            })
-        );
-
-        if (res?.payload?.data?.statusCode === 200) {
-            const token = res.payload.data.data.accessToken;
-            const user = res.payload.data.data.user;
-
-            dispatch(setToken(token));
-            dispatch(setTenantId(user?.tenantId));
-
-            await dispatch(fetchMyPermissions({ slug } as any));
-
-            navigate(`/${slug}/dashboard`, { replace: true });
-            message.success(`Welcome to ${slug} CRM, ${user?.name}`);
-        } else {
-            message.error(res?.payload?.message || "Invalid email or password");
-        }
-    };
-
-    const isMobile = !screens.lg;
-
-    return (
-        <>
-            <style>{loginPageCss}</style>
-
-            <div className="login-page">
-                <div className="login-bg-grid" />
-                <div className="login-glow login-glow-blue" />
-                <div className="login-glow login-glow-red" />
-                <div className="login-glow login-glow-purple" />
-
-                <div className="login-float-shape login-shape-1" />
-                <div className="login-float-shape login-shape-2" />
-                <div className="login-float-shape login-shape-3" />
-
-                <Row
-                    gutter={[34, 34]}
-                    align="middle"
-                    justify="space-around"
-                    className="login-shell"
-                >
-                    {!isMobile && (
-                        <Col xs={24} lg={12} xl={11}>
-                            <section className="login-left">
-                                <div className="login-brand-pill">
-                                    <CrownOutlined />
-                                    <span>{slug?.toUpperCase()} CRM</span>
-                                </div>
-
-                                <Title level={1} className="login-hero-title">
-                                    Welcome to your modern business workspace.
-                                </Title>
-
-                                <Text className="login-hero-desc">
-                                    Manage leads, contacts, teams, quotes, orders and follow-ups from one
-                                    secure tenant-based CRM.
-                                </Text>
-
-                                <div className="login-visual-board">
-                                    <div className="login-center-orbit">
-                                        <LockOutlined />
-                                    </div>
-
-                                    <div className="login-orbit-card login-orbit-card-1">
-                                        <SafetyCertificateOutlined />
-                                        <span>Secure Login</span>
-                                    </div>
-
-                                    <div className="login-orbit-card login-orbit-card-2">
-                                        <TeamOutlined />
-                                        <span>Team Access</span>
-                                    </div>
-
-                                    <div className="login-orbit-card login-orbit-card-3">
-                                        <ThunderboltOutlined />
-                                        <span>Fast CRM</span>
-                                    </div>
-
-                                    <div className="login-orbit-card login-orbit-card-4">
-                                        <ArrowRightOutlined />
-                                        <span>Daily Growth</span>
-                                    </div>
-                                </div>
-
-                                <Space direction="vertical" size={14} className="login-feature-list">
-                                    <FeatureItem
-                                        icon={<SafetyCertificateOutlined />}
-                                        title="Tenant-aware security"
-                                        description="Every login is scoped to your company workspace and permissions."
-                                    />
-
-                                    <FeatureItem
-                                        icon={<ThunderboltOutlined />}
-                                        title="Fast daily operations"
-                                        description="Work smoothly across leads, contacts, tasks, quotes and orders."
-                                    />
-
-                                    <FeatureItem
-                                        icon={<ArrowRightOutlined />}
-                                        title="Built for scale"
-                                        description="A clean CRM foundation for teams, automation and future modules."
-                                    />
-                                </Space>
-
-                                <div className="login-stats-row">
-                                    <StatCard value="360°" label="CRM View" />
-                                    <StatCard value="10x" label="Workflow Speed" />
-                                    <StatCard value="24/7" label="Team Access" />
-                                </div>
-                            </section>
-                        </Col>
-                    )}
-
-                    <Col xs={24} lg={12} xl={8}>
-                        <section className="login-right">
-                            <Card
-                                bordered={false}
-                                className="login-card"
-                                styles={{
-                                    body: {
-                                        padding: isMobile ? 24 : 34,
-                                    },
-                                }}
-                            >
-                                <div className="login-card-header">
-                                    <div className="login-card-icon">
-                                        <LockOutlined />
-                                    </div>
-
-                                    <div>
-                                        <div className="login-secure-pill">
-                                            <CheckCircleOutlined />
-                                            <span>Secure Login</span>
-                                        </div>
-
-                                        <Title level={2} className="login-card-title">
-                                            Welcome back
-                                        </Title>
-
-                                        <Text className="login-card-subtitle">
-                                            Sign in to continue to{" "}
-                                            <span className="login-slug-highlight">{slug}</span>
-                                        </Text>
-                                    </div>
-                                </div>
-
-                                <Form layout="vertical" onFinish={onFinish} className="login-form">
-                                    <Form.Item
-                                        name="email"
-                                        label={<span className="login-form-label">Email Address</span>}
-                                        rules={[
-                                            { required: true, message: "Email required" },
-                                            { type: "email", message: "Invalid email" },
-                                        ]}
-                                    >
-                                        <Input
-                                            className="login-input"
-                                            size="large"
-                                            prefix={<UserOutlined />}
-                                            placeholder="name@company.com"
-                                            autoComplete="email"
-                                        />
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        name="password"
-                                        label={<span className="login-form-label">Password</span>}
-                                        rules={[{ required: true, message: "Password required" }]}
-                                    >
-                                        <Input.Password
-                                            className="login-input"
-                                            size="large"
-                                            prefix={<LockOutlined />}
-                                            placeholder="••••••••"
-                                            autoComplete="current-password"
-                                        />
-                                    </Form.Item>
-
-                                    <Button
-                                        type="primary"
-                                        htmlType="submit"
-                                        block
-                                        size="large"
-                                        loading={loading}
-                                        className="login-submit-btn"
-                                    >
-                                        Sign in to Workspace
-                                    </Button>
-                                </Form>
-
-                                <div className="login-bottom-info">
-                                    <SafetyCertificateOutlined />
-                                    <Text>
-                                        Protected workspace • Tenant-aware access • Secure authentication
-                                    </Text>
-                                </div>
-                            </Card>
-                        </section>
-                    </Col>
-                </Row>
-            </div>
-        </>
+    const res = await dispatch(
+      login({
+        slug,
+        email: values.email,
+        password: values.password,
+      })
     );
+
+    if (res?.payload?.data?.statusCode === 200) {
+      const token = res.payload.data.data.accessToken;
+      const user = res.payload.data.data.user;
+
+      dispatch(setToken(token));
+      dispatch(setTenantId(user?.tenantId));
+
+      await dispatch(fetchMyPermissions({ slug } as any));
+
+      navigate(`/${slug}/dashboard`, { replace: true });
+      message.success(`Welcome to ${slug} CRM, ${user?.name}`);
+    } else {
+      message.error(res?.payload?.message || "Invalid email or password");
+    }
+  };
+
+  const isMobile = !screens.lg;
+
+  return (
+    <>
+      <style>{loginPageCss}</style>
+
+      <div className="login-page">
+        <div className="login-bg-grid" />
+        <div className="login-glow login-glow-blue" />
+        <div className="login-glow login-glow-red" />
+        <div className="login-glow login-glow-purple" />
+
+        <div className="login-float-shape login-shape-1" />
+        <div className="login-float-shape login-shape-2" />
+        <div className="login-float-shape login-shape-3" />
+
+        <Row
+          gutter={[34, 34]}
+          align="middle"
+          justify="space-around"
+          className="login-shell"
+          style={{ alignItems: "flex-start" }}
+        >
+          {!isMobile && (
+            <Col xs={24} lg={12} xl={11}>
+              <section className="login-left">
+                <div className="login-brand-pill">
+                  <CrownOutlined />
+                  <span>{slug?.toUpperCase()} CRM</span>
+                </div>
+
+                <Title level={1} className="login-hero-title">
+                  Welcome to your modern business workspace.
+                </Title>
+
+                <Text className="login-hero-desc">
+                  Manage leads, contacts, teams, quotes, orders and follow-ups from one
+                  secure tenant-based CRM.
+                </Text>
+
+                <div className="login-visual-board">
+                  <div className="login-center-orbit">
+                    <LockOutlined />
+                  </div>
+
+                  <div className="login-orbit-card login-orbit-card-1">
+                    <SafetyCertificateOutlined />
+                    <span>Secure Login</span>
+                  </div>
+
+                  <div className="login-orbit-card login-orbit-card-2">
+                    <TeamOutlined />
+                    <span>Team Access</span>
+                  </div>
+
+                  <div className="login-orbit-card login-orbit-card-3">
+                    <ThunderboltOutlined />
+                    <span>Fast CRM</span>
+                  </div>
+
+                  <div className="login-orbit-card login-orbit-card-4">
+                    <ArrowRightOutlined />
+                    <span>Daily Growth</span>
+                  </div>
+                </div>
+
+                <Space direction="vertical" size={14} className="login-feature-list">
+                  <FeatureItem
+                    icon={<SafetyCertificateOutlined />}
+                    title="Tenant-aware security"
+                    description="Every login is scoped to your company workspace and permissions."
+                  />
+
+                  <FeatureItem
+                    icon={<ThunderboltOutlined />}
+                    title="Fast daily operations"
+                    description="Work smoothly across leads, contacts, tasks, quotes and orders."
+                  />
+
+                  <FeatureItem
+                    icon={<ArrowRightOutlined />}
+                    title="Built for scale"
+                    description="A clean CRM foundation for teams, automation and future modules."
+                  />
+                </Space>
+
+                <div className="login-stats-row">
+                  <StatCard value="360°" label="CRM View" />
+                  <StatCard value="10x" label="Workflow Speed" />
+                  <StatCard value="24/7" label="Team Access" />
+                </div>
+              </section>
+            </Col>
+          )}
+
+          <Col xs={24} lg={12} xl={8}>
+            <section className="login-right">
+              <Card
+                bordered={false}
+                className="login-card"
+                styles={{
+                  body: {
+                    padding: isMobile ? 24 : 34,
+                  },
+                }}
+              >
+                <div className="login-card-header">
+                  <div className="login-card-icon">
+                    <LockOutlined />
+                  </div>
+
+                  <div>
+                    <div className="login-secure-pill">
+                      <CheckCircleOutlined />
+                      <span>Secure Login</span>
+                    </div>
+
+                    <Title level={2} className="login-card-title">
+                      Welcome back
+                    </Title>
+
+                    <Text className="login-card-subtitle">
+                      Sign in to continue to{" "}
+                      <span className="login-slug-highlight">{slug}</span>
+                    </Text>
+                  </div>
+                </div>
+
+                <Form layout="vertical" onFinish={onFinish} className="login-form">
+                  <Form.Item
+                    name="email"
+                    label={<span className="login-form-label">Email Address</span>}
+                    rules={[
+                      { required: true, message: "Email required" },
+                      { type: "email", message: "Invalid email" },
+                    ]}
+                  >
+                    <Input
+                      className="login-input"
+                      size="large"
+                      prefix={<UserOutlined />}
+                      placeholder="name@company.com"
+                      autoComplete="email"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="password"
+                    label={<span className="login-form-label">Password</span>}
+                    rules={[{ required: true, message: "Password required" }]}
+                  >
+                    <Input.Password
+                      className="login-input"
+                      size="large"
+                      prefix={<LockOutlined />}
+                      placeholder="••••••••"
+                      autoComplete="current-password"
+                    />
+                  </Form.Item>
+
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    block
+                    size="large"
+                    loading={loading}
+                    className="login-submit-btn"
+                  >
+                    Sign in to Workspace
+                  </Button>
+                </Form>
+
+                <div className="login-bottom-info">
+                  <SafetyCertificateOutlined />
+                  <Text>
+                    Protected workspace • Tenant-aware access • Secure authentication
+                  </Text>
+                </div>
+              </Card>
+            </section>
+          </Col>
+        </Row>
+      </div>
+    </>
+  );
 }
 
 function FeatureItem({
-    icon,
-    title,
-    description,
+  icon,
+  title,
+  description,
 }: {
-    icon: ReactNode;
-    title: string;
-    description: string;
+  icon: ReactNode;
+  title: string;
+  description: string;
 }) {
-    return (
-        <div className="login-feature-card">
-            <div className="login-feature-icon">{icon}</div>
-            <div>
-                <div className="login-feature-title">{title}</div>
-                <div className="login-feature-desc">{description}</div>
-            </div>
-        </div>
-    );
+  return (
+    <div className="login-feature-card">
+      <div className="login-feature-icon">{icon}</div>
+      <div>
+        <div className="login-feature-title">{title}</div>
+        <div className="login-feature-desc">{description}</div>
+      </div>
+    </div>
+  );
 }
 
 function StatCard({ value, label }: { value: string; label: string }) {
-    return (
-        <div className="login-stat-card">
-            <div className="login-stat-value">{value}</div>
-            <div className="login-stat-label">{label}</div>
-        </div>
-    );
+  return (
+    <div className="login-stat-card">
+      <div className="login-stat-value">{value}</div>
+      <div className="login-stat-label">{label}</div>
+    </div>
+  );
 }
 
 const loginPageCss = `
