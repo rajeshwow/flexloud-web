@@ -28,6 +28,22 @@ function showErr(msg: string, hide?: boolean) {
   if (!hide) notification.error({ message: msg });
 }
 
+let isRedirectingToLogin = false;
+
+function redirectToLoginOn401(msg: string) {
+  if (isRedirectingToLogin) return;
+
+  isRedirectingToLogin = true;
+
+  const slug = window.location.pathname.split("/").filter(Boolean)[0];
+
+  localStorage.clear();
+
+  notification.error({ message: msg });
+
+  window.location.replace(slug ? `/${slug}/login` : "/login");
+}
+
 async function request(
   method: string,
   endpoint: string,
@@ -104,9 +120,16 @@ async function request(
 
   // auth/permission handling
   if (res.status === 401) {
-    const msg = data?.message || data?.error || "Unauthorized";
+    const hasToken = Boolean(localStorage.getItem("token"));
+
+    const msg = hasToken
+      ? "Session expired. Please login again."
+      : "Please login to continue.";
+
     console.error("401 API =>", url, data);
-    showErr(msg, config.shouldHideError);
+
+    redirectToLoginOn401(msg);
+
     throw Object.assign(new Error(msg), { status: 401, data });
   }
 
