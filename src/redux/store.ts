@@ -21,6 +21,7 @@ import purchaseOrdersReducer from "./reducers/purchaseOrders.slice";
 import quotesReducer from "./reducers/quotes.slice";
 import rbacReducer from "./reducers/rbac.slice";
 import salesOrdersReducer from "./reducers/salesOrders.slice";
+import tallyPerformanceReducer from "./reducers/tallyPerformance.slice";
 import tasksReducer from "./reducers/tasks.slice";
 import tenantReducer from "./reducers/tenant.slice";
 import usersReducer from "./reducers/user.slice";
@@ -54,6 +55,7 @@ export const store = configureStore({
     purchaseOrders: purchaseOrdersReducer,
     salesOrders: salesOrdersReducer,
     deliveryChallans: deliveryChallanReducer,
+    tallyPerformance: tallyPerformanceReducer,
   },
 });
 

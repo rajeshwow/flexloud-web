@@ -22,6 +22,7 @@ import {
   FileTextOutlined,
   FireOutlined,
   FolderOutlined,
+  FundProjectionScreenOutlined,
   GiftOutlined,
   HistoryOutlined,
   // optional extra icons (safe to keep)
@@ -117,6 +118,7 @@ const iconMap: Record<string, React.ReactNode> = {
   SafetyCertificateOutlined: <SafetyCertificateOutlined />,
   CloudUploadOutlined: <CloudUploadOutlined />,
   AuditOutlined: <AuditOutlined />,
+  FundProjectionScreenOutlined: <FundProjectionScreenOutlined />,
 };
 
 type AttendanceWatchProps = {

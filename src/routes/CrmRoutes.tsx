@@ -44,6 +44,7 @@ import RolesListPage from "../pages/rbac/RolesListPage";
 import SalesOrderDetailsPage from "../pages/salesOrders/SalesOrderDetailsPage";
 import SalesOrderFormPage from "../pages/salesOrders/SalesOrderFormPage";
 import SalesOrderListPage from "../pages/salesOrders/SalesOrderListPage";
+import TallyPerformancePage from "../pages/tally-performance/TallyPerformancePage";
 import CreateTask from "../pages/Tasks/CreateTask";
 import EditTask from "../pages/Tasks/EditTask";
 import TaskDetailsPage from "../pages/Tasks/TaskDetailsPage";
@@ -440,6 +441,15 @@ export default function CrmRoutes() {
           {/* ----------------------------------------------------------------------------- */}
 
           {/* tally operations */}
+
+          <Route
+            path="tally-performance"
+            element={
+              <ProtectedRoute required="tally-performance.view">
+                <TallyPerformancePage />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="purchase-orders"

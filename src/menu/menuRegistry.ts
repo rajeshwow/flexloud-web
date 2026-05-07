@@ -230,6 +230,13 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "SolutionOutlined",
         requiresAny: ["sales-orders.view"],
       },
+      {
+        key: "tally-performance.view",
+        label: "Tally Performance",
+        path: "/tally-performance",
+        icon: "FundProjectionScreenOutlined",
+        requiresAny: ["tally-performance.view"],
+      },
     ],
   },
 
