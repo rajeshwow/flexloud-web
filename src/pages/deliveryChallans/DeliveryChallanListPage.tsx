@@ -2,7 +2,9 @@ import {
     EditOutlined,
     EyeOutlined,
     FileTextOutlined,
+    MailOutlined,
     PlusOutlined,
+    PrinterOutlined,
     ReloadOutlined,
 } from "@ant-design/icons";
 import {
@@ -21,10 +23,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+    fetchDeliveryChallanById,
     fetchDeliveryChallans,
     type DeliveryChallan,
 } from "../../redux/reducers/deliveryChallans/deliveryChallanSlice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { handlePrintDeliveryChallan } from "../../shared/Utils/utils";
+import DeliveryChallanEmailModal from "./components/DeliveryChallanEmailModal";
 
 const { Title, Text } = Typography;
 
@@ -49,6 +54,8 @@ export default function DeliveryChallanListPage() {
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     const { slug } = useParams();
+    const [emailModalOpen, setEmailModalOpen] = useState(false);
+    const [selectedChallanForEmail, setSelectedChallanForEmail] = useState<any>(null);
 
     const { list, loading, meta } = useSelector(
         (state: RootState) => state.deliveryChallans,
@@ -58,6 +65,16 @@ export default function DeliveryChallanListPage() {
     const [status, setStatus] = useState("");
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
+
+    const handleOpenEmailModal = (record: DeliveryChallan) => {
+        setSelectedChallanForEmail(record);
+        setEmailModalOpen(true);
+    };
+
+    const handleCloseEmailModal = () => {
+        setEmailModalOpen(false);
+        setSelectedChallanForEmail(null);
+    };
 
     const loadDeliveryChallans = async (
         nextPage = page,
@@ -94,6 +111,15 @@ export default function DeliveryChallanListPage() {
         setStatus("");
         setPage(1);
         loadDeliveryChallans(1, limit, "", "");
+    };
+
+    const handlePrintChallan = async (id: string) => {
+        try {
+            const response = await dispatch(fetchDeliveryChallanById(id)).unwrap();
+            handlePrintDeliveryChallan(response?.data);
+        } catch (error: any) {
+            message.error(error || "Failed to load delivery challan details");
+        }
     };
 
     const handleCreate = () => {
@@ -188,7 +214,7 @@ export default function DeliveryChallanListPage() {
             {
                 title: "Action",
                 key: "action",
-                width: 100,
+                width: 180,
                 fixed: "right",
                 align: "center",
                 render: (_, record) => (
@@ -206,6 +232,21 @@ export default function DeliveryChallanListPage() {
                             onClick={() =>
                                 navigate(`/${slug}/delivery-challans/${record.id}/edit`)
                             }
+                        />
+                        <Button
+                            type="text"
+                            title="Print"
+                            icon={<PrinterOutlined />}
+                            onClick={() =>
+                                handlePrintChallan(record?.id)
+                            }
+                        />
+
+                        <Button
+                            type="text"
+                            title="Send Mail"
+                            icon={<MailOutlined />}
+                            onClick={() => handleOpenEmailModal(record)}
                         />
                     </Space>
                 ),
@@ -286,6 +327,14 @@ export default function DeliveryChallanListPage() {
                         setLimit(nextLimit);
                         loadDeliveryChallans(nextPage, nextLimit, search, status);
                     },
+                }}
+            />
+            <DeliveryChallanEmailModal
+                open={emailModalOpen}
+                challan={selectedChallanForEmail}
+                onClose={handleCloseEmailModal}
+                onSent={() => {
+                    handleCloseEmailModal();
                 }}
             />
         </div>

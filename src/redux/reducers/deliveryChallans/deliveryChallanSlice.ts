@@ -51,6 +51,8 @@ export type DeliveryChallanItem = DeliveryChallanLineItemPayload & {
 };
 
 export type DeliveryChallan = {
+  tax: any;
+  tax_amount: any;
   id: string;
   tenant_id?: string;
 
@@ -79,6 +81,11 @@ export type DeliveryChallan = {
   updated_at?: string;
 
   items?: DeliveryChallanItem[];
+  meta?: {
+    page: number;
+    limit: number;
+    total: number;
+  };
 };
 
 export type GetDeliveryChallansParams = {
@@ -88,9 +95,19 @@ export type GetDeliveryChallansParams = {
   status?: string;
 };
 
+export type SendDeliveryChallanEmailPayload = {
+  id: string;
+  to: string;
+  cc?: string;
+  bcc?: string;
+  subject: string;
+  body: string;
+  attachPdf?: boolean;
+};
+
 type DeliveryChallanState = {
-  list: DeliveryChallan[];
-  details: DeliveryChallan | null;
+  list: any[];
+  details: any | null;
 
   loading: boolean;
   detailsLoading: boolean;
@@ -156,6 +173,24 @@ export const fetchDeliveryChallans = createAsyncThunk(
   },
 );
 
+export const sendDeliveryChallanEmail = createAsyncThunk(
+  "deliveryChallans/sendDeliveryChallanEmail",
+  async (payload: SendDeliveryChallanEmailPayload, { rejectWithValue }) => {
+    try {
+      const { id, ...body } = payload;
+
+      const res = await Client.post(
+        withTenant(`/delivery-challans/${id}/send-email`),
+        body,
+      );
+
+      return res?.data;
+    } catch (error: any) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
 export const fetchDeliveryChallanById = createAsyncThunk(
   "deliveryChallans/fetchDeliveryChallanById",
   async (id: string, { rejectWithValue }) => {
@@ -173,7 +208,7 @@ export const createDeliveryChallan = createAsyncThunk(
   async (payload: CreateDeliveryChallanPayload, { rejectWithValue }) => {
     try {
       const res = await Client.post(withTenant("/delivery-challans"), payload);
-      return res?.data?.data;
+      return res?.data;
     } catch (error: any) {
       return rejectWithValue(getErrorMessage(error));
     }
@@ -197,7 +232,7 @@ export const updateDeliveryChallan = createAsyncThunk(
         withTenant(`/delivery-challans/${id}`),
         payload,
       );
-      return res?.data?.data;
+      return res?.data;
     } catch (error: any) {
       return rejectWithValue(getErrorMessage(error));
     }
@@ -254,8 +289,8 @@ const deliveryChallanSlice = createSlice({
       })
       .addCase(fetchDeliveryChallans.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload.data;
-        state.meta = action.payload.meta;
+        state.list = action.payload?.data?.list || [];
+        state.meta = action.payload?.data?.meta || initialState.meta;
       })
       .addCase(fetchDeliveryChallans.rejected, (state, action) => {
         state.loading = false;

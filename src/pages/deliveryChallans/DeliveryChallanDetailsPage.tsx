@@ -36,6 +36,7 @@ import {
     type DeliveryChallanItem,
 } from "../../redux/reducers/deliveryChallans/deliveryChallanSlice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { handlePrintDeliveryChallan } from "../../shared/Utils/utils";
 
 const { Title, Text } = Typography;
 
@@ -189,6 +190,10 @@ export default function DeliveryChallanDetailsPage() {
 
     const items = details.items || [];
 
+
+
+
+
     return (
         <div style={{ padding: 16 }}>
             <Card
@@ -246,8 +251,9 @@ export default function DeliveryChallanDetailsPage() {
                                 Refresh
                             </Button>
 
-                            <Button icon={<PrinterOutlined />}>Print</Button>
-
+                            <Button icon={<PrinterOutlined />} onClick={() => handlePrintDeliveryChallan(details)}>
+                                Print
+                            </Button>
                             <Button
                                 type="primary"
                                 icon={<EditOutlined />}
@@ -371,8 +377,8 @@ export default function DeliveryChallanDetailsPage() {
                         title="Amount Summary"
                         style={{
                             borderRadius: 16,
-                            position: "sticky",
-                            top: 16,
+                            // position: "sticky",
+                            // top: 16,
                         }}
                     >
                         <Space direction="vertical" size={14} style={{ width: "100%" }}>
