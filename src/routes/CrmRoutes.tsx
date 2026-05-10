@@ -45,6 +45,7 @@ import SalesOrderDetailsPage from "../pages/salesOrders/SalesOrderDetailsPage";
 import SalesOrderFormPage from "../pages/salesOrders/SalesOrderFormPage";
 import SalesOrderListPage from "../pages/salesOrders/SalesOrderListPage";
 import TallyPerformancePage from "../pages/tally-performance/TallyPerformancePage";
+import TallyEmployeesPage from "../pages/Tally/TallyEmployeesPage";
 import CreateTask from "../pages/Tasks/CreateTask";
 import EditTask from "../pages/Tasks/EditTask";
 import TaskDetailsPage from "../pages/Tasks/TaskDetailsPage";
@@ -447,6 +448,15 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="tally-performance.view">
                 <TallyPerformancePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="tally-employees"
+            element={
+              <ProtectedRoute required="tally-employees.view">
+                <TallyEmployeesPage />
               </ProtectedRoute>
             }
           />
