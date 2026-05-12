@@ -1,5 +1,6 @@
 import { Checkbox, Col, Form, Input, Row, Select, Typography } from "antd";
 import { useEffect, useMemo } from "react";
+import { toTitleCase } from "../shared/Utils/utils";
 
 const { Title } = Typography;
 
@@ -44,7 +45,7 @@ export default function AddressSection({
     const countrySelectOptions = useMemo(
         () =>
             countryOptions.map((item) => ({
-                label: item.label,
+                label: toTitleCase(item.label),
                 value: item.value,
             })),
         [countryOptions]
@@ -77,7 +78,7 @@ export default function AddressSection({
     const primaryStateSelectOptions = useMemo(
         () =>
             primaryFilteredStates.map((item) => ({
-                label: item.label,
+                label: toTitleCase(item.label),
                 value: item.value,
             })),
         [primaryFilteredStates]
@@ -86,7 +87,7 @@ export default function AddressSection({
     const alternateStateSelectOptions = useMemo(
         () =>
             alternateFilteredStates.map((item) => ({
-                label: item.label,
+                label: toTitleCase(item.label),
                 value: item.value,
             })),
         [alternateFilteredStates]
@@ -115,7 +116,7 @@ export default function AddressSection({
     const primaryCitySelectOptions = useMemo(
         () =>
             primaryFilteredCities.map((item) => ({
-                label: item.label,
+                label: toTitleCase(item.label),
                 value: item.value,
             })),
         [primaryFilteredCities]
@@ -124,7 +125,7 @@ export default function AddressSection({
     const alternateCitySelectOptions = useMemo(
         () =>
             alternateFilteredCities.map((item) => ({
-                label: item.label,
+                label: toTitleCase(item.label),
                 value: item.value,
             })),
         [alternateFilteredCities]

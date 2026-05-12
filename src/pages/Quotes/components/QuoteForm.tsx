@@ -9,11 +9,12 @@ import {
     Divider,
     Form,
     Input,
+    InputNumber,
     message,
     Modal,
+    Radio,
     Row,
     Select,
-    Space,
     Tabs,
     Typography
 } from "antd";
@@ -25,14 +26,11 @@ import OpportunityOrderItems, {
     createDefaultOpportunityLineItem,
     type OpportunityLineItem
 } from "../../../layouts/ProductSelection";
-import { fetchContacts } from "../../../redux/reducers/contacts.slice";
 import { fetchLeads } from "../../../redux/reducers/leads.slice";
-import { fetchOpportunities } from "../../../redux/reducers/opportunities.slice";
-import { getOrganization } from "../../../redux/reducers/organization.slice";
 import { getProducts } from "../../../redux/reducers/products.slice";
 import type { AppDispatch, RootState } from "../../../redux/store";
 import { Client } from "../../../shared/Utils/api-client";
-import { toTitleCase, withTenant } from "../../../shared/Utils/utils";
+import { companyNames, getQuoteStageOptions, toTitleCase, withTenant } from "../../../shared/Utils/utils";
 import ContactForm from "../../Contacts/ContactForm";
 import CreateOpportunityPage from "../../Opportunities/createOpportunities";
 import OrganizationForm from "../../Organization/components/OrganizationForm";
@@ -65,31 +63,20 @@ type Props = {
     isEdit?: boolean;
 };
 
-const quoteStageOptions = [
-    { label: "Draft", value: "draft" },
-    { label: "Sent", value: "sent" },
-    { label: "Approved", value: "approved" },
-    { label: "Rejected", value: "rejected" },
-];
 
-const currencyOptions = [{ label: "Indian Rupee : ₹", value: "INR" }];
+
 
 const paymentTermOptions = [
     { label: "Advance", value: "advance" },
-    { label: "Partial", value: "partial" },
-    { label: "Post Delivery", value: "post_delivery" },
+    { label: "CDC", value: "cdc" },
+    { label: "PDC", value: "pdc" },
 ];
 
 const termsConditionOptions = [
     { label: "Terms & Conditions", value: "terms_conditions" },
 ];
 
-const validationOptions = [
-    { label: "7 Days", value: 7 },
-    { label: "15 Days", value: 15 },
-    { label: "30 Days", value: 30 },
-    { label: "45 Days", value: 45 },
-];
+
 
 function toDate(value?: string | null) {
     return value ? dayjs(value) : undefined;
@@ -104,7 +91,6 @@ export default function QuoteForm({
     isEdit,
 }: Props) {
     const [organizationOptions, setOrganizationOptions] = useState<OptionItem[]>([]);
-    const [contactOptions, setContactOptions] = useState<OptionItem[]>([]);
     const [userOptions, setUserOptions] = useState<OptionItem[]>([]);
 
     const [countryOptions, setCountryOptions] = useState<OptionItem[]>([]);
@@ -122,6 +108,8 @@ export default function QuoteForm({
     const billingState = Form.useWatch("billing_state", form);
     const shippingCountry = Form.useWatch("shipping_country", form);
     const shippingState = Form.useWatch("shipping_state", form);
+    const [branchOptions, setBranchOptions] = useState<OptionItem[]>([]);
+    const [activeTab, setActiveTab] = useState("overview");
 
 
 
@@ -141,110 +129,12 @@ export default function QuoteForm({
     const [quickCreateLoading, setQuickCreateLoading] = useState(false);
     const [quickCreateForm] = Form.useForm();
 
-    const getRelatedCreateLabel = () => {
-        switch (relatedToType) {
-            case "organization":
-                return "Organization";
-            case "contact":
-                return "Contact";
-            case "lead":
-                return "Lead";
-            case "opportunity":
-                return "Opportunity";
-            default:
-                return "Record";
-        }
-    };
-
-    const openQuickCreateModal = () => {
-        if (!relatedToType) {
-            message.warning("Please select Related To first");
-            return;
-        }
-
-        quickCreateForm.resetFields();
-        setQuickCreateOpen(true);
-    };
-
-
-
-
 
     useEffect(() => {
         dispatch(getProducts({ page: 1, limit: 100 }));
     }, [dispatch]);
 
-    const normalizeRelatedOptions = (list: any[], type: string): OptionItem[] => {
-        switch (type) {
-            case "organization":
-                return list.map((item) => ({
-                    label: toTitleCase(item.name),
-                    value: item.id,
-                    raw: item,
-                }));
 
-            case "contact":
-                return list.map((item) => ({
-                    label: toTitleCase(`${item.first_name || ""} ${item.last_name || ""}`.trim() || item.email),
-                    value: item.id,
-                    raw: item,
-                }));
-
-            case "lead":
-                return list.map((item) => ({
-                    label: toTitleCase(`${item.first_name || ""} ${item.last_name || ""}`.trim() || item.email),
-                    value: item.id,
-                    raw: item,
-                }));
-
-            case "opportunity":
-                return list.map((item) => ({
-                    label: toTitleCase(item.title || item.name || item.opportunity_name),
-                    value: item.id,
-                    raw: item,
-                }));
-
-            default:
-                return [];
-        }
-    };
-
-    const loadRelatedOptions = async (value: string) => {
-        try {
-            let list: any[] = [];
-
-            if (value === "organization") {
-                const res = await dispatch(getOrganization({ page: 1, limit: 100 })).unwrap();
-                list = res?.data || [];
-            } else if (value === "contact") {
-                const res = await dispatch(fetchContacts({ page: 1, limit: 100 })).unwrap();
-                list = res?.data || [];
-            } else if (value === "lead") {
-                const res = await dispatch(fetchLeads({ page: 1, limit: 100 })).unwrap();
-                list = res?.data || [];
-            } else if (value === "opportunity") {
-                const res = await dispatch(fetchOpportunities({ page: 1, limit: 100 })).unwrap();
-                list = res?.data || [];
-            }
-
-            setRelatedToOptions(normalizeRelatedOptions(list, value));
-        } catch (error) {
-            setRelatedToOptions([]);
-        }
-    };
-
-    const handleRelatedToTypeChange = async (value: string) => {
-        form.setFieldsValue({
-            related_to_id: undefined,
-        });
-
-        if (!value) {
-            setRelatedToOptions([]);
-            return;
-        }
-
-        await loadRelatedOptions(value);
-    };
 
     useEffect(() => {
         if (initialValues) {
@@ -269,11 +159,12 @@ export default function QuoteForm({
         } else {
             form.setFieldsValue({
                 quotation_date: dayjs(),
-                valid_until: dayjs().add(30, "day"),
-                validation_period: 30,
+                valid_until: dayjs().add(10, "day"),
+                validation_period: 10,
                 quote_stage: "draft",
                 currency: "INR",
                 payment_terms: "advance",
+                payment_terms_description: paymentTermsDescriptionMap.advance,
                 terms_condition: "terms_conditions",
                 freight_charges: 0,
                 tax_on_freight: 0,
@@ -322,14 +213,12 @@ export default function QuoteForm({
         }
     }, [initialValues, form]);
 
-    useEffect(() => {
-        if (!relatedToType) {
-            setRelatedToOptions([]);
-            return;
-        }
 
-        loadRelatedOptions(relatedToType);
-    }, [relatedToType]);
+    const paymentTermsDescriptionMap: Record<string, string> = {
+        advance: "80% Advance & 20% Upon handover",
+        cdc: "Payment through Current Dated Cheque",
+        pdc: "Payment through Post Dated Cheque",
+    };
 
     useEffect(() => {
         const loadDropdowns = async () => {
@@ -362,24 +251,15 @@ export default function QuoteForm({
                 const states = stateRes?.data?.data || [];
                 const cities = cityRes?.data?.data || [];
 
+
                 setOrganizationOptions(
                     orgData.map((item: any) => ({
-                        label: item.name,
+                        label: toTitleCase(item.name),
                         value: item.id,
                         raw: item,
                     }))
                 );
 
-                setContactOptions(
-                    contactData.map((item: any) => ({
-                        label:
-                            `${item.first_name || ""} ${item.last_name || ""}`.trim() ||
-                            item.name ||
-                            item.email,
-                        value: item.id,
-                        raw: item,
-                    }))
-                );
 
                 setUserOptions(
                     userData.map((item: any) => ({
@@ -553,37 +433,282 @@ export default function QuoteForm({
         Form.useWatch("billing_postal_code", form),
     ]);
 
-    const handleOrganizationChange = (orgId: string) => {
-        const selectedOrg = organizationOptions.find((org) => org.value === orgId)?.raw;
+    const getOrgAddressValue = (org: any, key: string) => {
+        return (
+            org?.registered_address?.[key] ||
+            org?.billing_address?.[key] ||
+            org?.head_office?.[`billing_${key}`] ||
+            org?.branches?.find((b: any) => b.is_head_office)?.[`billing_${key}`] ||
+            org?.[key] ||
+            ""
+        );
+    };
+
+    const getOrgShippingAddressValue = (org: any, key: string) => {
+        return (
+            org?.shipping_address?.[key] ||
+            org?.head_office?.[`shipping_${key}`] ||
+            org?.branches?.find((b: any) => b.is_head_office)?.[`shipping_${key}`] ||
+            org?.registered_address?.[key] ||
+            org?.billing_address?.[key] ||
+            org?.[key] ||
+            ""
+        );
+    };
+
+    const fillQuoteCustomerFromOrganization = (selectedOrg: any) => {
         if (!selectedOrg) return;
 
         form.setFieldsValue({
-            gstin: selectedOrg.gst_number || selectedOrg.gstin || "",
-            billing_street:
-                selectedOrg?.registered_address?.street ||
-                selectedOrg?.billing_address?.street ||
-                "",
-            billing_area:
-                selectedOrg?.registered_address?.area ||
-                selectedOrg?.billing_address?.area ||
-                "",
-            billing_city:
-                selectedOrg?.registered_address?.city ||
-                selectedOrg?.billing_address?.city ||
-                "",
-            billing_state:
-                selectedOrg?.registered_address?.state ||
-                selectedOrg?.billing_address?.state ||
-                "",
-            billing_country:
-                selectedOrg?.registered_address?.country ||
-                selectedOrg?.billing_address?.country ||
-                "",
-            billing_postal_code:
-                selectedOrg?.registered_address?.postal_code ||
-                selectedOrg?.billing_address?.postal_code ||
+            organization_id: selectedOrg.id,
+            // company_name: selectedOrg.name || "",
+            gstin:
+                selectedOrg.gst_number ||
+                selectedOrg.gstin ||
+                selectedOrg.head_office?.gst_number ||
+                selectedOrg.branches?.find((b: any) => b.is_head_office)?.gst_number ||
                 "",
         });
+
+        setBranchesFromOrganization(selectedOrg);
+    };
+
+    const getSelectedOrganization = (orgId?: string) => {
+        if (!orgId) return null;
+
+        return (
+            organizationOptions.find((org) => org.value === orgId)?.raw ||
+            relatedToOptions.find((org) => org.value === orgId)?.raw ||
+            null
+        );
+    };
+
+    const getDefaultBranch = (org: any) => {
+        if (!org) return null;
+
+        return (
+            org.head_office ||
+            org.branches?.find((branch: any) => branch.is_head_office) ||
+            org.branches?.[0] ||
+            null
+        );
+    };
+
+    const resolveMasterValue = (
+        list: MasterValueItem[],
+        id?: string | null,
+        label?: string | null,
+        value?: string | null
+    ) => {
+        const found = list.find(
+            (item) =>
+                item.id === id ||
+                item.value === value ||
+                item.label === label ||
+                item.value === label
+        );
+
+        return found?.value || value || label || undefined;
+    };
+
+    const fillAddressFromBranch = (branch: any) => {
+        if (!branch) return;
+
+        form.setFieldsValue({
+            organization_branch_id: branch.id,
+
+            gstin: branch.gst_number || form.getFieldValue("gstin") || "",
+
+            billing_street: branch.billing_street || "",
+            billing_area: branch.billing_area || "",
+            billing_postal_code: branch.billing_postal_code || "",
+            billing_country: resolveMasterValue(
+                countryOptions.map((item) => item.raw),
+                branch.billing_country_id,
+                branch.billing_country_name,
+                branch.billing_country
+            ),
+            billing_state: resolveMasterValue(
+                allStates,
+                branch.billing_state_id,
+                branch.billing_state_name,
+                branch.billing_state
+            ),
+            billing_city: resolveMasterValue(
+                allCities,
+                branch.billing_city_id,
+                branch.billing_city_name,
+                branch.billing_city
+            ),
+
+            shipping_street: branch.shipping_street || "",
+            shipping_area: branch.shipping_area || "",
+            shipping_postal_code: branch.shipping_postal_code || "",
+            shipping_country: resolveMasterValue(
+                countryOptions.map((item) => item.raw),
+                branch.shipping_country_id,
+                branch.shipping_country_name,
+                branch.shipping_country
+            ),
+            shipping_state: resolveMasterValue(
+                allStates,
+                branch.shipping_state_id,
+                branch.shipping_state_name,
+                branch.shipping_state
+            ),
+            shipping_city: resolveMasterValue(
+                allCities,
+                branch.shipping_city_id,
+                branch.shipping_city_name,
+                branch.shipping_city
+            ),
+        });
+    };
+
+    const setBranchesFromOrganization = (org: any) => {
+        const branches = org?.branches || [];
+
+        setBranchOptions(
+            branches.map((branch: any) => ({
+                label: branch.is_head_office
+                    ? `${branch.name || "Head Office"} (Head Office)`
+                    : branch.name || "Branch",
+                value: branch.id,
+                raw: branch,
+            }))
+        );
+
+        const defaultBranch = getDefaultBranch(org);
+
+        if (defaultBranch) {
+            form.setFieldsValue({
+                organization_branch_id: defaultBranch.id,
+            });
+
+            fillAddressFromBranch(defaultBranch);
+        } else {
+            form.setFieldsValue({
+                organization_branch_id: undefined,
+            });
+        }
+    };
+
+    const handleOrganizationChange = (orgId?: string) => {
+        if (!orgId) {
+            setBranchOptions([]);
+
+            form.setFieldsValue({
+                organization_id: undefined,
+                organization_branch_id: undefined,
+                gstin: "",
+                // company_name: "",
+                billing_street: "",
+                billing_area: "",
+                billing_city: undefined,
+                billing_state: undefined,
+                billing_country: undefined,
+                billing_postal_code: "",
+                shipping_street: "",
+                shipping_area: "",
+                shipping_city: undefined,
+                shipping_state: undefined,
+                shipping_country: undefined,
+                shipping_postal_code: "",
+            });
+
+            return;
+        }
+
+        const selectedOrg = getSelectedOrganization(orgId);
+        fillQuoteCustomerFromOrganization(selectedOrg);
+    };
+
+    const handleBranchChange = (branchId?: string) => {
+        if (!branchId) {
+            form.setFieldsValue({
+                organization_branch_id: undefined,
+            });
+            return;
+        }
+
+        const selectedBranch = branchOptions.find((branch) => branch.value === branchId)?.raw;
+
+        fillAddressFromBranch(selectedBranch);
+    };
+
+    const updateValidUntilFromPeriod = (days?: number | null) => {
+        const period = Number(days || 0);
+
+        if (!period || period <= 0) {
+            form.setFieldsValue({
+                valid_until: undefined,
+            });
+            return;
+        }
+
+        const baseDate = form.getFieldValue("quotation_date") || dayjs();
+
+        form.setFieldsValue({
+            valid_until: dayjs(baseDate).add(period, "day"),
+        });
+    };
+
+    const fieldTabMap: Record<string, string> = {
+        title: "overview",
+        related_to_type: "overview",
+        related_to_id: "overview",
+        quotation_date: "overview",
+        validation_period: "overview",
+        valid_until: "overview",
+        quote_stage: "overview",
+        // company_name: "overview",
+        terms_condition: "overview",
+        payment_terms: "overview",
+
+        organization_id: "address",
+        organization_branch_id: "address",
+        contact_id: "address",
+        gstin: "address",
+        billing_street: "address",
+        billing_area: "address",
+        billing_country: "address",
+        billing_state: "address",
+        billing_city: "address",
+        billing_postal_code: "address",
+        shipping_street: "address",
+        shipping_area: "address",
+        shipping_country: "address",
+        shipping_state: "address",
+        shipping_city: "address",
+        shipping_postal_code: "address",
+
+        line_items: "items",
+    };
+
+    const getFieldName = (name: any) => {
+        return Array.isArray(name) ? name[0] : name;
+    };
+
+    const handleSubmitFailed = ({ errorFields }: any) => {
+        if (!errorFields?.length) return;
+
+        const firstErrorField = errorFields[0];
+        const fieldName = getFieldName(firstErrorField.name);
+        const targetTab = fieldTabMap[fieldName] || "overview";
+
+        setActiveTab(targetTab);
+
+        const errorMessage =
+            firstErrorField?.errors?.[0] || "Please complete required fields";
+
+        message.error(errorMessage);
+
+        setTimeout(() => {
+            form.scrollToField(firstErrorField.name, {
+                behavior: "smooth",
+                block: "center",
+            });
+        }, 150);
     };
 
     const submitHandler = (values: any) => {
@@ -752,10 +877,16 @@ export default function QuoteForm({
                 }
             </Modal>
 
-            <Form layout="vertical" form={form} onFinish={submitHandler}>
+            <Form
+                layout="vertical"
+                form={form}
+                onFinish={submitHandler}
+                onFinishFailed={handleSubmitFailed}
+            >
                 <Card bordered={false}>
                     <Tabs
-                        defaultActiveKey="overview"
+                        activeKey={activeTab}
+                        onChange={(key) => setActiveTab(key)}
                         items={[
                             {
                                 key: "overview",
@@ -766,6 +897,14 @@ export default function QuoteForm({
                                         <Title level={4} style={{ marginTop: 0 }}>
                                             Overview
                                         </Title>
+
+                                        <Row>
+                                            <Col>
+                                                <Form.Item name="company_name" label="Company" rules={[{ required: true, message: "Company is required" }]}>
+                                                    <Radio.Group defaultValue="atvi" options={companyNames} />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
 
                                         <Row gutter={16}>
                                             <Col xs={24} md={8}>
@@ -778,56 +917,32 @@ export default function QuoteForm({
                                                 </Form.Item>
                                             </Col>
 
-                                            <Col xs={24} md={8}>
-                                                <Form.Item name="related_to_type" label="Related To">
+
+                                            <Col xs={24} md={12} xl={8}>
+                                                <Form.Item
+                                                    label=" Organization"
+                                                    name="organization_id"
+                                                    rules={[{ required: true, message: "Organization is required" }]}
+                                                >
                                                     <Select
+                                                        placeholder="Select  organization"
+                                                        showSearch
+                                                        optionFilterProp="label"
+                                                        options={organizationOptions}
+                                                        onChange={handleOrganizationChange}
                                                         allowClear
-                                                        placeholder="Select type"
-                                                        onChange={handleRelatedToTypeChange}
-                                                        options={[
-                                                            { label: "Organization", value: "organization" },
-                                                            { label: "Contact", value: "contact" },
-                                                            { label: "Lead", value: "lead" },
-                                                            { label: "Opportunity", value: "opportunity" },
-                                                        ]}
                                                     />
                                                 </Form.Item>
                                             </Col>
 
                                             <Col xs={24} md={8}>
-                                                <Form.Item name="related_to_id" label="Related Record">
+                                                <Form.Item name="assigned_to" label="Assigned To" rules={[{ required: true, message: "Assigned To is required" }]}>
                                                     <Select
                                                         allowClear
                                                         showSearch
-                                                        placeholder="Select related record"
-                                                        disabled={!relatedToType}
-                                                        options={relatedToOptions}
+                                                        options={userOptions}
+                                                        placeholder="Select user"
                                                         optionFilterProp="label"
-                                                        popupRender={(menu) => (
-                                                            <>
-                                                                {menu}
-
-                                                                <Divider style={{ margin: "8px 0" }} />
-
-                                                                <Button
-                                                                    type="link"
-                                                                    block
-                                                                    onMouseDown={(e) => {
-                                                                        e.preventDefault();
-                                                                        e.stopPropagation();
-                                                                    }}
-                                                                    onClick={openQuickCreateModal}
-                                                                    disabled={!relatedToType}
-                                                                    style={{
-                                                                        textAlign: "left",
-                                                                        paddingLeft: 8,
-                                                                        fontWeight: 600,
-                                                                    }}
-                                                                >
-                                                                    + Add New {getRelatedCreateLabel()}
-                                                                </Button>
-                                                            </>
-                                                        )}
                                                     />
                                                 </Form.Item>
                                             </Col>
@@ -844,23 +959,37 @@ export default function QuoteForm({
 
                                             <Col xs={24} md={8}>
                                                 <Form.Item
-                                                    name="valid_until"
-                                                    label="Valid Until"
-                                                    rules={[{ required: true, message: "Valid until is required" }]}
+                                                    name="validation_period"
+                                                    label="Validation Period (In Days)"
+                                                    rules={[{ required: true, message: "Validation period is required" }]}
                                                 >
-                                                    <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
+                                                    <InputNumber
+                                                        min={1}
+                                                        precision={0}
+                                                        style={{ width: "100%" }}
+                                                        placeholder="Enter days e.g. 5, 10, 30"
+                                                        onChange={updateValidUntilFromPeriod}
+                                                    />
                                                 </Form.Item>
                                             </Col>
 
                                             <Col xs={24} md={8}>
                                                 <Form.Item
-                                                    name="validation_period"
-                                                    label="Validation Period"
-                                                    rules={[{ required: true, message: "Validation period is required" }]}
+                                                    name="valid_until"
+                                                    label="Valid Until"
+                                                    rules={[{ required: true, message: "Valid until is required" }]}
                                                 >
-                                                    <Select options={validationOptions} placeholder="Select validation period" />
+                                                    <DatePicker disabledDate={(current) => current.isBefore(dayjs())} style={{ width: "100%" }} format="DD/MM/YYYY" />
                                                 </Form.Item>
                                             </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="material_delivery_time" label="Material Delivery Time">
+                                                    <Input placeholder="e.g. 15 days after PO copy" />
+                                                </Form.Item>
+                                            </Col>
+
+
+
 
                                             <Col xs={24} md={8}>
                                                 <Form.Item
@@ -868,64 +997,49 @@ export default function QuoteForm({
                                                     label="Quote Stage"
                                                     rules={[{ required: true, message: "Quote stage is required" }]}
                                                 >
-                                                    <Select options={quoteStageOptions} placeholder="Select stage" />
+                                                    <Select options={getQuoteStageOptions()} placeholder="Select stage" />
                                                 </Form.Item>
                                             </Col>
 
-                                            <Col xs={24} md={8}>
-                                                <Form.Item name="company_name" label="Company">
-                                                    <Input placeholder="Enter company name" />
-                                                </Form.Item>
-                                            </Col>
 
-                                            <Col xs={24} md={8}>
+                                        </Row>
+                                        <Divider />
+                                        <Row gutter={16}>
+                                            <Col xs={24} md={12}>
                                                 <Form.Item name="terms_condition" label="Terms Condition">
                                                     <Select options={termsConditionOptions} placeholder="Select terms condition" />
                                                 </Form.Item>
                                             </Col>
-
-                                            <Col xs={24} md={8}>
-                                                <Form.Item name="material_delivery_time" label="Material Delivery Time">
-                                                    <Input placeholder="e.g. 15 days after PO copy" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col xs={24} md={8}>
-                                                <Form.Item name="payment_terms" label="Payment Terms">
-                                                    <Select options={paymentTermOptions} placeholder="Select payment terms" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col xs={24} md={8}>
-                                                <Form.Item name="assigned_to" label="Assigned To">
-                                                    <Select
-                                                        allowClear
-                                                        showSearch
-                                                        options={userOptions}
-                                                        placeholder="Select user"
-                                                        optionFilterProp="label"
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col xs={24} md={8}>
-                                                <Form.Item name="currency" label="Currency">
-                                                    <Select options={currencyOptions} placeholder="Select currency" />
-                                                </Form.Item>
-                                            </Col>
-
                                             <Col xs={24} md={12}>
                                                 <Form.Item name="terms_condition_description" label="Terms Condition">
-                                                    <TextArea rows={4} placeholder="Enter terms condition description" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col xs={24} md={12}>
-                                                <Form.Item name="payment_terms_description" label="Payment Terms">
-                                                    <TextArea rows={4} placeholder="Enter payment terms description" />
+                                                    <TextArea defaultValue={
+                                                        'TAX - \nWarranty - \nMaterial Delivery Time - '
+                                                    } rows={4} placeholder="Enter terms condition description" />
                                                 </Form.Item>
                                             </Col>
                                         </Row>
+                                        <Row gutter={16}>
+                                            <Col xs={24} md={12}>
+                                                <Form.Item name="payment_terms" label="Payment Terms">
+                                                    <Select
+                                                        onChange={(value) => {
+                                                            form.setFieldsValue({
+                                                                payment_terms_description: paymentTermsDescriptionMap[value] || "",
+                                                            });
+                                                        }}
+                                                        options={paymentTermOptions} placeholder="Select payment terms" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={12}>
+                                                <Form.Item name="payment_terms_description" label="Payment Terms">
+                                                    <TextArea
+                                                        defaultValue={'80% Advance & 20% Upon handover'}
+                                                        rows={4}
+                                                        placeholder="Enter payment terms description" />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+
                                     </>
                                 ),
                             },
@@ -940,7 +1054,7 @@ export default function QuoteForm({
                                         </Title>
 
                                         <Row gutter={16}>
-                                            <Col xs={24} md={8}>
+                                            {/* <Col xs={24} md={6}>
                                                 <Form.Item
                                                     name="organization_id"
                                                     label="Organization"
@@ -955,25 +1069,24 @@ export default function QuoteForm({
                                                         onChange={handleOrganizationChange}
                                                     />
                                                 </Form.Item>
-                                            </Col>
-
-                                            <Col xs={24} md={8}>
-                                                <Form.Item
-                                                    name="contact_id"
-                                                    label="Contact"
-                                                // rules={[{ required: true, message: "Contact is required" }]}
-                                                >
+                                            </Col> */}
+                                            <Col xs={24} md={6}>
+                                                <Form.Item name="organization_branch_id" label="Branch">
                                                     <Select
                                                         allowClear
                                                         showSearch
-                                                        options={contactOptions}
-                                                        placeholder="Select contact"
+                                                        options={branchOptions}
+                                                        placeholder="Select branch"
                                                         optionFilterProp="label"
+                                                        // disabled={!form.getFieldValue("organization_id")}
+                                                        onChange={handleBranchChange}
                                                     />
                                                 </Form.Item>
                                             </Col>
 
-                                            <Col xs={24} md={8}>
+
+
+                                            <Col xs={24} md={6}>
                                                 <Form.Item name="gstin" label="GSTIN">
                                                     <Input placeholder="Enter GSTIN" />
                                                 </Form.Item>
@@ -1172,11 +1285,14 @@ export default function QuoteForm({
 
                     <Divider />
 
-                    <Space>
-                        <Button type="primary" htmlType="submit" loading={loading}>
-                            {submitText}
-                        </Button>
-                    </Space>
+                    <Row>
+                        <Col span={24}>
+                            <Button block type="primary" htmlType="submit" loading={loading}>
+                                {submitText}
+                            </Button>
+                        </Col>
+                    </Row>
+
                 </Card>
             </Form>
         </>

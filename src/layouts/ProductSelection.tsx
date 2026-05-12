@@ -12,6 +12,7 @@ import {
     Table,
     Typography,
 } from "antd";
+import { toTitleCase } from "../shared/Utils/utils";
 
 const { Text } = Typography;
 
@@ -48,6 +49,33 @@ type Props = {
 
 const GST_OPTIONS = [0, 5, 12, 18, 28];
 
+const safeNumber = (value: any, fallback = 0) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : fallback;
+};
+
+const getProductGst = (product: any) => {
+    return safeNumber(
+        product?.tax_rate ??
+        product?.gst_rate ??
+        product?.gst_percent ??
+        product?.tax_percent ??
+        product?.tax ??
+        product?.gst,
+        18
+    );
+};
+
+const getProductPrice = (product: any) => {
+    return safeNumber(
+        product?.sale_price ??
+        product?.selling_price ??
+        product?.price ??
+        product?.unit_price,
+        0
+    );
+};
+
 
 export const createDefaultOpportunityLineItem = (): OpportunityLineItem => ({
     key: crypto.randomUUID(),
@@ -61,10 +89,10 @@ export const createDefaultOpportunityLineItem = (): OpportunityLineItem => ({
 });
 
 export const calculateOpportunityLineItem = (item: OpportunityLineItem) => {
-    const quantity = Number(item.quantity || 0);
-    const price = Number(item.price || 0);
-    const discount = Number(item.discount || 0);
-    const tax = Number(item.tax || 0);
+    const quantity = safeNumber(item.quantity, 0);
+    const price = safeNumber(item.price, 0);
+    const discount = safeNumber(item.discount, 0);
+    const tax = safeNumber(item.tax, 0);
 
     const baseAmount = quantity * price;
     const taxableAmount = Math.max(baseAmount - discount, 0);
@@ -143,14 +171,8 @@ export default function OpportunityOrderItems({
                     product_id: productId,
                     product_name: product?.name || product?.product_name || "",
                     sku: product?.sku || product?.part_no || "",
-                    price: Number(
-                        product?.sale_price ||
-                        product?.selling_price ||
-                        product?.price ||
-                        product?.unit_price ||
-                        0
-                    ),
-                    tax: Number(product?.tax || product?.gst || 18),
+                    price: getProductPrice(product),
+                    tax: getProductGst(product),
                     quantity: item.quantity || 1,
                     discount: item.discount || 0,
                 };
@@ -179,7 +201,7 @@ export default function OpportunityOrderItems({
                     optionFilterProp="label"
                     style={{ width: "100%" }}
                     options={products.map((product: any) => ({
-                        label: product.name || product.product_name,
+                        label: toTitleCase(product.name || product.product_name),
                         value: product.id,
                     }))}
                     onChange={(value) => handleProductChange(record.key, value)}
@@ -249,7 +271,7 @@ export default function OpportunityOrderItems({
             width: 120,
             render: (_: any, record: any) => (
                 <Select
-                    value={record.tax}
+                    value={safeNumber(record.tax, 18)}
                     style={{ width: "100%" }}
                     onChange={(value) => updateLineItem(record.key, "tax", value)}
                     options={GST_OPTIONS.map((gst) => ({

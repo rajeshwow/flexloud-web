@@ -8,6 +8,7 @@ import {
 } from "../../../redux/reducers/rbac.slice";
 import { getUsers } from "../../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../../redux/store";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 const { Text } = Typography;
 
@@ -46,8 +47,8 @@ export default function UserRoleAssignDrawer({ open, onClose, roleId }: Props) {
     const userOptions = useMemo(() => {
         return userList.map((user) => ({
             label:
-                user.name ||
-                `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
+                toTitleCase(user.name) ||
+                `${toTitleCase(user.first_name || "")} ${toTitleCase(user.last_name || "")}`.trim() ||
                 user.email ||
                 "Unnamed User",
             value: user.id,

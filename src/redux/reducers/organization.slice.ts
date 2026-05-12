@@ -3,6 +3,7 @@ import { Client } from "../../shared/Utils/api-client";
 import { withTenant } from "../../shared/Utils/utils";
 
 export type OrganizationBranchPayload = {
+  id?: string;
   name: string;
   code?: string | null;
   is_head_office?: boolean;
@@ -51,6 +52,9 @@ export type CreateOrganizationPayload = {
   } | null;
 
   branches: OrganizationBranchPayload[];
+};
+export type UpdateOrganizationPayload = CreateOrganizationPayload & {
+  id: string;
 };
 
 export type OrganizationItem = {
@@ -121,6 +125,24 @@ export const createOrganization = createAsyncThunk<
   } catch (error: any) {
     return thunkAPI.rejectWithValue(
       error?.data?.message || error?.message || "Failed to create organization",
+    );
+  }
+});
+
+export const updateOrganization = createAsyncThunk<
+  OrganizationItem,
+  UpdateOrganizationPayload,
+  { rejectValue: string }
+>("organization/updateOrganization", async ({ id, ...payload }, thunkAPI) => {
+  try {
+    const response = await Client.patch(
+      withTenant(`/organizations/${id}`),
+      payload,
+    );
+    return response.data;
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(
+      error?.data?.message || error?.message || "Failed to update organization",
     );
   }
 });

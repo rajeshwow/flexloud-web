@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { createTask } from "../../redux/reducers/tasks.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 import TaskForm from "./TaskForm";
 
 const { Title } = Typography;
@@ -29,9 +30,9 @@ export default function CreateTask() {
         () =>
             (usersList || []).map((user: any) => ({
                 label:
-                    user?.name ||
-                    user?.full_name ||
-                    [user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
+                    toTitleCase(user?.name) ||
+                    toTitleCase(user?.full_name) ||
+                    [toTitleCase(user?.first_name), toTitleCase(user?.last_name)].filter(Boolean).join(" ") ||
                     user?.email ||
                     "Unnamed User",
                 value: user?.id,

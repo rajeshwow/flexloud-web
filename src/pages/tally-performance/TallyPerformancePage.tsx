@@ -45,6 +45,7 @@ import {
     fetchTallyPerformanceSummary,
     resetEmployeeOutstandings,
 } from "../../redux/reducers/tallyPerformance.slice";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Title, Text } = Typography;
 
@@ -489,7 +490,7 @@ export default function TallyPerformancePage() {
             dataIndex: "assigned_to_name",
             key: "assigned_to_name",
             width: 180,
-            render: (value) => value || "-",
+            render: (value) => toTitleCase(value) || "-",
         },
         {
             title: "Overdue Bills",

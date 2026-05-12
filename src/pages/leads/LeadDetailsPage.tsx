@@ -335,16 +335,16 @@ export default function LeadDetailsPage() {
                             items={[
                                 {
                                     label: "Status",
-                                    value: details?.status_label || "-",
+                                    value: toTitleCase(details?.status_label) || "-",
 
                                 },
                                 {
                                     label: "Source",
-                                    value: details?.source_label || "-",
+                                    value: toTitleCase(details?.source_label) || "-",
                                 },
                                 {
                                     label: "Priority",
-                                    value: details?.priority_label || "-",
+                                    value: toTitleCase(details?.priority_label) || "-",
                                 },
                                 {
                                     label: "Created",

@@ -17,6 +17,7 @@ import {
     Table,
     Typography
 } from "antd";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 const { Text } = Typography;
 
@@ -224,7 +225,7 @@ export default function DeliveryChallanItemTable({
                         optionFilterProp="label"
                         style={{ width: "100%" }}
                         options={products.map((product: any) => ({
-                            label: product.name || product.product_name,
+                            label: toTitleCase(product.name || product.product_name),
                             value: product.id,
                         }))}
                         onChange={(value) => handleProductChange(record.key, value)}

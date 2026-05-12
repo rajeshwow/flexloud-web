@@ -14,6 +14,7 @@ import {
 } from "../../redux/reducers/purchaseOrders.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 import PurchaseOrderForm from "./components/PurchaseOrderForm";
 
 const { Title } = Typography;
@@ -42,8 +43,8 @@ export default function CreatePurchaseOrder({ isEdit = false }: Props) {
     const userOptions = useMemo(() => {
         return (users || []).map((user: any) => ({
             label:
-                user?.name ||
-                `${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
+                toTitleCase(user?.name) ||
+                `${toTitleCase(user?.first_name || "")} ${toTitleCase(user?.last_name || "")}`.trim() ||
                 user?.email ||
                 user?.id,
             value: user?.id,

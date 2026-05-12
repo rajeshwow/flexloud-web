@@ -27,6 +27,7 @@ import { getOrganization } from "../../redux/reducers/organization.slice";
 import { fetchPurchaseOrders } from "../../redux/reducers/purchaseOrders.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { RootState } from "../../redux/store";
+import { getPurchaseOrderStatusColor, getPurchaseOrderStatusOptions, toTitleCase } from "../../shared/Utils/utils";
 
 const { Title } = Typography;
 
@@ -60,8 +61,8 @@ export default function PurchaseOrderListPage() {
         () =>
             (users || []).map((user: any) => ({
                 label:
-                    user?.name ||
-                    `${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
+                    toTitleCase(user?.name) ||
+                    `${toTitleCase(user?.first_name || "")} ${toTitleCase(user?.last_name || "")}`.trim() ||
                     user?.email ||
                     user?.id,
                 value: user?.id,
@@ -72,7 +73,7 @@ export default function PurchaseOrderListPage() {
     const vendorOptions = useMemo(
         () =>
             (organizations || []).map((org: any) => ({
-                label: org?.name,
+                label: toTitleCase(org?.name),
                 value: org?.id,
             })),
         [organizations],
@@ -133,12 +134,13 @@ export default function PurchaseOrderListPage() {
         {
             title: "Vendor",
             dataIndex: "supplier_name",
+            render: (val: string) => toTitleCase(val) || "-",
             width: 150,
         },
         {
             title: "Sales person",
             dataIndex: "assigned_to_name",
-            render: (val: string) => val || "-",
+            render: (val: string) => toTitleCase(val) || "-",
             width: 170,
         },
         {
@@ -169,12 +171,7 @@ export default function PurchaseOrderListPage() {
             title: "Status",
             dataIndex: "status",
             render: (val: string) => {
-                let color = "default";
-                if (val === "draft") color = "orange";
-                if (val === "approved") color = "green";
-                if (val === "cancelled") color = "red";
-
-                return <Tag color={color}>{val?.toUpperCase() || "-"}</Tag>;
+                return <Tag color={getPurchaseOrderStatusColor(val)}>{toTitleCase(val) || "-"}</Tag>;
             },
         },
         {
@@ -252,12 +249,7 @@ export default function PurchaseOrderListPage() {
                             onChange={(val) => handleFilterChange("status", val)}
                             allowClear
                             style={{ width: "100%" }}
-                            options={[
-                                { label: "Draft", value: "draft" },
-                                { label: "Approved", value: "approved" },
-                                { label: "Cancelled", value: "cancelled" },
-                                { label: "Pending", value: "pending" },
-                            ]}
+                            options={getPurchaseOrderStatusOptions()}
                         />
                     </Col>
 

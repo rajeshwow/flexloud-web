@@ -34,7 +34,7 @@ import {
     resetSelectedPurchaseOrder,
 } from "../../redux/reducers/purchaseOrders.slice";
 import type { RootState } from "../../redux/store";
-import { toTitleCase } from "../../shared/Utils/utils";
+import { getPurchaseOrderStatusColor, toTitleCase } from "../../shared/Utils/utils";
 
 const { Title, Text } = Typography;
 
@@ -179,14 +179,14 @@ export default function PurchaseOrderDetailsPage() {
                                         {selected.po_number || selected.voucher_number || "-"}
                                     </Title>
 
-                                    <Tag color={getStatusColor(selected.status)}>
-                                        {String(selected.status || "draft").toUpperCase()}
+                                    <Tag color={getPurchaseOrderStatusColor(selected.status)}>
+                                        {toTitleCase(selected.status) || "draft"}
                                     </Tag>
                                 </Space>
 
-                                <Text type="secondary">
+                                {/* <Text type="secondary">
                                     Purchase order details, supplier, delivery and items
-                                </Text>
+                                </Text> */}
                             </div>
                         </Space>
                     </Col>
@@ -292,8 +292,8 @@ export default function PurchaseOrderDetailsPage() {
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Status">
-                                <Tag color={getStatusColor(selected.status)}>
-                                    {String(selected.status || "draft").toUpperCase()}
+                                <Tag color={getPurchaseOrderStatusColor(selected.status)}>
+                                    {toTitleCase(selected.status) || "draft"}
                                 </Tag>
                             </Descriptions.Item>
 

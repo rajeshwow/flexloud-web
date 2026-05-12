@@ -244,6 +244,13 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "FundProjectionScreenOutlined",
         requiresAny: ["tally-employees.view"],
       },
+      {
+        key: "warehouse.view",
+        label: "Warehouse",
+        path: "/warehouse",
+        icon: "FundProjectionScreenOutlined",
+        requiresAny: ["warehouse.view"],
+      },
     ],
   },
 

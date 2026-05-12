@@ -154,6 +154,22 @@ export const fetchQuotes = createAsyncThunk(
   },
 );
 
+export const fetchQuotePdf = createAsyncThunk(
+  "quotes/fetchQuotePdf",
+  async (id: string, thunkAPI) => {
+    try {
+      const response = await Client.get(withTenant(`/quotes/${id}/pdf`), {
+        responseType: "blob",
+      });
+      return response?.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.message || "Failed to fetch quote PDF",
+      );
+    }
+  },
+);
+
 export const fetchQuoteDetails = createAsyncThunk(
   "quotes/fetchQuoteDetails",
   async (id: string, thunkAPI) => {

@@ -413,24 +413,24 @@ export default function OpportunityDetailsPage() {
                                     },
                                     {
                                         label: "Type",
-                                        value: safe(data.type),
+                                        value: safe(toTitleCase(data.type)),
                                     },
                                     {
                                         label: "Lead Source",
-                                        value: safe(data.lead_source),
+                                        value: safe(toTitleCase(data.lead_source)),
                                     },
                                     {
                                         label: "Company",
-                                        value: safe(data.company),
+                                        value: safe(toTitleCase(data.company)),
                                     },
 
                                     {
                                         label: "Followup Type",
-                                        value: safe(data.followup_type),
+                                        value: safe(toTitleCase(data.followup_type)),
                                     },
                                     {
                                         label: "Dealer Contact",
-                                        value: safe(data.dealer_contact),
+                                        value: safe(toTitleCase(data.dealer_contact)),
                                     },
 
                                     {

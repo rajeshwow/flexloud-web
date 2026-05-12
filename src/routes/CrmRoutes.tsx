@@ -55,6 +55,7 @@ import UserGet from "../pages/Users/UserGet";
 import VisitDetailsPage from "../pages/Visits/VisitDetailsPage";
 import VisitFormPage from "../pages/Visits/VisitFormPage";
 import VisitListPage from "../pages/Visits/VisitListPage";
+import WarehouseListingPage from "../pages/warehouse/WarehouseListingPage";
 import ProtectedRoute from "./ProtectedRoutes";
 
 export default function CrmRoutes() {
@@ -618,14 +619,17 @@ export default function CrmRoutes() {
             }
           />
 
-          {/* <Route
-            path="rbac/:id/edit"
+          {/* ------------------------------------------------------------------------ */}
+
+          {/* //warehouse  */}
+          <Route
+            path="warehouse"
             element={
-              <ProtectedRoute required="rbac.edit">
-                <EditRolePage />
+              <ProtectedRoute required="warehouse.view">
+                <WarehouseListingPage />
               </ProtectedRoute>
             }
-          /> */}
+          />
 
         </Route>
       </Route>

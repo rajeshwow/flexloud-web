@@ -32,7 +32,7 @@ type Props = {
 
 function renderValue(value: any) {
     if (value === undefined || value === null || value === "") return "-";
-    return value;
+    return toTitleCase(value);
 }
 
 export default function LeadDetailsView({

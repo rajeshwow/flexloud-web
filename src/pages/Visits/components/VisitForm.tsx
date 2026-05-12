@@ -172,7 +172,7 @@ export default function VisitForm({
     const organizationOptions = useMemo(
         () =>
             (orgList || []).map((item: any) => ({
-                label: item.name,
+                label: toTitleCase(item.name),
                 value: item.id,
             })),
         [orgList],

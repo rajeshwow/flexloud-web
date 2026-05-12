@@ -18,10 +18,10 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchMasterValues } from "../../../redux/reducers/masters.slice";
-import { createOrganization } from "../../../redux/reducers/organization.slice";
+import { createOrganization, updateOrganization } from "../../../redux/reducers/organization.slice";
 import { getUsers } from "../../../redux/reducers/user.slice";
 import type { AppDispatch } from "../../../redux/store";
-import { toTitleCase, typeOptions } from "../../../shared/Utils/utils";
+import { organizationTypeOptions, toTitleCase } from "../../../shared/Utils/utils";
 import UserCreateModal from "../../Users/UserCreate";
 
 const { Title, Text } = Typography;
@@ -87,7 +87,7 @@ type Props = {
     loading?: boolean;
     onSubmit: (values: OrganizationFormValues) => void | Promise<void>;
     onCancel?: () => void;
-
+    initialData?: any;
     industryOptions?: SelectOption[];
     typeOptions?: SelectOption[];
     userOptions?: SelectOption[];
@@ -102,6 +102,7 @@ export default function OrganizationForm({
     loading,
     onSubmit,
     onCancel,
+    initialData
 
 }: Props) {
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -134,6 +135,7 @@ export default function OrganizationForm({
 
             const payload = {
                 ...values,
+                id: mode === 'edit' ? initialData.id : undefined,
                 gst_number: values.gst_number || null,
                 email: values.email || null,
                 type: values.type || null,
@@ -176,10 +178,15 @@ export default function OrganizationForm({
                     status: branch.status || "active",
                 })),
             };
+            debugger
 
-            const response = await dispatch(createOrganization(payload)).unwrap();
+            const response = mode === 'create' ? await dispatch(createOrganization(payload)).unwrap() : await dispatch(updateOrganization(payload)).unwrap();
 
-            message.success(response?.data?.message || "Organization created successfully");
+            if (mode === 'create') {
+                message.success(response?.data?.message || "Organization created successfully");
+            } else {
+                message.success(response?.data?.message || "Organization updated successfully");
+            }
             form.resetFields();
             onSubmit(response?.data);
         } catch (error: any) {
@@ -188,6 +195,57 @@ export default function OrganizationForm({
             console.log("Organization created successfully");
         }
     };
+
+    useEffect(() => {
+        if (mode !== "edit" || !initialData?.id) return;
+
+        form.setFieldsValue({
+            name: initialData.name || "",
+            gst_number: initialData.gst_number || "",
+            email: initialData.email || "",
+            type: initialData.type || undefined,
+            industry: initialData.industry || undefined,
+            assigned_to: initialData.assigned_to || undefined,
+
+            registered_address: {
+                street: initialData.registered_street || "",
+                area: initialData.registered_area || "",
+                postal_code: initialData.registered_postal_code || "",
+                city_id: initialData.registered_city_id || undefined,
+                state_id: initialData.registered_state_id || undefined,
+                country_id: initialData.registered_country_id || undefined,
+            },
+
+            branches: (initialData.branches || []).map((branch: any) => ({
+                id: branch.id,
+                name: branch.name || "",
+                code: branch.code || "",
+                is_head_office: !!branch.is_head_office,
+                contact_person: branch.contact_person || "",
+                phone: branch.phone || "",
+                email: branch.email || "",
+                gst_number: branch.gst_number || "",
+                assigned_to: branch.assigned_to || undefined,
+
+                billing_street: branch.billing_street || "",
+                billing_area: branch.billing_area || "",
+                billing_postal_code: branch.billing_postal_code || "",
+                billing_city_id: branch.billing_city_id || undefined,
+                billing_state_id: branch.billing_state_id || undefined,
+                billing_country_id: branch.billing_country_id || undefined,
+
+                shipping_street: branch.shipping_street || "",
+                shipping_area: branch.shipping_area || "",
+                shipping_postal_code: branch.shipping_postal_code || "",
+                shipping_city_id: branch.shipping_city_id || undefined,
+                shipping_state_id: branch.shipping_state_id || undefined,
+                shipping_country_id: branch.shipping_country_id || undefined,
+
+                is_shipping_same_as_billing: !!branch.is_shipping_same_as_billing,
+                status: branch.status || "active",
+            })),
+        });
+    }, [mode, initialData, form]);
 
 
     const fetchMasterOptions = async () => {
@@ -245,21 +303,21 @@ export default function OrganizationForm({
 
             setCityOptions(
                 (cityRes?.data || []).map((item: any) => ({
-                    label: item.label,
+                    label: toTitleCase(item.label),
                     value: item.id,
                 }))
             );
 
             setStateOptions(
                 (stateRes?.data || []).map((item: any) => ({
-                    label: item.label,
+                    label: toTitleCase(item.label),
                     value: item.id,
                 }))
             );
 
             setCountryOptions(
                 (countryRes?.data || []).map((item: any) => ({
-                    label: item.label,
+                    label: toTitleCase(item.label),
                     value: item.id,
                 }))
             );
@@ -278,7 +336,7 @@ export default function OrganizationForm({
             <Form
                 form={form}
                 layout="vertical"
-                onFinish={handleSubmit}
+                onFinish={mode === 'create' ? handleSubmit : handleSubmit}
                 initialValues={{
                     registered_address: {},
                     branches: [
@@ -320,7 +378,7 @@ export default function OrganizationForm({
                                     allowClear
                                     showSearch
                                     placeholder="Select type"
-                                    options={typeOptions}
+                                    options={organizationTypeOptions}
                                     optionFilterProp="label"
                                 />
                             </Form.Item>

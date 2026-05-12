@@ -35,11 +35,71 @@ export const toTitleCase = (str: string = ""): string => {
   // return lower.charAt(0).toUpperCase() + lower.slice(1);
 };
 
-export const typeOptions = [
-  { label: "Customer", value: "customer" },
+export const organizationTypeOptions = [
+  { label: "End User", value: "end_user" },
+  { label: "Government", value: "government" },
+  { label: "Hotel", value: "hotel" },
   { label: "Partner", value: "partner" },
-  { label: "Vendor", value: "vendor" },
+  { label: "Corporate", value: "corporate" },
+  { label: "Dealer", value: "dealer" },
+  { label: "Education", value: "education" },
+  { label: "Supplier", value: "supplier" },
   { label: "Other", value: "other" },
+];
+
+export const companyNames = [
+  { label: "Atvi", value: "atvi" },
+  { label: "Bispl", value: "bispl" },
+];
+
+export const getPurchaseOrderStatusOptions = () => [
+  {
+    label: "Draft",
+    value: "draft",
+  },
+  {
+    label: "Sent",
+    value: "sent",
+  },
+  {
+    label: "Partially Received",
+    value: "partially_received",
+  },
+  {
+    label: "Received",
+    value: "received",
+  },
+  {
+    label: "Cancelled",
+    value: "cancelled",
+  },
+];
+
+export const getSalesOrderStatusOptions = () => [
+  {
+    label: "Draft",
+    value: "draft",
+  },
+  {
+    label: "Confirmed",
+    value: "confirmed",
+  },
+  {
+    label: "Partially Dispatched",
+    value: "partially_dispatched",
+  },
+  {
+    label: "Dispatched",
+    value: "dispatched",
+  },
+  {
+    label: "Delivered",
+    value: "delivered",
+  },
+  {
+    label: "Cancelled",
+    value: "cancelled",
+  },
 ];
 
 export const numberToIndianWords = (amount: number) => {
@@ -116,6 +176,73 @@ export const numberToIndianWords = (amount: number) => {
 
   return parts.join(" ").replace(/\s+/g, " ").trim();
 };
+
+export const getQuoteStatusColor = (status?: string) => {
+  if (!status) return "default";
+  const value = String(status).toLowerCase();
+
+  if (value === "draft") return "orange";
+  if (value === "sent") return "blue";
+  if (value === "accepted") return "green";
+  if (value === "rejected") return "red";
+
+  return "default";
+};
+
+export const getQuoteStageOptions = () => [
+  { label: "Draft", value: "draft" },
+  { label: "Sent", value: "sent" },
+  { label: "Approved", value: "approved" },
+  { label: "Rejected", value: "rejected" },
+];
+
+export function getPurchaseOrderStatusColor(status?: string) {
+  switch (status) {
+    case "draft":
+      return "default";
+
+    case "sent":
+      return "orange";
+
+    case "partially_received":
+      return "blue";
+
+    case "received":
+      return "green";
+
+    case "cancelled":
+      return "red";
+
+    default:
+      return "default";
+  }
+}
+
+//create sales order status color
+export function getSalesOrderStatusColor(status?: string) {
+  switch (status) {
+    case "draft":
+      return "default";
+
+    case "confirmed":
+      return "orange";
+
+    case "partially_dispatched":
+      return "blue";
+
+    case "dispatched":
+      return "green";
+
+    case "delivered":
+      return "green";
+
+    case "cancelled":
+      return "red";
+
+    default:
+      return "default";
+  }
+}
 
 export const handlePrintDeliveryChallan = (details: any) => {
   if (!details) {

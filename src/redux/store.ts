@@ -27,6 +27,7 @@ import tasksReducer from "./reducers/tasks.slice";
 import tenantReducer from "./reducers/tenant.slice";
 import usersReducer from "./reducers/user.slice";
 import visitsReducer from "./reducers/visits.slice";
+import warehouseReducer from "./reducers/warehouse.slice";
 
 export const store = configureStore({
   reducer: {
@@ -58,6 +59,7 @@ export const store = configureStore({
     deliveryChallans: deliveryChallanReducer,
     tallyPerformance: tallyPerformanceReducer,
     tallyEmployees: tallyEmployeesReducer,
+    warehouse: warehouseReducer,
   },
 });
 

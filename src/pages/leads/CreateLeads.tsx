@@ -565,7 +565,7 @@ export default function CreateLeadForm({
                                                     <Select
                                                         placeholder="Select priority"
                                                         options={priorityOptions.map((item: any) => ({
-                                                            label: item.label,
+                                                            label: toTitleCase(item.label),
                                                             value: item.value,
                                                         }))}
                                                         allowClear
@@ -578,7 +578,7 @@ export default function CreateLeadForm({
                                                     <Select
                                                         placeholder="Select status"
                                                         options={statusOptions.map((item: any) => ({
-                                                            label: item.label,
+                                                            label: toTitleCase(item.label),
                                                             value: item.value,
                                                         }))}
                                                         allowClear
@@ -594,7 +594,7 @@ export default function CreateLeadForm({
                                                     <Select
                                                         placeholder="Select product category"
                                                         options={productList.map((item: any) => ({
-                                                            label: item.name,
+                                                            label: toTitleCase(item.name),
                                                             value: item.id,
                                                         }))}
                                                         allowClear
@@ -657,7 +657,7 @@ export default function CreateLeadForm({
                                                     <Select
                                                         placeholder="Select lead source"
                                                         options={sourceOptions.map((item: any) => ({
-                                                            label: item.label,
+                                                            label: toTitleCase(item.label),
                                                             value: item.value,
                                                         }))}
                                                         allowClear

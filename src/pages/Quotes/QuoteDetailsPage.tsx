@@ -43,7 +43,7 @@ import {
     updateQuote,
 } from "../../redux/reducers/quotes.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
-import { toTitleCase } from "../../shared/Utils/utils";
+import { getQuoteStatusColor, toTitleCase } from "../../shared/Utils/utils";
 import QuoteForm from "./components/QuoteForm";
 
 const { Title, Text, Paragraph } = Typography;
@@ -89,16 +89,7 @@ const getText = (...values: any[]) => {
     return "-";
 };
 
-const getStatusColor = (status?: string) => {
-    const s = String(status || "").toLowerCase();
 
-    if (["accepted", "approved", "won", "confirmed"].includes(s)) return "success";
-    if (["rejected", "lost", "cancelled", "canceled", "expired"].includes(s)) return "error";
-    if (["sent", "submitted", "shared"].includes(s)) return "processing";
-    if (["draft", "pending"].includes(s)) return "warning";
-
-    return "default";
-};
 
 export default function QuoteDetailsPage() {
     const [form] = Form.useForm();
@@ -475,7 +466,7 @@ export default function QuoteDetailsPage() {
                                                 <Title level={2} style={{ margin: 0 }}>
                                                     {quoteNumber}
                                                 </Title>
-                                                <Tag color={getStatusColor(status)}>{status}</Tag>
+                                                <Tag color={getQuoteStatusColor(status)}>{toTitleCase(status)}</Tag>
                                             </Space> <br />
 
                                             <Text type="secondary">
@@ -546,7 +537,7 @@ export default function QuoteDetailsPage() {
                                         <div>
                                             <Text type="secondary">Current Status</Text>
                                             <br />
-                                            <Tag color={getStatusColor(status)}>{status}</Tag>
+                                            <Tag color={getQuoteStatusColor(status)}>{toTitleCase(status)}</Tag>
                                         </div>
                                     </Space>
                                 </Col>
@@ -630,21 +621,9 @@ export default function QuoteDetailsPage() {
                                             value: quoteNumber,
                                         },
                                         {
-                                            label: "Related To",
-                                            value: details.related_to_type || "-",
+                                            label: "Status",
+                                            value: <Tag color={getQuoteStatusColor(status)}>{toTitleCase(status)}</Tag>,
                                         },
-                                        {
-                                            label: "Related Record",
-                                            value: relatedToLabel,
-                                        },
-                                        // {
-                                        //     label: "Status",
-                                        //     value: <Tag color={getStatusColor(status)}>{status}</Tag>,
-                                        // },
-                                        // {
-                                        //     label: "Opportunity",
-                                        //     value: getText(details.opportunity_name, details.opportunity),
-                                        // },
                                         {
                                             label: "Assigned To",
                                             value: toTitleCase(assignedTo as string),

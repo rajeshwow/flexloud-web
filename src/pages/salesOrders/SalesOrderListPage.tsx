@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchSalesOrders } from "../../redux/reducers/salesOrders.slice";
 import type { AppDispatch } from "../../redux/store";
-import { toTitleCase } from "../../shared/Utils/utils";
+import { getSalesOrderStatusColor, getSalesOrderStatusOptions, toTitleCase } from "../../shared/Utils/utils";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -66,7 +66,7 @@ export default function SalesOrderListPage() {
             {
                 title: "Customer",
                 dataIndex: "customer_name",
-                render: (v: string) => v || "-",
+                render: (v: string) => toTitleCase(v) || "-",
             },
             {
                 title: "SO Date",
@@ -87,16 +87,9 @@ export default function SalesOrderListPage() {
                 title: "Status",
                 dataIndex: "status",
                 render: (v: string) => {
-                    const color =
-                        v === "confirmed"
-                            ? "blue"
-                            : v === "delivered"
-                                ? "green"
-                                : v === "cancelled"
-                                    ? "red"
-                                    : "default";
 
-                    return <Tag color={color}>{v || "draft"}</Tag>;
+
+                    return <Tag color={getSalesOrderStatusColor(v)}>{toTitleCase(v) || "draft"}</Tag>;
                 },
             },
             {
@@ -167,14 +160,7 @@ export default function SalesOrderListPage() {
                                 offset: 0,
                             }))
                         }
-                        options={[
-                            { label: "Draft", value: "draft" },
-                            { label: "Confirmed", value: "confirmed" },
-                            { label: "Packed", value: "packed" },
-                            { label: "Shipped", value: "shipped" },
-                            { label: "Delivered", value: "delivered" },
-                            { label: "Cancelled", value: "cancelled" },
-                        ]}
+                        options={getSalesOrderStatusOptions()}
                     />
 
                     <RangePicker

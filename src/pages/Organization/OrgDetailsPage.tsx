@@ -130,7 +130,7 @@ export default function OrgDetailsPage() {
 
             setIndustryOptions(
                 (industryRes?.data?.data || []).map((item: any) => ({
-                    label: item.label,
+                    label: toTitleCase(item.label),
                     value: item.id,
                 }))
             );
@@ -144,21 +144,21 @@ export default function OrgDetailsPage() {
 
             setCityOptions(
                 (cityRes?.data?.data || []).map((item: any) => ({
-                    label: item.label,
+                    label: toTitleCase(item.label),
                     value: item.id,
                 }))
             );
 
             setStateOptions(
                 (stateRes?.data?.data || []).map((item: any) => ({
-                    label: item.label,
+                    label: toTitleCase(item.label),
                     value: item.id,
                 }))
             );
 
             setCountryOptions(
                 (countryRes?.data?.data || []).map((item: any) => ({
-                    label: item.label,
+                    label: toTitleCase(item.label),
                     value: item.id,
                 }))
             );
@@ -239,6 +239,7 @@ export default function OrgDetailsPage() {
                 <OrganizationForm
                     // form={form}
                     mode="edit"
+                    initialData={organization}
                     loading={saveLoading}
                     onSubmit={handleSubmit}
                     onCancel={handleCancelEdit}

@@ -14,6 +14,7 @@ import { fetchMasterValues } from "../../redux/reducers/masters.slice";
 import { fetchRoles } from "../../redux/reducers/rbac.slice";
 import { createUser } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 type Props = {
     open: boolean;
@@ -49,7 +50,7 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
     const countryOptions = useMemo(
         () =>
             countryList.map((item: any) => ({
-                label: item.label,
+                label: toTitleCase(item.label),
                 value: item.id,
             })),
         [countryList]
@@ -68,7 +69,7 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
     const stateOptions = useMemo(
         () =>
             filteredStateList.map((item: any) => ({
-                label: item.label,
+                label: toTitleCase(item.label),
                 value: item.id,
             })),
         [filteredStateList]
@@ -87,7 +88,7 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
     const cityOptions = useMemo(
         () =>
             filteredCityList.map((item: any) => ({
-                label: item.label,
+                label: toTitleCase(item.label),
                 value: item.id,
             })),
         [filteredCityList]

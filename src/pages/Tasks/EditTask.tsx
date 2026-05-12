@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getTaskById, updateTask } from "../../redux/reducers/tasks.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 import TaskForm from "./TaskForm";
 
 const { Title } = Typography;
@@ -24,9 +25,9 @@ export default function EditTask() {
         () =>
             (usersList || []).map((item: any) => ({
                 label:
-                    item?.name ||
-                    item?.full_name ||
-                    [item?.first_name, item?.last_name].filter(Boolean).join(" ") ||
+                    toTitleCase(item?.name) ||
+                    toTitleCase(item?.full_name) ||
+                    [toTitleCase(item?.first_name), toTitleCase(item?.last_name)].filter(Boolean).join(" ") ||
                     item?.email ||
                     "Unnamed User",
                 value: item?.id,

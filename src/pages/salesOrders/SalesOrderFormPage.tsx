@@ -35,7 +35,7 @@ import {
 } from "../../redux/reducers/salesOrders.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch } from "../../redux/store";
-import { toTitleCase } from "../../shared/Utils/utils";
+import { getSalesOrderStatusOptions, toTitleCase } from "../../shared/Utils/utils";
 import OrganizationForm from "../Organization/components/OrganizationForm";
 
 const { Title, Text } = Typography;
@@ -150,7 +150,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
     }, [detail]);
 
     const customerOptions = customers.map((x: any) => ({
-        label: x.name,
+        label: toTitleCase(x.name),
         value: x.id,
     }));
 
@@ -160,7 +160,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
     }));
 
     const productOptions = products.map((x: any) => ({
-        label: x.name || x.product_name,
+        label: toTitleCase(x.name || x.product_name),
         value: x.id,
         data: x,
     }));
@@ -369,7 +369,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                             </Form.Item>
                         </Col>
 
-                        <Col span={8}>
+                        {/* <Col span={8}>
                             <Form.Item name="currency" label="Currency">
                                 <Select
                                     options={[
@@ -379,19 +379,12 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                                     ]}
                                 />
                             </Form.Item>
-                        </Col>
+                        </Col> */}
 
                         <Col span={8}>
                             <Form.Item name="status" label="Status">
                                 <Select
-                                    options={[
-                                        { label: "Draft", value: "draft" },
-                                        { label: "Confirmed", value: "confirmed" },
-                                        { label: "Packed", value: "packed" },
-                                        { label: "Shipped", value: "shipped" },
-                                        { label: "Delivered", value: "delivered" },
-                                        { label: "Cancelled", value: "cancelled" },
-                                    ]}
+                                    options={getSalesOrderStatusOptions()}
                                 />
                             </Form.Item>
                         </Col>
