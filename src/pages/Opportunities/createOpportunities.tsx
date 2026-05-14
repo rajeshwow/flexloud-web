@@ -98,7 +98,7 @@ const salesStageOptions = [
 ];
 
 const followupTypeOptions = ["Call", "Email", "Meeting", "Demo", "WhatsApp"];
-const currencyOptions = ["₹ (INR)", "$ (USD)", "AED"];
+const currencyOptions = ["₹ (INR)"];
 const GST_OPTIONS = [0, 5, 12, 18, 28];
 
 const DEFAULT_LINE_ITEM: LineItem = {
@@ -610,7 +610,7 @@ export default function CreateOpportunityPage() {
                 onFinish={onFinish}
                 initialValues={{
                     sales_stage: "Qualification",
-                    opportunity_amount_currency: "₹ (INR)",
+                    opportunity_amount_currency: "₹ ",
                 }}
             >
                 <Tabs

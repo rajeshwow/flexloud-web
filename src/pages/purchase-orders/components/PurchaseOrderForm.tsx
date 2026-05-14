@@ -329,7 +329,7 @@ export default function PurchaseOrderForm({
                 initialValues={{
                     po_date: dayjs(),
                     expected_delivery_date: dayjs(),
-                    currency: "INR",
+                    currency: "₹",
                     total: 0,
                     discount: 0,
                     subtotal: 0,
@@ -421,7 +421,7 @@ export default function PurchaseOrderForm({
 
                                         <Col xs={24} md={8}>
                                             <Form.Item label="Expected Delivery Date" name="expected_delivery_date">
-                                                <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
+                                                <DatePicker disabledDate={(current) => current && current.isBefore(dayjs())} style={{ width: "100%" }} format="DD/MM/YYYY" />
                                             </Form.Item>
                                         </Col>
 

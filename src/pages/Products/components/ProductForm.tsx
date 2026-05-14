@@ -57,9 +57,7 @@ type Props = {
 };
 
 const currencyOptions = [
-    { label: "₹", value: "INR" },
-    { label: "$", value: "USD" },
-    { label: "AED", value: "AED" },
+    { label: "₹", value: "₹" },
 ];
 
 const unitOptions = [
@@ -120,11 +118,11 @@ export default function ProductForm({
             date_created: "",
             date_modified: "",
 
-            cost_price_currency: "INR",
+            cost_price_currency: "₹",
             cost_price: undefined,
-            msp_currency: "INR",
+            msp_currency: "₹",
             msp: undefined,
-            selling_price_currency: "INR",
+            selling_price_currency: "₹",
             selling_price: undefined,
             tax: undefined,
 

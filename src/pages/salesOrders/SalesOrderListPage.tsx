@@ -1,4 +1,5 @@
 import {
+    EditOutlined,
     EyeOutlined,
     PlusOutlined,
     ReloadOutlined,
@@ -96,16 +97,23 @@ export default function SalesOrderListPage() {
                 title: "Grand Total",
                 dataIndex: "grand_total",
                 align: "right" as const,
-                render: (v: number, r: any) => `${r.currency || "INR"} ${Number(v || 0).toFixed(2)}`,
+                render: (v: number, r: any) => `${r.currency || "₹"} ${Number(v || 0).toFixed(2)}`,
             },
             {
                 title: "Action",
                 width: 90,
                 render: (_: any, record: any) => (
-                    <Button
-                        icon={<EyeOutlined />}
-                        onClick={() => navigate(`/${slug}/sales-orders/${record.id}`)}
-                    />
+                    <Space>
+                        <Button
+                            icon={<EyeOutlined />}
+                            onClick={() => navigate(`/${slug}/sales-orders/${record.id}`)}
+                        />
+                        <Button
+                            icon={<EditOutlined />}
+                            onClick={() => navigate(`/${slug}/sales-orders/${record.id}/edit`)}
+                        />
+                    </Space>
+
                 ),
             },
         ];

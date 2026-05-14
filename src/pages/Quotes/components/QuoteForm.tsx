@@ -162,7 +162,7 @@ export default function QuoteForm({
                 valid_until: dayjs().add(10, "day"),
                 validation_period: 10,
                 quote_stage: "draft",
-                currency: "INR",
+                currency: "₹",
                 payment_terms: "advance",
                 payment_terms_description: paymentTermsDescriptionMap.advance,
                 terms_condition: "terms_conditions",

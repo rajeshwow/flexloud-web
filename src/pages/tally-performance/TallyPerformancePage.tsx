@@ -50,13 +50,12 @@ import { toTitleCase } from "../../shared/Utils/utils";
 const { Title, Text } = Typography;
 
 const formatAmount = (value: any) => {
+    if (!value) return "₹ 0";
     const amount = Number(value || 0);
 
-    return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-    }).format(amount);
+    return `₹ ${amount}`;
+
+
 };
 
 const toNumber = (value: any) => Number(value || 0);

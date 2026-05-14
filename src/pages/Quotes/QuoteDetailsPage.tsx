@@ -62,7 +62,7 @@ const money = (value?: number | string | null) => {
     const num = Number(value || 0);
     return new Intl.NumberFormat("en-IN", {
         style: "currency",
-        currency: "INR",
+        currency: "₹",
         maximumFractionDigits: 2,
     }).format(num);
 };

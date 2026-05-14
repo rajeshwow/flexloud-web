@@ -59,7 +59,7 @@ function formatCurrency(value?: number | string | null) {
 
     return new Intl.NumberFormat("en-IN", {
         style: "currency",
-        currency: "INR",
+        currency: "₹",
         maximumFractionDigits: 2,
     }).format(amount);
 }
@@ -1346,7 +1346,7 @@ export default function WarehouseListingPage() {
 
                         <Col span={12}>
                             <Form.Item name="delivery_expected_at" label="Expected Delivery Date">
-                                <DatePicker style={{ width: "100%" }} />
+                                <DatePicker disabledDate={(current) => current && current.isBefore(dayjs())} style={{ width: "100%" }} />
                             </Form.Item>
                         </Col>
 

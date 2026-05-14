@@ -331,7 +331,7 @@ export default function PurchaseOrderDetailsPage() {
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Currency">
-                                {rawData.currency || "INR"}
+                                {rawData.currency || "₹"}
                             </Descriptions.Item>
                         </Descriptions>
                     </Card>

@@ -99,7 +99,7 @@ const salesStageOptions = [
 ];
 
 const followupTypeOptions = ["Call", "Email", "Meeting", "Demo", "WhatsApp"];
-const currencyOptions = ["₹ (INR)", "$ (USD)", "AED"];
+const currencyOptions = ["₹ (INR)"];
 const GST_OPTIONS = [0, 5, 12, 18, 28];
 
 const DEFAULT_LINE_ITEM: LineItem = {
@@ -218,7 +218,7 @@ export default function EditOpportunityPage() {
                 expected_close_date: opportunity?.expected_close_date
                     ? dayjs(opportunity.expected_close_date)
                     : undefined,
-                opportunity_amount_currency: opportunity?.currency || "₹ (INR)",
+                opportunity_amount_currency: opportunity?.currency || "₹",
                 opportunity_amount: opportunity?.amount ?? undefined,
                 next_followup: opportunity?.next_followup
                     ? dayjs(opportunity.next_followup)
@@ -637,7 +637,7 @@ export default function EditOpportunityPage() {
                 onFinish={onFinish}
                 initialValues={{
                     sales_stage: "Qualification",
-                    opportunity_amount_currency: "₹ (INR)",
+                    opportunity_amount_currency: "₹",
                 }}
             >
                 <Row gutter={[20, 6]}>

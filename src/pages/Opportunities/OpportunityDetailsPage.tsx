@@ -108,14 +108,7 @@ const formatDateTime = (value?: string) => {
 const formatMoney = (amount?: number, currency?: string) => {
     if (amount === null || amount === undefined) return "-";
 
-    const symbol =
-        currency === "$ (USD)"
-            ? "$"
-            : currency === "AED"
-                ? "AED"
-                : currency === "₹ (INR)"
-                    ? "₹"
-                    : currency || "₹";
+    const symbol = currency || "₹";
 
     return `${symbol} ${Number(amount || 0).toLocaleString("en-IN")}`;
 };

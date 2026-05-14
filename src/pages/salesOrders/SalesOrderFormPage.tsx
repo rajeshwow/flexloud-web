@@ -157,7 +157,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                 so_date: dayjs(),
                 expected_delivery_date: undefined,
 
-                currency: quote.currency || "INR",
+                currency: quote.currency || "₹",
                 status: "draft",
 
                 notes: quote.description || "",
@@ -343,7 +343,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
             tax: totals.tax,
             shipping: totals.shipping,
             grand_total: totals.grand_total,
-            currency: values.currency || "INR",
+            currency: values.currency || "₹",
             status: values.status || "draft",
             quote_id: values?.quote_id || null,
         };
@@ -396,7 +396,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                 onFinish={onFinish}
                 initialValues={{
                     so_date: dayjs(),
-                    currency: "INR",
+                    currency: "₹",
                     status: "draft",
                     shipping: 0,
                     items: [{ quantity: 1, price: 0, discount: 0, tax: 0 }],

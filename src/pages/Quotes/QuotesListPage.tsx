@@ -1,14 +1,15 @@
 import { EyeOutlined, MailOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
-import { Button, Input, message, Modal, Space, Table, Tag, Typography } from "antd";
+import { Button, Input, message, Modal, Select, Space, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchQuotes, type QuoteItem } from "../../redux/reducers/quotes.slice";
+import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { Client } from "../../shared/Utils/api-client";
-import { getQuoteStatusColor, toTitleCase, withTenant } from "../../shared/Utils/utils";
+import { getQuoteStatusColor, quoteStatusOptions, toTitleCase, withTenant } from "../../shared/Utils/utils";
 import QuoteEmailModal from "./components/QuoteEmailModal";
 
 const { Title } = Typography;
@@ -21,6 +22,11 @@ export default function QuotesListPage() {
     const { list, listLoading } = useSelector((state: RootState) => state.quotes);
     const [search, setSearch] = useState("");
 
+    const [stage, setStage] = useState<string | undefined>();
+    const [assignedTo, setAssignedTo] = useState<string | undefined>();
+    const [soStatus, setSoStatus] = useState<string | undefined>();
+    const [users, setUsers] = useState<any[]>([]);
+
     const [selectedQuote, setSelectedQuote] = useState<any>(null);
     const [emailModalOpen, setEmailModalOpen] = useState(false);
 
@@ -28,6 +34,22 @@ export default function QuotesListPage() {
     const [previewUrl, setPreviewUrl] = useState("");
     const [previewLoadingId, setPreviewLoadingId] = useState<string | null>(null);
     const [printLoadingId, setPrintLoadingId] = useState<string | null>(null);
+
+    const userOptions = users.map((user: any) => ({
+        label: toTitleCase(user.name || user.full_name || user.email),
+        value: user.id,
+    }));
+
+    useEffect(() => {
+        dispatch(getUsers({ limit: 1000 }))
+            .unwrap()
+            .then((res: any) => {
+                setUsers(res?.data || []);
+            })
+            .catch(() => {
+                message.error("Users load nahi ho paye");
+            });
+    }, [dispatch]);
 
 
     const getQuotePdfBlobUrl = async (quoteId: string) => {
@@ -99,8 +121,15 @@ export default function QuotesListPage() {
     };
 
     useEffect(() => {
-        dispatch(fetchQuotes({ search }));
-    }, [dispatch, search]);
+        dispatch(
+            fetchQuotes({
+                search,
+                stage,
+                assigned_to: assignedTo,
+                so_status: soStatus,
+            } as any)
+        );
+    }, [dispatch, search, stage, assignedTo, soStatus]);
 
     const columns: ColumnsType<QuoteItem> = [
         {
@@ -245,15 +274,49 @@ export default function QuotesListPage() {
                     Quotes
                 </Title>
 
-                <Space>
+                <Space wrap>
                     <Input
                         allowClear
                         placeholder="Search quotes"
                         prefix={<SearchOutlined />}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        style={{ width: 260 }}
+                        style={{ width: 240 }}
                     />
+
+                    <Select
+                        allowClear
+                        placeholder="Stage"
+                        value={stage}
+                        onChange={setStage}
+                        options={quoteStatusOptions}
+                        style={{ width: 150 }}
+                    />
+
+                    <Select
+                        allowClear
+                        showSearch
+                        placeholder="Assigned To"
+                        value={assignedTo}
+                        onChange={setAssignedTo}
+                        options={userOptions}
+                        optionFilterProp="label"
+                        style={{ width: 180 }}
+                    />
+
+
+
+                    <Button
+                        onClick={() => {
+                            setSearch("");
+                            setStage(undefined);
+                            setAssignedTo(undefined);
+                            setSoStatus(undefined);
+                        }}
+                    >
+                        Reset
+                    </Button>
+
                     <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(`/${slug}/quotes/create`)}>
                         Create Quote
                     </Button>

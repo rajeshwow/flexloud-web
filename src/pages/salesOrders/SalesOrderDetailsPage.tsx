@@ -55,7 +55,7 @@ const getStatusColor = (status?: string) => {
     }
 };
 
-const formatMoney = (value: any, currency = "INR") =>
+const formatMoney = (value: any, currency = "₹") =>
     `${currency} ${Number(value || 0).toFixed(2)}`;
 
 const formatDate = (value?: string) =>
@@ -92,7 +92,7 @@ export default function SalesOrderDetailsPage() {
         );
     }
 
-    const currency = detail.currency || "INR";
+    const currency = detail.currency || "₹";
 
     const columns = [
         {

@@ -86,7 +86,7 @@ export default function CreatePurchaseOrder({ isEdit = false }: Props) {
             assigned_to: selected.assigned_to || raw.assigned_to,
             vendor_id: raw.vendor_id,
 
-            currency: raw.currency || "INR",
+            currency: raw.currency || "₹",
 
             subtotal: raw.subtotal || 0,
             discount: raw.discount || 0,

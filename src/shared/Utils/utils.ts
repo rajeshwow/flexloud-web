@@ -189,6 +189,13 @@ export const getQuoteStatusColor = (status?: string) => {
   return "default";
 };
 
+export const quoteStatusOptions = [
+  { label: "Draft", value: "draft" },
+  { label: "Sent", value: "sent" },
+  { label: "Approved", value: "approved" },
+  { label: "Rejected", value: "rejected" },
+];
+
 export const getQuoteStageOptions = () => [
   { label: "Draft", value: "draft" },
   { label: "Sent", value: "sent" },

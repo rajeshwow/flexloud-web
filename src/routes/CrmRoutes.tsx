@@ -1,3 +1,4 @@
+import { Spin } from "antd";
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 const AppShell = lazy(() => import("../layouts/sidebar"));
@@ -60,7 +61,7 @@ const WarehouseListingPage = lazy(() => import("../pages/warehouse/WarehouseList
 const ProtectedRoute = lazy(() => import("./ProtectedRoutes"));
 
 const PageLoader = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<div style={{ padding: 16 }}>Loading...</div>}>
+  <Suspense fallback={<div style={{ padding: 16, display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}><Spin /></div>}>
     {children}
   </Suspense>
 );

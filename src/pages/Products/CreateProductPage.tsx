@@ -31,11 +31,11 @@ export default function CreateProductPage() {
             assigned_to: values.assigned_to || null,
             status: (values.status as "active" | "inactive") || "active",
 
-            cost_price_currency: values.cost_price_currency || "INR",
+            cost_price_currency: values.cost_price_currency || "₹",
             cost_price: values.cost_price || 0,
-            msp_currency: values.msp_currency || "INR",
+            msp_currency: values.msp_currency || "₹",
             msp: values.msp || 0,
-            selling_price_currency: values.selling_price_currency || "INR",
+            selling_price_currency: values.selling_price_currency || "₹",
             selling_price: values.selling_price || 0,
             tax: values.tax || null,
 
