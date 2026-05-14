@@ -183,7 +183,7 @@ export const getQuoteStatusColor = (status?: string) => {
 
   if (value === "draft") return "orange";
   if (value === "sent") return "blue";
-  if (value === "accepted") return "green";
+  if (value === "approved") return "green";
   if (value === "rejected") return "red";
 
   return "default";

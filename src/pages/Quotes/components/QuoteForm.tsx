@@ -433,28 +433,9 @@ export default function QuoteForm({
         Form.useWatch("billing_postal_code", form),
     ]);
 
-    const getOrgAddressValue = (org: any, key: string) => {
-        return (
-            org?.registered_address?.[key] ||
-            org?.billing_address?.[key] ||
-            org?.head_office?.[`billing_${key}`] ||
-            org?.branches?.find((b: any) => b.is_head_office)?.[`billing_${key}`] ||
-            org?.[key] ||
-            ""
-        );
-    };
 
-    const getOrgShippingAddressValue = (org: any, key: string) => {
-        return (
-            org?.shipping_address?.[key] ||
-            org?.head_office?.[`shipping_${key}`] ||
-            org?.branches?.find((b: any) => b.is_head_office)?.[`shipping_${key}`] ||
-            org?.registered_address?.[key] ||
-            org?.billing_address?.[key] ||
-            org?.[key] ||
-            ""
-        );
-    };
+
+
 
     const fillQuoteCustomerFromOrganization = (selectedOrg: any) => {
         if (!selectedOrg) return;

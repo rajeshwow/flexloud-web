@@ -24,9 +24,10 @@ import {
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getOrganization } from "../../redux/reducers/organization.slice";
 import { getProducts } from "../../redux/reducers/products.slice";
+import { fetchQuoteById } from "../../redux/reducers/quotes.slice";
 import {
     createSalesOrder,
     fetchSalesOrderById,
@@ -85,6 +86,11 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
     const { slug, id } = useParams();
     const [orgModalOpen, setOrgModalOpen] = useState(false);
 
+    const location = useLocation();
+
+    const quoteIdFromState = (location.state as any)?.quoteId;
+    const fromQuote = Boolean((location.state as any)?.fromQuote);
+
     const { detail, detailLoading } = useSelector((s: any) => s.salesOrders);
 
     const [customers, setCustomers] = useState<any[]>([]);
@@ -115,6 +121,93 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
         }
     };
 
+    const loadQuoteForSalesOrder = async (quoteId: string) => {
+        try {
+
+            const res = await dispatch(fetchQuoteById(quoteId)).unwrap();
+
+            const quote = res?.data?.data || res?.data || res;
+
+            if (!quote) {
+                message.error("Quote details Missing");
+                return;
+            }
+
+            const quoteStage = String(quote?.quote_stage || "").toLowerCase();
+
+            if (quoteStage !== "approved") {
+                message.error("Sales order sirf approved quote se create ho sakta hai");
+                navigate(`/${slug}/quotes`);
+                return;
+            }
+
+            const quoteItems = quote?.line_items || quote?.items || [];
+
+            form.setFieldsValue({
+                quote_id: quote.id,
+
+                customer_id:
+                    quote.organization_id ||
+                    quote.related_to_id ||
+                    quote.customer_id ||
+                    undefined,
+
+                assigned_to: quote.assigned_to || undefined,
+
+                so_date: dayjs(),
+                expected_delivery_date: undefined,
+
+                currency: quote.currency || "INR",
+                status: "draft",
+
+                notes: quote.description || "",
+                terms:
+                    quote.terms_condition_description ||
+                    quote.terms_condition ||
+                    quote.payment_terms_description ||
+                    "",
+
+                shipping: Number(quote.freight_charges || 0),
+
+                items: quoteItems.length
+                    ? quoteItems.map((item: any) => ({
+                        product_id: item.product_id || undefined,
+                        sku: item.sku || item.item_code || item.part_number || "",
+                        product_name:
+                            item.product_display_name ||
+                            item.product_name ||
+                            item.service_name ||
+                            "",
+
+                        quantity: Number(item.quantity || 1),
+
+                        price: Number(
+                            item.sale_price ||
+                            item.price ||
+                            item.list_price ||
+                            item.rate ||
+                            0
+                        ),
+
+                        discount: Number(
+                            item.discount_value ||
+                            item.discount ||
+                            0
+                        ),
+
+                        tax: Number(
+                            item.tax_rate ||
+                            item.tax ||
+                            0
+                        ),
+                    }))
+                    : [{ quantity: 1, price: 0, discount: 0, tax: 0 }],
+            });
+        } catch (error: any) {
+            message.error(error?.response?.data?.message || "Quote details load nahi ho paye");
+        }
+    };
+
     useEffect(() => {
         fetchDropdowns();
 
@@ -122,10 +215,14 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
             dispatch(fetchSalesOrderById(id as string));
         }
 
+        if (!isEdit && fromQuote && quoteIdFromState) {
+            loadQuoteForSalesOrder(quoteIdFromState);
+        }
+
         return () => {
             dispatch(resetSalesOrderDetail());
         };
-    }, [id]);
+    }, [id, isEdit, fromQuote, quoteIdFromState]);
 
     useEffect(() => {
         if (detail && isEdit) {
@@ -248,6 +345,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
             grand_total: totals.grand_total,
             currency: values.currency || "INR",
             status: values.status || "draft",
+            quote_id: values?.quote_id || null,
         };
 
         try {
@@ -337,6 +435,11 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                                 />
                             </Form.Item>
                         </Col>
+                        <Col>
+                            <Form.Item name="quote_id" initialValue={quoteIdFromState} hidden>
+                                <Input />
+                            </Form.Item>
+                        </Col>
 
                         <Col span={8}>
                             <Form.Item name="assigned_to" label="Assigned To">
@@ -368,18 +471,6 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                                 />
                             </Form.Item>
                         </Col>
-
-                        {/* <Col span={8}>
-                            <Form.Item name="currency" label="Currency">
-                                <Select
-                                    options={[
-                                        { label: "INR", value: "INR" },
-                                        { label: "USD", value: "USD" },
-                                        { label: "AED", value: "AED" },
-                                    ]}
-                                />
-                            </Form.Item>
-                        </Col> */}
 
                         <Col span={8}>
                             <Form.Item name="status" label="Status">

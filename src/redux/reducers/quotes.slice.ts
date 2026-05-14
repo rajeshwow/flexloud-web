@@ -24,6 +24,7 @@ export type QuoteLineItem = {
 };
 
 export type QuoteItem = {
+  sales_order_id: string | null;
   status_id(
     status_label: any,
     status_name: any,
@@ -149,6 +150,20 @@ export const fetchQuotes = createAsyncThunk(
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error?.response?.data?.message || "Failed to fetch quotes",
+      );
+    }
+  },
+);
+
+export const fetchQuoteById = createAsyncThunk(
+  "quotes/fetchQuoteById",
+  async (id: string, thunkAPI) => {
+    try {
+      const response = await Client.get(withTenant(`/quotes/${id}`));
+      return response?.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.message || "Failed to fetch quote details",
       );
     }
   },

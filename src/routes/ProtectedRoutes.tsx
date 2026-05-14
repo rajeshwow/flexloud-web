@@ -13,6 +13,19 @@ type Props = {
     redirectTo?: string;
 };
 
+export const PermissionLoader = () => (
+    <div
+        style={{
+            minHeight: 220,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+        }}
+    >
+        <Loading3QuartersOutlined spin style={{ fontSize: 24 }} />
+    </div>
+);
+
 export default function ProtectedRoute({
     children,
     required,
@@ -46,15 +59,14 @@ export default function ProtectedRoute({
         !!requiredArr?.length || !!anyOf?.length || !!allOf?.length;
 
     useEffect(() => {
-        const shouldFetchPermissions = !needsPermissionCheck;
-
-        if (!shouldFetchPermissions) return;
         if (!slug || !token) return;
 
         if (!loadingPerms && !permissionsLoaded) {
             dispatch(fetchMyPermissions({ slug }));
         }
-    }, [dispatch, slug, token, loadingPerms, permissionsLoaded, needsPermissionCheck]);
+    }, [dispatch, slug, token, loadingPerms, permissionsLoaded]);
+
+
 
     if (!token) {
         return (
@@ -67,33 +79,13 @@ export default function ProtectedRoute({
     }
 
     if (!needsPermissionCheck && loadingPerms) {
-        return (
-            <div
-                style={{
-                    minHeight: "100vh",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                }}
-            >
-                <Loading3QuartersOutlined spin style={{ fontSize: 24 }} />
-            </div>
-        );
+        return <PermissionLoader />;
     }
 
+
+
     if (needsPermissionCheck && (!permissionsLoaded || loadingPerms)) {
-        return (
-            <div
-                style={{
-                    minHeight: "100vh",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                }}
-            >
-                <Loading3QuartersOutlined spin style={{ fontSize: 24 }} />
-            </div>
-        );
+        return <PermissionLoader />;
     }
 
     const hasAny = (req?: string[]) =>

@@ -1,62 +1,69 @@
+import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
-import AppShell from "../layouts/sidebar";
-import AccountSlugRequiredPage2 from "../pages/account/AccountSlugRequiredPage2";
-import AttendanceView from "../pages/Attendance/AttendanceView";
-import ContactDetailsPage from "../pages/Contacts/ContactDetailsPage";
-import ContactEditPage from "../pages/Contacts/ContactEditPage";
-import ContactForm from "../pages/Contacts/ContactForm";
-import ContactsList from "../pages/Contacts/ContactsList";
-import CreateDeliveryChallanPage from "../pages/deliveryChallans/CreateDeliveryChallanPage";
-import DeliveryChallanDetailsPage from "../pages/deliveryChallans/DeliveryChallanDetailsPage";
-import DeliveryChallanListPage from "../pages/deliveryChallans/DeliveryChallanListPage";
-import EditDeliveryChallanPage from "../pages/deliveryChallans/EditDeliveryChallanPage";
-import DashboardPage from "../pages/Home/dashboard2";
-import ImportDataPage from "../pages/Imports/importPage";
-import CreateInteractionPage from "../pages/interactions/CreateInteractionPage";
-import EditInteractionPage from "../pages/interactions/EditInteractionPage";
-import InteractionDetailsPage from "../pages/interactions/InteractionDetailsPage";
-import InteractionsListPage from "../pages/interactions/InteractionsListPage";
-import CreateLeadForm from "../pages/leads/CreateLeads";
-import LeadDetailsPage from "../pages/leads/LeadDetailsPage";
-import LeadsPage from "../pages/leads/LeadsPage";
-import LeaveListPage from "../pages/Leaves/LeaveListPage";
-import LoginPage3 from "../pages/LoginPage3";
-import MyDayPage from "../pages/my-day/MyDayPage";
-import CreateOpportunityPage from "../pages/Opportunities/createOpportunities";
-import EditOpportunityPage from "../pages/Opportunities/EditOpportunityPage";
-import OpportunitiesPage from "../pages/Opportunities/OpportunitiesPage";
-import OpportunityDetailsPage from "../pages/Opportunities/OpportunityDetailsPage";
-import { default as CreateOrganizationPage } from "../pages/Organization/createOrg";
-import OrganizationGet from "../pages/Organization/getOrg";
-import OrgDetailsPage from "../pages/Organization/OrgDetailsPage";
-import CreateProductPage from "../pages/Products/CreateProductPage";
-import ProductListPage from "../pages/Products/ProductListPage";
-import CreatePurchaseOrder from "../pages/purchase-orders/CreatePurchaseOrder";
-import PurchaseOrderDetailsPage from "../pages/purchase-orders/PurchaseOrderDetailsPage";
-import PurchaseOrderListPage from "../pages/purchase-orders/PurchaseOrderListPage";
-import QuoteDetailsView from "../pages/Quotes/components/QuoteDetailsView";
-import CreateQuotePage from "../pages/Quotes/CreateQuotePage";
-import QuoteDetailsPage from "../pages/Quotes/QuoteDetailsPage";
-import QuotesListPage from "../pages/Quotes/QuotesListPage";
-import CreateRolePage from "../pages/rbac/CreateRolePage";
-import RoleDetailsPage from "../pages/rbac/RoleDetailsPage";
-import RolesListPage from "../pages/rbac/RolesListPage";
-import SalesOrderDetailsPage from "../pages/salesOrders/SalesOrderDetailsPage";
-import SalesOrderFormPage from "../pages/salesOrders/SalesOrderFormPage";
-import SalesOrderListPage from "../pages/salesOrders/SalesOrderListPage";
-import TallyPerformancePage from "../pages/tally-performance/TallyPerformancePage";
-import TallyEmployeesPage from "../pages/Tally/TallyEmployeesPage";
-import CreateTask from "../pages/Tasks/CreateTask";
-import EditTask from "../pages/Tasks/EditTask";
-import TaskDetailsPage from "../pages/Tasks/TaskDetailsPage";
-import TasksPage from "../pages/Tasks/TasksPage";
-import UserCreatePage from "../pages/Users/UserCreatePage";
-import UserGet from "../pages/Users/UserGet";
-import VisitDetailsPage from "../pages/Visits/VisitDetailsPage";
-import VisitFormPage from "../pages/Visits/VisitFormPage";
-import VisitListPage from "../pages/Visits/VisitListPage";
-import WarehouseListingPage from "../pages/warehouse/WarehouseListingPage";
-import ProtectedRoute from "./ProtectedRoutes";
+const AppShell = lazy(() => import("../layouts/sidebar"));
+const AccountSlugRequiredPage2 = lazy(() => import("../pages/account/AccountSlugRequiredPage2"));
+const AttendanceView = lazy(() => import("../pages/Attendance/AttendanceView"));
+const ContactDetailsPage = lazy(() => import("../pages/Contacts/ContactDetailsPage"));
+const ContactEditPage = lazy(() => import("../pages/Contacts/ContactEditPage"));
+const ContactForm = lazy(() => import("../pages/Contacts/ContactForm"));
+const ContactsList = lazy(() => import("../pages/Contacts/ContactsList"));
+const CreateDeliveryChallanPage = lazy(() => import("../pages/deliveryChallans/CreateDeliveryChallanPage"));
+const DeliveryChallanDetailsPage = lazy(() => import("../pages/deliveryChallans/DeliveryChallanDetailsPage"));
+const DeliveryChallanListPage = lazy(() => import("../pages/deliveryChallans/DeliveryChallanListPage"));
+const EditDeliveryChallanPage = lazy(() => import("../pages/deliveryChallans/EditDeliveryChallanPage"));
+const DashboardPage = lazy(() => import("../pages/Home/dashboard2"));
+const ImportDataPage = lazy(() => import("../pages/Imports/importPage"));
+const CreateInteractionPage = lazy(() => import("../pages/interactions/CreateInteractionPage"));
+const EditInteractionPage = lazy(() => import("../pages/interactions/EditInteractionPage"));
+const InteractionDetailsPage = lazy(() => import("../pages/interactions/InteractionDetailsPage"));
+const InteractionsListPage = lazy(() => import("../pages/interactions/InteractionsListPage"));
+const CreateLeadForm = lazy(() => import("../pages/leads/CreateLeads"));
+const LeadDetailsPage = lazy(() => import("../pages/leads/LeadDetailsPage"));
+const LeadsPage = lazy(() => import("../pages/leads/LeadsPage"));
+const LeaveListPage = lazy(() => import("../pages/Leaves/LeaveListPage"));
+const LoginPage3 = lazy(() => import("../pages/LoginPage3"));
+const MyDayPage = lazy(() => import("../pages/my-day/MyDayPage"));
+const CreateOpportunityPage = lazy(() => import("../pages/Opportunities/createOpportunities"));
+const EditOpportunityPage = lazy(() => import("../pages/Opportunities/EditOpportunityPage"));
+const OpportunitiesPage = lazy(() => import("../pages/Opportunities/OpportunitiesPage"));
+const OpportunityDetailsPage = lazy(() => import("../pages/Opportunities/OpportunityDetailsPage"));
+const CreateOrganizationPage = lazy(() => import("../pages/Organization/createOrg"));
+const OrganizationGet = lazy(() => import("../pages/Organization/getOrg"));
+const OrgDetailsPage = lazy(() => import("../pages/Organization/OrgDetailsPage"));
+const CreateProductPage = lazy(() => import("../pages/Products/CreateProductPage"));
+const ProductListPage = lazy(() => import("../pages/Products/ProductListPage"));
+const CreatePurchaseOrder = lazy(() => import("../pages/purchase-orders/CreatePurchaseOrder"));
+const PurchaseOrderDetailsPage = lazy(() => import("../pages/purchase-orders/PurchaseOrderDetailsPage"));
+const PurchaseOrderListPage = lazy(() => import("../pages/purchase-orders/PurchaseOrderListPage"));
+const QuoteDetailsView = lazy(() => import("../pages/Quotes/components/QuoteDetailsView"));
+const CreateQuotePage = lazy(() => import("../pages/Quotes/CreateQuotePage"));
+const QuoteDetailsPage = lazy(() => import("../pages/Quotes/QuoteDetailsPage"));
+const QuotesListPage = lazy(() => import("../pages/Quotes/QuotesListPage"));
+const CreateRolePage = lazy(() => import("../pages/rbac/CreateRolePage"));
+const RoleDetailsPage = lazy(() => import("../pages/rbac/RoleDetailsPage"));
+const RolesListPage = lazy(() => import("../pages/rbac/RolesListPage"));
+const SalesOrderDetailsPage = lazy(() => import("../pages/salesOrders/SalesOrderDetailsPage"));
+const SalesOrderFormPage = lazy(() => import("../pages/salesOrders/SalesOrderFormPage"));
+const SalesOrderListPage = lazy(() => import("../pages/salesOrders/SalesOrderListPage"));
+const TallyPerformancePage = lazy(() => import("../pages/tally-performance/TallyPerformancePage"));
+const TallyEmployeesPage = lazy(() => import("../pages/Tally/TallyEmployeesPage"));
+const CreateTask = lazy(() => import("../pages/Tasks/CreateTask"));
+const EditTask = lazy(() => import("../pages/Tasks/EditTask"));
+const TaskDetailsPage = lazy(() => import("../pages/Tasks/TaskDetailsPage"));
+const TasksPage = lazy(() => import("../pages/Tasks/TasksPage"));
+const UserCreatePage = lazy(() => import("../pages/Users/UserCreatePage"));
+const UserGet = lazy(() => import("../pages/Users/UserGet"));
+const VisitDetailsPage = lazy(() => import("../pages/Visits/VisitDetailsPage"));
+const VisitFormPage = lazy(() => import("../pages/Visits/VisitFormPage"));
+const VisitListPage = lazy(() => import("../pages/Visits/VisitListPage"));
+const WarehouseListingPage = lazy(() => import("../pages/warehouse/WarehouseListingPage"));
+const ProtectedRoute = lazy(() => import("./ProtectedRoutes"));
+
+const PageLoader = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<div style={{ padding: 16 }}>Loading...</div>}>
+    {children}
+  </Suspense>
+);
 
 export default function CrmRoutes() {
   return (
@@ -79,7 +86,7 @@ export default function CrmRoutes() {
             path="users"
             element={
               <ProtectedRoute required="users.view">
-                <UserGet />
+                <PageLoader><UserGet /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -88,7 +95,7 @@ export default function CrmRoutes() {
             path="users/create"
             element={
               <ProtectedRoute required="users.create">
-                <UserCreatePage />
+                <PageLoader><UserCreatePage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -103,7 +110,7 @@ export default function CrmRoutes() {
             path="organization/view"
             element={
               <ProtectedRoute required="org.view">
-                <OrganizationGet />
+                <PageLoader><OrganizationGet /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -111,7 +118,7 @@ export default function CrmRoutes() {
             path="organization/view/:id"
             element={
               <ProtectedRoute required="org.view">
-                <OrgDetailsPage />
+                <PageLoader><OrgDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -119,7 +126,7 @@ export default function CrmRoutes() {
             path="organization/create"
             element={
               <ProtectedRoute required="org.create">
-                <CreateOrganizationPage />
+                <PageLoader><CreateOrganizationPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -131,7 +138,7 @@ export default function CrmRoutes() {
             path="contacts"
             element={
               <ProtectedRoute required="contacts.view">
-                <ContactsList />
+                <PageLoader><ContactsList /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -140,7 +147,7 @@ export default function CrmRoutes() {
             path="contacts/create"
             element={
               <ProtectedRoute required="contacts.create">
-                <ContactForm />
+                <PageLoader><ContactForm /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -149,7 +156,7 @@ export default function CrmRoutes() {
             path="contacts/:id"
             element={
               <ProtectedRoute required="contacts.view">
-                <ContactDetailsPage />
+                <PageLoader><ContactDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -159,7 +166,7 @@ export default function CrmRoutes() {
             path="contacts/:id/edit"
             element={
               <ProtectedRoute required="contacts.edit">
-                <ContactEditPage />
+                <PageLoader><ContactEditPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -169,7 +176,7 @@ export default function CrmRoutes() {
             path="opportunities"
             element={
               <ProtectedRoute required="opportunities.view">
-                <OpportunitiesPage />
+                <PageLoader><OpportunitiesPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -178,7 +185,7 @@ export default function CrmRoutes() {
             path="opportunities/create"
             element={
               <ProtectedRoute required="opportunities.create">
-                <CreateOpportunityPage />
+                <PageLoader><CreateOpportunityPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -187,7 +194,7 @@ export default function CrmRoutes() {
             path="opportunities/:id"
             element={
               <ProtectedRoute required="opportunities.view">
-                <OpportunityDetailsPage />
+                <PageLoader><OpportunityDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -195,7 +202,7 @@ export default function CrmRoutes() {
             path="opportunities/:id/edit"
             element={
               <ProtectedRoute required="opportunities.edit">
-                <EditOpportunityPage />
+                <PageLoader><EditOpportunityPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -207,7 +214,7 @@ export default function CrmRoutes() {
             path="leads/create"
             element={
               <ProtectedRoute required="leads.create">
-                <CreateLeadForm />
+                <PageLoader><CreateLeadForm /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -216,7 +223,7 @@ export default function CrmRoutes() {
             path="leads/view"
             element={
               <ProtectedRoute required="leads.view">
-                <LeadsPage />
+                <PageLoader><LeadsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -225,7 +232,7 @@ export default function CrmRoutes() {
             path="leads/:id"
             element={
               <ProtectedRoute required="leads.view">
-                <LeadDetailsPage />
+                <PageLoader><LeadDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -234,7 +241,7 @@ export default function CrmRoutes() {
             path="leads/:id/edit"
             element={
               <ProtectedRoute required="leads.view">
-                <LeadDetailsPage />
+                <PageLoader><LeadDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -245,7 +252,7 @@ export default function CrmRoutes() {
             path="products"
             element={
               <ProtectedRoute required="products.view">
-                <ProductListPage />
+                <PageLoader><ProductListPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -254,7 +261,7 @@ export default function CrmRoutes() {
             path="products/create"
             element={
               <ProtectedRoute required="products.create">
-                <CreateProductPage />
+                <PageLoader><CreateProductPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -265,7 +272,7 @@ export default function CrmRoutes() {
             path="delivery-challans"
             element={
               <ProtectedRoute required="delivery_challans.view">
-                <DeliveryChallanListPage />
+                <PageLoader><DeliveryChallanListPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -274,7 +281,7 @@ export default function CrmRoutes() {
             path="delivery-challans/create"
             element={
               <ProtectedRoute required="delivery_challans.create">
-                <CreateDeliveryChallanPage />
+                <PageLoader><CreateDeliveryChallanPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -283,7 +290,7 @@ export default function CrmRoutes() {
             path="delivery-challans/:id"
             element={
               <ProtectedRoute required="delivery_challans.view">
-                <DeliveryChallanDetailsPage />
+                <PageLoader><DeliveryChallanDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -292,7 +299,7 @@ export default function CrmRoutes() {
             path="delivery-challans/:id/edit"
             element={
               <ProtectedRoute required="delivery_challans.update">
-                <EditDeliveryChallanPage />
+                <PageLoader><EditDeliveryChallanPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -303,7 +310,7 @@ export default function CrmRoutes() {
             path="tasks"
             element={
               <ProtectedRoute required="tasks.view">
-                <TasksPage />
+                <PageLoader><TasksPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -312,7 +319,7 @@ export default function CrmRoutes() {
             path="tasks/create"
             element={
               <ProtectedRoute required="tasks.create">
-                <CreateTask />
+                <PageLoader><CreateTask /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -321,7 +328,7 @@ export default function CrmRoutes() {
             path="tasks/:id/edit"
             element={
               <ProtectedRoute required="tasks.edit">
-                <EditTask />
+                <PageLoader><EditTask /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -330,7 +337,7 @@ export default function CrmRoutes() {
             path="tasks/:id"
             element={
               <ProtectedRoute required="tasks.view">
-                <TaskDetailsPage />
+                <PageLoader><TaskDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -341,7 +348,7 @@ export default function CrmRoutes() {
             path="attendance"
             element={
               <ProtectedRoute required="attendance.view">
-                <AttendanceView />
+                <PageLoader><AttendanceView /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -350,7 +357,7 @@ export default function CrmRoutes() {
             path="leaves"
             element={
               <ProtectedRoute required="leaves.view">
-                <LeaveListPage />
+                <PageLoader><LeaveListPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -359,7 +366,7 @@ export default function CrmRoutes() {
             path="imports"
             element={
               <ProtectedRoute required="imports.view">
-                <ImportDataPage />
+                <PageLoader><ImportDataPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -370,7 +377,7 @@ export default function CrmRoutes() {
             path="visits"
             element={
               <ProtectedRoute required="visits.view">
-                <VisitListPage />
+                <PageLoader><VisitListPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -379,7 +386,7 @@ export default function CrmRoutes() {
             path="visits/create"
             element={
               <ProtectedRoute required="visits.create">
-                <VisitFormPage />
+                <PageLoader><VisitFormPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -388,7 +395,7 @@ export default function CrmRoutes() {
             path="visits/:id/edit"
             element={
               <ProtectedRoute required="visits.edit">
-                <VisitFormPage />
+                <PageLoader><VisitFormPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -397,7 +404,7 @@ export default function CrmRoutes() {
             path="visits/:id"
             element={
               <ProtectedRoute required="visits.view">
-                <VisitDetailsPage />
+                <PageLoader><VisitDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -408,7 +415,7 @@ export default function CrmRoutes() {
             path="quotes"
             element={
               <ProtectedRoute required="quotes.view">
-                <QuotesListPage />
+                <PageLoader><QuotesListPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -417,7 +424,7 @@ export default function CrmRoutes() {
             path="quotes/create"
             element={
               <ProtectedRoute required="quotes.create">
-                <CreateQuotePage />
+                <PageLoader><CreateQuotePage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -426,7 +433,7 @@ export default function CrmRoutes() {
             path="quotes/:id/edit"
             element={
               <ProtectedRoute required="quotes.edit">
-                <QuoteDetailsView />
+                <PageLoader><QuoteDetailsView /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -435,7 +442,7 @@ export default function CrmRoutes() {
             path="quotes/:id"
             element={
               <ProtectedRoute required="quotes.view">
-                <QuoteDetailsPage />
+                <PageLoader><QuoteDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -448,7 +455,7 @@ export default function CrmRoutes() {
             path="tally-performance"
             element={
               <ProtectedRoute required="tally-performance.view">
-                <TallyPerformancePage />
+                <PageLoader><TallyPerformancePage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -457,7 +464,7 @@ export default function CrmRoutes() {
             path="tally-employees"
             element={
               <ProtectedRoute required="tally-employees.view">
-                <TallyEmployeesPage />
+                <PageLoader><TallyEmployeesPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -466,7 +473,7 @@ export default function CrmRoutes() {
             path="purchase-orders"
             element={
               <ProtectedRoute required="purchase-orders.view">
-                <PurchaseOrderListPage />
+                <PageLoader><PurchaseOrderListPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -475,7 +482,7 @@ export default function CrmRoutes() {
             path="purchase-orders/create"
             element={
               <ProtectedRoute required="purchase-orders.create">
-                <CreatePurchaseOrder />
+                <PageLoader><CreatePurchaseOrder /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -484,7 +491,7 @@ export default function CrmRoutes() {
             path="purchase-orders/:id/edit"
             element={
               <ProtectedRoute required="purchase-orders.edit">
-                <CreatePurchaseOrder isEdit />
+                <PageLoader><CreatePurchaseOrder isEdit /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -493,7 +500,7 @@ export default function CrmRoutes() {
             path="purchase-orders/:id"
             element={
               <ProtectedRoute required="purchase-orders.view">
-                <PurchaseOrderDetailsPage />
+                <PageLoader><PurchaseOrderDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -506,7 +513,7 @@ export default function CrmRoutes() {
             path="sales-orders"
             element={
               <ProtectedRoute required="sales-orders.view">
-                <SalesOrderListPage />
+                <PageLoader><SalesOrderListPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -515,7 +522,7 @@ export default function CrmRoutes() {
             path="sales-orders/create"
             element={
               <ProtectedRoute required="sales-orders.create">
-                <SalesOrderFormPage />
+                <PageLoader><SalesOrderFormPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -524,7 +531,7 @@ export default function CrmRoutes() {
             path="sales-orders/:id/edit"
             element={
               <ProtectedRoute required="sales-orders.edit">
-                <SalesOrderFormPage isEdit />
+                <PageLoader><SalesOrderFormPage isEdit /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -533,7 +540,7 @@ export default function CrmRoutes() {
             path="sales-orders/:id"
             element={
               <ProtectedRoute required="sales-orders.view">
-                <SalesOrderDetailsPage />
+                <PageLoader><SalesOrderDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -545,7 +552,7 @@ export default function CrmRoutes() {
             path="events"
             element={
               <ProtectedRoute required="interactions.view">
-                <InteractionsListPage />
+                <PageLoader><InteractionsListPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -554,7 +561,7 @@ export default function CrmRoutes() {
             path="events/create"
             element={
               <ProtectedRoute required="interactions.create">
-                <CreateInteractionPage />
+                <PageLoader><CreateInteractionPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -563,7 +570,7 @@ export default function CrmRoutes() {
             path="events/:id/edit"
             element={
               <ProtectedRoute required="interactions.edit">
-                <EditInteractionPage />
+                <PageLoader><EditInteractionPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -572,7 +579,7 @@ export default function CrmRoutes() {
             path="events/:id"
             element={
               <ProtectedRoute required="interactions.view">
-                <InteractionDetailsPage />
+                <PageLoader><InteractionDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -584,7 +591,7 @@ export default function CrmRoutes() {
             path="rbac"
             element={
               <ProtectedRoute required="rbac.view">
-                <RolesListPage />
+                <PageLoader><RolesListPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -593,7 +600,7 @@ export default function CrmRoutes() {
             path="rbac/create"
             element={
               <ProtectedRoute required="rbac.create">
-                <CreateRolePage />
+                <PageLoader><CreateRolePage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -602,7 +609,7 @@ export default function CrmRoutes() {
             path="rbac/:id"
             element={
               <ProtectedRoute required="rbac.view">
-                <RoleDetailsPage />
+                <PageLoader><RoleDetailsPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -614,7 +621,7 @@ export default function CrmRoutes() {
             path="my-day"
             element={
               <ProtectedRoute required="my-day.view">
-                <MyDayPage />
+                <PageLoader><MyDayPage /></PageLoader>
               </ProtectedRoute>
             }
           />
@@ -626,7 +633,7 @@ export default function CrmRoutes() {
             path="warehouse"
             element={
               <ProtectedRoute required="warehouse.view">
-                <WarehouseListingPage />
+                <PageLoader><WarehouseListingPage /></PageLoader>
               </ProtectedRoute>
             }
           />

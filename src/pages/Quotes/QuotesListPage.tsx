@@ -1,4 +1,4 @@
-import { EyeOutlined, MailOutlined, PlusOutlined, PrinterOutlined, SearchOutlined } from "@ant-design/icons";
+import { EyeOutlined, MailOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { Button, Input, message, Modal, Space, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -146,7 +146,7 @@ export default function QuotesListPage() {
             title: "Valid Until",
             dataIndex: "valid_until",
             key: "valid_until",
-            width: 180,
+            width: 150,
             render: (value) => dayjs(value).format("DD MMM YYYY"),
         },
         {
@@ -159,43 +159,77 @@ export default function QuotesListPage() {
         {
             title: "Actions",
             key: "actions",
-            width: 250,
-            render: (_, record) => (
-                <Space>
-                    <Button
-                        size="small"
-                        icon={<EyeOutlined />}
-                        loading={previewLoadingId === record.id}
-                        onClick={() => handlePreviewPdf(record)}
-                    >
-                        Preview
-                    </Button>
+            fixed: "right",
+            width: 280,
+            render: (_, record) => {
+                const quoteStage = String(record?.quote_stage || "").toLowerCase();
+                const canCreateSalesOrder =
+                    quoteStage === "approved" &&
+                    !record?.sales_order_id;
 
-                    <Button
-                        size="small"
-                        icon={<MailOutlined />}
-                        onClick={() => handleSendMail(record)}
-                    >
-                        Mail
-                    </Button>
+                return (
+                    <Space>
+                        <Button
+                            size="small"
+                            icon={<EyeOutlined />}
+                            title="View PDF"
+                            loading={previewLoadingId === record.id}
+                            onClick={() => handlePreviewPdf(record)}
+                        />
 
-                    <Button
-                        size="small"
-                        icon={<PrinterOutlined />}
-                        loading={printLoadingId === record.id}
-                        onClick={() => handlePrintPdf(record)}
-                    >
-                        Print
-                    </Button>
-                    <Button size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}`)}>
-                        View
-                    </Button>
-                    <Button size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}/edit`)}>
-                        Edit
-                    </Button>
-                </Space>
-            ),
-        },
+                        <Button
+                            size="small"
+                            title="Send Mail"
+                            icon={<MailOutlined />}
+                            onClick={() => handleSendMail(record)}
+                        />
+
+                        <Button
+                            size="small"
+                            icon={<PrinterOutlined />}
+                            title="Print"
+                            loading={printLoadingId === record.id}
+                            onClick={() => handlePrintPdf(record)}
+                        />
+
+
+
+                        <Button type="primary" size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}`)}>
+                            View
+                        </Button>
+
+                        <Button type="primary" size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}/edit`)}>
+                            Edit
+                        </Button>
+                        {canCreateSalesOrder && (
+                            <Button
+                                type="primary"
+                                size="small"
+                                icon={<ShoppingCartOutlined />}
+                                onClick={() =>
+                                    navigate(`/${slug}/sales-orders/create`, {
+                                        state: {
+                                            quoteId: record.id,
+                                            fromQuote: true,
+                                        },
+                                    })
+                                }
+                            >
+                                Create SO
+                            </Button>
+                        )}
+                        {record?.sales_order_id && (
+                            <Button
+                                size="small"
+                                onClick={() => navigate(`/${slug}/sales-orders/${record.sales_order_id}`)}
+                            >
+                                View SO
+                            </Button>
+                        )}
+                    </Space>
+                );
+            },
+        }
     ];
 
     return (

@@ -36,6 +36,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     createPoReceipt,
+    createSoDispatch,
     fetchWarehousePurchaseOrders,
     fetchWarehouseSalesOrders,
     type WarehousePurchaseOrderItem,
@@ -97,6 +98,14 @@ export default function WarehouseListingPage() {
 
     const [receiveItems, setReceiveItems] = useState<any[]>([]);
 
+    const [dispatchForm] = Form.useForm();
+
+    const [dispatchModalOpen, setDispatchModalOpen] = useState(false);
+    const [selectedSalesOrder, setSelectedSalesOrder] =
+        useState<WarehouseSalesOrderItem | null>(null);
+    const [dispatchSubmitting, setDispatchSubmitting] = useState(false);
+    const [dispatchItems, setDispatchItems] = useState<any[]>([]);
+
     const openReceiveModal = (record: WarehousePurchaseOrderItem) => {
         setSelectedPurchaseOrder(record);
 
@@ -145,6 +154,58 @@ export default function WarehouseListingPage() {
         setReceiveModalOpen(true);
     };
 
+    const openDispatchModal = (record: WarehouseSalesOrderItem) => {
+        setSelectedSalesOrder(record);
+
+        const items = Array.isArray((record as any)?.items)
+            ? (record as any).items
+            : [];
+
+        const mappedItems = items.map((item: any) => {
+            const orderedQty = Number(item.ordered_qty || item.quantity || 0);
+
+            const alreadyDispatchedQty = Number(
+                item.already_dispatched_qty ||
+                item.dispatched_qty ||
+                item.total_dispatched_qty ||
+                0,
+            );
+
+            const pendingQty = Math.max(
+                Number(item.pending_qty ?? orderedQty - alreadyDispatchedQty),
+                0,
+            );
+
+            return {
+                ...item,
+                ordered_qty: orderedQty,
+                already_dispatched_qty: alreadyDispatchedQty,
+                pending_qty: pendingQty,
+
+                // editable current dispatch value
+                dispatch_now_qty: pendingQty,
+                remarks: item.remarks || null,
+            };
+        });
+
+        setDispatchItems(mappedItems);
+
+        dispatchForm.setFieldsValue({
+            courier_name: (record as any).courier_name || "",
+            awb_number: (record as any).awb_number || "",
+            tracking_url: (record as any).tracking_url || "",
+            delivery_expected_at: (record as any).delivery_expected_at
+                ? dayjs((record as any).delivery_expected_at)
+                : (record as any).expected_delivery_date
+                    ? dayjs((record as any).expected_delivery_date)
+                    : null,
+            status: "dispatched",
+            remarks: "",
+        });
+
+        setDispatchModalOpen(true);
+    };
+
     const updateReceiveItem = (
         itemId: string,
         key: "receive_now_qty" | "damage_now_qty" | "remarks",
@@ -177,6 +238,34 @@ export default function WarehouseListingPage() {
                         ...item,
                         damage_now_qty: damageQty,
                         receive_now_qty: Math.min(receiveQty, Math.max(pendingQty - damageQty, 0)),
+                    };
+                }
+
+                return {
+                    ...item,
+                    [key]: value,
+                };
+            }),
+        );
+    };
+
+    const updateDispatchItem = (
+        itemId: string,
+        key: "dispatch_now_qty" | "remarks",
+        value: any,
+    ) => {
+        setDispatchItems((prev) =>
+            prev.map((item) => {
+                const currentId = item.sales_order_item_id || item.id;
+
+                if (currentId !== itemId) return item;
+
+                const pendingQty = Number(item.pending_qty || 0);
+
+                if (key === "dispatch_now_qty") {
+                    return {
+                        ...item,
+                        dispatch_now_qty: Math.min(Number(value || 0), pendingQty),
                     };
                 }
 
@@ -270,6 +359,64 @@ export default function WarehouseListingPage() {
             message.error(error?.message || "Failed to save receipt");
         } finally {
             setReceiveSubmitting(false);
+        }
+    };
+
+    const handleDispatchSubmit = async () => {
+        try {
+            const values = await dispatchForm.validateFields();
+
+            if (!selectedSalesOrder) return;
+
+            const validItems = dispatchItems
+                .map((item: any) => ({
+                    sales_order_item_id: item.sales_order_item_id || item.id,
+                    dispatched_qty: Number(item.dispatch_now_qty || 0),
+                    remarks: item.remarks || null,
+                }))
+                .filter((item: any) => item.dispatched_qty > 0);
+
+            if (!validItems.length) {
+                message.error("Please enter dispatch quantity for at least one item");
+                return;
+            }
+
+            setDispatchSubmitting(true);
+
+            const payload = {
+                sales_order_id: selectedSalesOrder.id,
+                courier_name: values.courier_name,
+                awb_number: values.awb_number,
+                tracking_url: values.tracking_url || null,
+                delivery_expected_at: values.delivery_expected_at
+                    ? values.delivery_expected_at.toISOString()
+                    : null,
+                dispatched_at: new Date().toISOString(),
+                status: values.status,
+                remarks: values.remarks || null,
+                items: validItems,
+            };
+
+            const res = await dispatch(createSoDispatch(payload)).unwrap();
+
+            if (res.success || res?.statusCode === 201 || res?.statusCode === 200) {
+                message.success(res.message || "Dispatch saved successfully");
+            } else {
+                message.error(res.message || "Failed to save dispatch");
+            }
+
+            setDispatchModalOpen(false);
+            setSelectedSalesOrder(null);
+            setDispatchItems([]);
+            dispatchForm.resetFields();
+
+            loadSalesOrders();
+        } catch (error: any) {
+            if (error?.errorFields) return;
+
+            message.error(error?.message || "Failed to save dispatch");
+        } finally {
+            setDispatchSubmitting(false);
         }
     };
 
@@ -409,20 +556,50 @@ export default function WarehouseListingPage() {
 
             {
                 title: "Action",
-                width: 140,
+                width: 200,
                 fixed: "right",
-                render: (_: any, record: any) => (
-                    <Button
-                        type="primary"
-                        icon={<TruckOutlined />}
-                        onClick={() => {
-                            console.log("open dispatch modal", record);
-                        }}
-                    >
-                        Dispatch
-                    </Button>
-                ),
-            },
+                render: (_: any, record: any) => {
+                    const status = String(record?.status || "").toLowerCase();
+
+                    const isDraft = status === "draft";
+                    const isDelivered = status === "delivered";
+                    const isCancelled = status === "cancelled";
+
+                    const canFirstDispatch = ["confirmed", "ready_to_dispatch", "packed"].includes(status);
+                    const canContinueDispatch = status === "partially_dispatched";
+                    const canUpdateTracking = ["dispatched", "in_transit"].includes(status);
+
+                    if (isDraft) {
+                        return <Tag color="warning">Awaiting Confirmation</Tag>;
+                    }
+
+                    if (isDelivered) {
+                        return <Tag color="success">Delivered</Tag>;
+                    }
+
+                    if (isCancelled) {
+                        return <Tag color="red">Cancelled</Tag>;
+                    }
+
+                    if (canFirstDispatch || canContinueDispatch || canUpdateTracking) {
+                        return (
+                            <Button
+                                type="primary"
+                                icon={<TruckOutlined />}
+                                onClick={() => openDispatchModal(record)}
+                            >
+                                {canContinueDispatch
+                                    ? "Dispatch Remaining"
+                                    : canUpdateTracking
+                                        ? "Update"
+                                        : "Dispatch"}
+                            </Button>
+                        );
+                    }
+
+                    return <span style={{ color: "#999" }}>—</span>;
+                },
+            }
         ],
         [token.colorPrimary]
     );
@@ -517,6 +694,7 @@ export default function WarehouseListingPage() {
                     onClick={() => {
                         openReceiveModal(record);
                     }}
+                    disabled={record.status === "received"}
                 >
                     Receive
                 </Button>
@@ -560,6 +738,37 @@ export default function WarehouseListingPage() {
 
             return sum + amount;
         }, 0) || Number((selectedPurchaseOrder as any)?.grand_total || 0);
+
+    const selectedSoTotalQty = dispatchItems.reduce((sum: number, item: any) => {
+        return sum + Number(item.ordered_qty || item.quantity || 0);
+    }, 0);
+
+    const selectedSoAlreadyDispatchedQty = dispatchItems.reduce(
+        (sum: number, item: any) => {
+            return sum + Number(item.already_dispatched_qty || 0);
+        },
+        0,
+    );
+
+    const selectedSoPendingQty = dispatchItems.reduce((sum: number, item: any) => {
+        return sum + Number(item.pending_qty || 0);
+    }, 0);
+
+    const selectedSoDispatchNowQty = dispatchItems.reduce(
+        (sum: number, item: any) => {
+            return sum + Number(item.dispatch_now_qty || 0);
+        },
+        0,
+    );
+
+    const selectedSoTotalAmount =
+        dispatchItems.reduce((sum: number, item: any) => {
+            const qty = Number(item.ordered_qty || item.quantity || 0);
+            const rate = Number(item.rate || item.price || 0);
+            const amount = Number(item.amount || qty * rate || 0);
+
+            return sum + amount;
+        }, 0) || Number((selectedSalesOrder as any)?.grand_total || 0);
 
     return (
         <div
@@ -1055,6 +1264,252 @@ export default function WarehouseListingPage() {
                             onClick={handleReceiveSubmit}
                         >
                             ✅ Save Receipt
+                        </Button>
+                    </Flex>
+                </Form>
+            </Modal>
+
+            <Modal
+                open={dispatchModalOpen}
+                title={null}
+                footer={null}
+                centered
+                width={950}
+                destroyOnClose
+                onCancel={() => {
+                    setDispatchModalOpen(false);
+                    setSelectedSalesOrder(null);
+                    dispatchForm.resetFields();
+                    setDispatchItems([]);
+                }}
+            >
+                <div>
+                    <Title level={5} style={{ margin: "4px 0 0" }}>
+                        DISPATCH MATERIAL
+                    </Title>
+
+                    <Title level={4} style={{ margin: "4px 0 0" }}>
+                        {selectedSalesOrder?.so_number || "-"} 🚚
+                    </Title>
+
+                    <Text>
+                        Customer: {toTitleCase((selectedSalesOrder as any)?.customer_name || "-")}
+                    </Text>
+                </div>
+
+                <Form form={dispatchForm} layout="vertical">
+                    <Row gutter={16}>
+                        <Col span={8}>
+                            <Form.Item
+                                name="courier_name"
+                                label="Courier"
+                                rules={[{ required: true, message: "Please enter courier" }]}
+                            >
+                                <Input placeholder="BlueDart, DTDC..." />
+                            </Form.Item>
+                        </Col>
+
+                        <Col span={8}>
+                            <Form.Item
+                                name="awb_number"
+                                label="AWB / Tracking"
+                                rules={[{ required: true, message: "Please enter AWB / Tracking" }]}
+                            >
+                                <Input placeholder="AWB123" />
+                            </Form.Item>
+                        </Col>
+
+                        <Col span={8}>
+                            <Form.Item
+                                name="status"
+                                label="Status"
+                                rules={[{ required: true, message: "Please select status" }]}
+                            >
+                                <Select
+                                    options={getSalesOrderStatusOptions().filter((item: any) =>
+                                        [
+                                            "ready_to_dispatch",
+                                            "partially_dispatched",
+                                            "dispatched",
+                                            "delivered",
+                                        ].includes(item.value),
+                                    )}
+                                />
+                            </Form.Item>
+                        </Col>
+
+                        <Col span={12}>
+                            <Form.Item name="tracking_url" label="Tracking URL">
+                                <Input placeholder="https://tracking-url.com/awb" />
+                            </Form.Item>
+                        </Col>
+
+                        <Col span={12}>
+                            <Form.Item name="delivery_expected_at" label="Expected Delivery Date">
+                                <DatePicker style={{ width: "100%" }} />
+                            </Form.Item>
+                        </Col>
+
+                        <Col span={24}>
+                            <Form.Item name="remarks" label="Remarks">
+                                <Input.TextArea rows={3} placeholder="Any dispatch note..." />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Card size="small" title="🚚 Dispatch Items" style={{ marginTop: 10 }}>
+                        <Table
+                            size="small"
+                            rowKey={(record: any, index) =>
+                                record.id || record.sales_order_item_id || String(index)
+                            }
+                            columns={[
+                                {
+                                    title: "Item",
+                                    dataIndex: "item_name",
+                                    width: 240,
+                                    render: (_: any, record: any) => (
+                                        <Space direction="vertical" size={0}>
+                                            <Text strong>
+                                                {record.item_name || record.product_name || "Item"}
+                                            </Text>
+
+                                            {(record.sku || record.item_code || record.unit) && (
+                                                <Text type="secondary" style={{ fontSize: 12 }}>
+                                                    {[record.sku || record.item_code, record.unit]
+                                                        .filter(Boolean)
+                                                        .join(" • ")}
+                                                </Text>
+                                            )}
+                                        </Space>
+                                    ),
+                                },
+                                {
+                                    title: "Ordered",
+                                    width: 90,
+                                    align: "right",
+                                    render: (_: any, record: any) => (
+                                        <Text>{Number(record.ordered_qty || record.quantity || 0)}</Text>
+                                    ),
+                                },
+                                {
+                                    title: "Already Dispatched",
+                                    width: 150,
+                                    align: "right",
+                                    render: (_: any, record: any) => (
+                                        <Text>{Number(record.already_dispatched_qty || 0)}</Text>
+                                    ),
+                                },
+                                {
+                                    title: "Pending",
+                                    width: 100,
+                                    align: "right",
+                                    render: (_: any, record: any) => (
+                                        <Text
+                                            strong
+                                            type={Number(record.pending_qty || 0) > 0 ? "danger" : "success"}
+                                        >
+                                            {Number(record.pending_qty || 0)}
+                                        </Text>
+                                    ),
+                                },
+                                {
+                                    title: "Dispatch Now",
+                                    width: 140,
+                                    align: "right",
+                                    render: (_: any, record: any) => {
+                                        const itemId = record.sales_order_item_id || record.id;
+                                        const pendingQty = Number(record.pending_qty || 0);
+
+                                        return (
+                                            <InputNumber
+                                                min={0}
+                                                max={pendingQty}
+                                                value={Number(record.dispatch_now_qty || 0)}
+                                                style={{ width: "100%" }}
+                                                disabled={pendingQty <= 0}
+                                                onChange={(value) =>
+                                                    updateDispatchItem(
+                                                        itemId,
+                                                        "dispatch_now_qty",
+                                                        Number(value || 0),
+                                                    )
+                                                }
+                                            />
+                                        );
+                                    },
+                                },
+                                {
+                                    title: "Amount",
+                                    width: 130,
+                                    align: "right",
+                                    render: (_: any, record: any) => {
+                                        const qty = Number(record.ordered_qty || record.quantity || 0);
+                                        const rate = Number(record.rate || record.price || 0);
+                                        const amount = Number(record.amount || qty * rate || 0);
+
+                                        return <Text strong>{formatCurrency(amount)}</Text>;
+                                    },
+                                },
+                            ]}
+                            dataSource={dispatchItems}
+                            pagination={false}
+                            scroll={{ x: 900 }}
+                            locale={{
+                                emptyText: <Empty description="No items found" />,
+                            }}
+                            summary={() => (
+                                <Table.Summary.Row>
+                                    <Table.Summary.Cell index={0}>
+                                        <Text strong>Total</Text>
+                                    </Table.Summary.Cell>
+
+                                    <Table.Summary.Cell index={1} align="right">
+                                        <Text strong>{selectedSoTotalQty}</Text>
+                                    </Table.Summary.Cell>
+
+                                    <Table.Summary.Cell index={2} align="right">
+                                        <Text strong>{selectedSoAlreadyDispatchedQty}</Text>
+                                    </Table.Summary.Cell>
+
+                                    <Table.Summary.Cell index={3} align="right">
+                                        <Text strong>{selectedSoPendingQty}</Text>
+                                    </Table.Summary.Cell>
+
+                                    <Table.Summary.Cell index={4} align="right">
+                                        <Text strong>{selectedSoDispatchNowQty}</Text>
+                                    </Table.Summary.Cell>
+
+                                    <Table.Summary.Cell index={5} align="right">
+                                        <Text strong>{formatCurrency(selectedSoTotalAmount)}</Text>
+                                    </Table.Summary.Cell>
+                                </Table.Summary.Row>
+                            )}
+                        />
+                    </Card>
+
+                    <Divider />
+
+                    <Flex justify="end" gap={12}>
+                        <Button
+                            size="large"
+                            onClick={() => {
+                                setDispatchModalOpen(false);
+                                setSelectedSalesOrder(null);
+                                dispatchForm.resetFields();
+                                setDispatchItems([]);
+                            }}
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button
+                            size="large"
+                            type="primary"
+                            loading={dispatchSubmitting}
+                            onClick={handleDispatchSubmit}
+                        >
+                            🚚 Save Dispatch
                         </Button>
                     </Flex>
                 </Form>

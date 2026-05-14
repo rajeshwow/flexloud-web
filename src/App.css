@@ -83,3 +83,12 @@
 .ant-btn-primary .anticon {
   color: #fff !important;
 }
+
+.fl-sider .ant-motion-collapse,
+.fl-sider .ant-motion-collapse-legacy {
+  transition-duration: 0.12s !important;
+}
+
+.fl-sider .ant-menu-submenu-title {
+  user-select: none;
+}

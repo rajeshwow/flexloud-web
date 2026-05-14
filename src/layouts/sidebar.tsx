@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import {
   AppstoreOutlined,
   AuditOutlined,
@@ -49,7 +50,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Avatar, Badge, Button, Grid, Layout, Menu, message, Popover, Space, Switch, Typography } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAppTheme } from "../theme/ThemeProvider";
 
@@ -604,18 +605,31 @@ export default function AppShell({ children, user }: Props) {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   useEffect(() => {
-    setOpenKeys(parentKeys.slice(-1));
-  }, [parentKeys]);
+    setOpenKeys((prev) => {
+      // route change pe selected menu ka parent open karo
+      // but user manually submenu open kar raha hai to usko baar-baar reset mat karo
+      const routeParentKey = parentKeys.slice(-1);
+
+      if (!routeParentKey.length) return prev;
+
+      const alreadySame =
+        prev.length === routeParentKey.length &&
+        prev.every((key, index) => key === routeParentKey[index]);
+
+      return alreadySame ? prev : routeParentKey;
+    });
+  }, [location.pathname]);
 
   const handleOpenChange = (keys: string[]) => {
-    const latestOpenKey = keys.find((key) => !openKeys.includes(key));
+    setOpenKeys((prev) => {
+      const latestOpenKey = keys.find((key) => !prev.includes(key));
 
-    if (!latestOpenKey) {
-      setOpenKeys([]);
-      return;
-    }
+      if (!latestOpenKey) {
+        return [];
+      }
 
-    setOpenKeys([latestOpenKey]);
+      return [latestOpenKey];
+    });
   };
 
 
@@ -883,8 +897,13 @@ export default function AppShell({ children, user }: Props) {
             onOpenChange={(keys) => handleOpenChange(keys as string[])}
             items={navItems}
             onClick={(e) => {
-              // ✅ only navigate leaf routes (they start with base + "/")
-              if (typeof e.key === "string" && e.key.startsWith(base + "/")) navigate(e.key);
+              if (typeof e.key !== "string") return;
+              if (!e.key.startsWith(base + "/")) return;
+              if (e.key === location.pathname) return;
+
+              startTransition(() => {
+                navigate(e.key);
+              });
             }}
           />
         </div>
