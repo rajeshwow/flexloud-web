@@ -10,8 +10,9 @@ import {
     Tabs,
     Typography
 } from "antd";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getProductCategories } from "../../../redux/reducers/products.slice";
 import { getUsers } from "../../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../../redux/store";
 import { toTitleCase } from "../../../shared/Utils/utils";
@@ -139,6 +140,8 @@ export default function ProductForm({
         [initialValues]
     );
 
+    const [productCategories, setProductCategories] = useState([] as any);
+
     const dispatch = useDispatch<AppDispatch>();
 
     //in assigned to getusers
@@ -146,6 +149,9 @@ export default function ProductForm({
 
     useEffect(() => {
         dispatch(getUsers());
+        dispatch(getProductCategories()).then((res: any) => {
+            setProductCategories(res.payload.data);
+        });
     }, []);
 
 
@@ -222,7 +228,7 @@ export default function ProductForm({
 
                                         <Col xs={24} md={12} xl={8}>
                                             <Form.Item label="Category" name="category">
-                                                <Select allowClear showSearch placeholder="Select category" options={categoryOptions} />
+                                                <Select allowClear showSearch placeholder="Select category" options={productCategories} />
                                             </Form.Item>
                                         </Col>
 

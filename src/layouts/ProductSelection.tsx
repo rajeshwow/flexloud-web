@@ -55,15 +55,17 @@ const safeNumber = (value: any, fallback = 0) => {
 };
 
 const getProductGst = (product: any) => {
-    return safeNumber(
+    const rawTax =
         product?.tax_rate ??
         product?.gst_rate ??
         product?.gst_percent ??
         product?.tax_percent ??
         product?.tax ??
-        product?.gst,
-        18
-    );
+        product?.gst;
+
+    const tax = Number(rawTax);
+
+    return Number.isFinite(tax) && tax > 0 ? tax : 18;
 };
 
 const getProductPrice = (product: any) => {
@@ -271,7 +273,7 @@ export default function OpportunityOrderItems({
             width: 120,
             render: (_: any, record: any) => (
                 <Select
-                    value={safeNumber(record.tax, 18)}
+                    value={safeNumber(record.tax, 18) || 18}
                     style={{ width: "100%" }}
                     onChange={(value) => updateLineItem(record.key, "tax", value)}
                     options={GST_OPTIONS.map((gst) => ({

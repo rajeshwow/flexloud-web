@@ -11,57 +11,87 @@ import {
     Tag,
     Typography,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { getProducts, type GetProductsParams, type ProductItem } from "../../redux/reducers/products.slice";
+import {
+    getProducts,
+    type GetProductsParams,
+    type ProductItem
+} from "../../redux/reducers/products.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
-import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Title } = Typography;
-
-
-
 
 export default function ProductListPage() {
     const navigate = useNavigate();
     const { slug = "" } = useParams();
-    const [search, setSearch] = useState("");
     const dispatch = useDispatch<AppDispatch>();
-    const { productList, loading, error } = useSelector((state: RootState) => state.products);
+
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+
+    const {
+        productList,
+        loading,
+        productListPagination
+    } = useSelector((state: RootState) => state.products);
+
+    const fetchProducts = (params?: Partial<GetProductsParams>) => {
+        if (!slug) return;
+
+        dispatch(
+            getProducts({
+                page,
+                limit,
+                search,
+                status: "",
+                category: "",
+                manufacturer: "",
+                assigned_to: "",
+                ...params,
+            })
+        );
+    };
 
     useEffect(() => {
         if (!slug) return;
-        const params: GetProductsParams = {
-            page: 1,
-            limit: 10,
-            search: "",
-            status: "",
-            category: "",
-            manufacturer: "",
-            assigned_to: "",
-        };
 
         const timer = setTimeout(() => {
-            dispatch(
-                getProducts(params)
-            );
+            fetchProducts({
+                page: 1,
+                limit,
+                search,
+            });
+            setPage(1);
         }, 400);
 
         return () => clearTimeout(timer);
-    }, [dispatch, search]);
+    }, [dispatch, slug, search, limit]);
+
+    const handleTableChange = (pagination: TablePaginationConfig) => {
+        const nextPage = pagination.current || 1;
+        const nextLimit = pagination.pageSize || 10;
+
+        setPage(nextPage);
+        setLimit(nextLimit);
+
+        fetchProducts({
+            page: nextPage,
+            limit: nextLimit,
+            search,
+        });
+    };
 
     const columns: ColumnsType<ProductItem> = [
-
         {
             title: "Name",
             dataIndex: "name",
             key: "name",
             width: 260,
-            render: (value: string) => (
-                <span >{value}</span>
-            ),
+            render: (value: string) => <span>{value}</span>,
         },
         {
             title: "HSN Code",
@@ -76,26 +106,11 @@ export default function ProductListPage() {
             width: 180,
         },
         {
-            title: "Manufacturer",
-            dataIndex: "manufacturer",
-            key: "manufacturer",
-            width: 170,
-        },
-        {
             title: "Selling Price",
             dataIndex: "selling_price",
             key: "selling_price",
             width: 140,
             render: (value: number) => `₹${Number(value || 0).toFixed(2)}`,
-        },
-        {
-            title: "Assigned To",
-            dataIndex: "assigned_to_name",
-            key: "assigned_to_name",
-            width: 190,
-            render: (value: string) => (
-                <span >{toTitleCase(value as string)}</span>
-            ),
         },
         {
             title: "Source",
@@ -114,7 +129,9 @@ export default function ProductListPage() {
             key: "status",
             width: 120,
             render: (value: string) => (
-                <Tag color={value === "Active" ? "blue" : "default"}>{value}</Tag>
+                <Tag color={String(value).toLowerCase() === "active" ? "blue" : "default"}>
+                    {value}
+                </Tag>
             ),
         },
         {
@@ -123,7 +140,10 @@ export default function ProductListPage() {
             key: "created_at",
             width: 180,
             render: (value: string) => {
+                if (!value) return "-";
+
                 const date = new Date(value);
+
                 return date.toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "short",
@@ -150,7 +170,6 @@ export default function ProductListPage() {
                 </Title>
 
                 <Space wrap>
-
                     <Input
                         allowClear
                         placeholder="Search by name, HSN, category, manufacturer..."
@@ -177,12 +196,14 @@ export default function ProductListPage() {
                 columns={columns}
                 dataSource={productList}
                 loading={loading}
+                onChange={handleTableChange}
                 pagination={{
-                    current: 1,
-                    pageSize: 10,
-                    total: productList.length,
+                    current: productListPagination?.page || page,
+                    pageSize: productListPagination?.limit || limit,
+                    total: productListPagination?.total || 0,
                     showSizeChanger: true,
-                    showTotal: (total, range) => `${range[0]} - ${range[1]} of ${total}`,
+                    showTotal: (total, range) =>
+                        `${range[0]} - ${range[1]} of ${total}`,
                 }}
                 scroll={{ x: 1400 }}
             />

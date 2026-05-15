@@ -202,7 +202,7 @@ export default function QuoteForm({
                     quantity: Number(item.quantity || 1),
                     price: Number(item.price || item.sale_price || item.list_price || 0),
                     discount: Number(item.discount || item.discount_value || 0),
-                    tax: Number(item.tax || 18),
+                    tax: Number(18),
                     cgst: Number(item.cgst || 0),
                     sgst: Number(item.sgst || 0),
                     amount: Number(item.amount || item.line_total || 0),

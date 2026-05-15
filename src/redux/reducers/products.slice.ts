@@ -176,6 +176,23 @@ export const createProduct = createAsyncThunk<
   }
 });
 
+export const getProductCategories = createAsyncThunk<
+  string[],
+  void,
+  { rejectValue: any }
+>("products/getProductCategories", async (_, { rejectWithValue }) => {
+  try {
+    const res = await Client.get(withTenant(`/products/categories`));
+    return res.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error?.response?.data || {
+        message: "Failed to fetch product categories",
+      },
+    );
+  }
+});
+
 export const getProductById = createAsyncThunk<
   ProductSingleResponse,
   { slug: string; id: string },
