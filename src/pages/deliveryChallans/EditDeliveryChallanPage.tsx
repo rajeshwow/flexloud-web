@@ -80,7 +80,7 @@ export default function EditDeliveryChallanPage() {
     const fetchOptions = async () => {
         const [customersRes, productsRes] = await Promise.all([
             await dispatch(getOrganization({})).unwrap(),
-            await dispatch(getProducts({})).unwrap()
+            await dispatch(getProducts({ limit: 10000 })).unwrap()
         ]);
 
         setCustomers(customersRes?.data || []);

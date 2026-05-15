@@ -88,10 +88,19 @@ export default function ProductListPage() {
     const columns: ColumnsType<ProductItem> = [
         {
             title: "Name",
-            dataIndex: "name",
+            // dataIndex: "name",
             key: "name",
             width: 260,
-            render: (value: string) => <span>{value}</span>,
+            render: (record: any) => <span>
+                {record?.name}
+                {/* i want to show here small stock_on_hand also */}
+                <br />
+                {/*convert this in tag*/}
+                <Tag color={record?.stock_on_hand > 0 ? "green" : "red"}>
+                    Stock on Hand: {record?.stock_on_hand}
+                </Tag>
+
+            </span>,
         },
         {
             title: "HSN Code",

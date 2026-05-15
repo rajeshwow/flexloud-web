@@ -193,7 +193,7 @@ export default function EditOpportunityPage() {
                 dispatch(fetchContacts()).unwrap(),
                 dispatch(getOpportunityById(id)).unwrap(),
                 dispatch(getUsers()).unwrap(),
-                dispatch(getProducts({})).unwrap(),
+                dispatch(getProducts({ limit: 10000 })).unwrap(),
             ]);
 
             const orgList = orgRes?.data || [];

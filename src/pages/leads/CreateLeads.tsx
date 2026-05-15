@@ -145,7 +145,7 @@ export default function CreateLeadForm({
 
     useEffect(() => {
         dispatch(getUsers());
-        dispatch(getProducts({}));
+        dispatch(getProducts({ limit: 10000 }));
     }, [dispatch]);
 
     useEffect(() => {

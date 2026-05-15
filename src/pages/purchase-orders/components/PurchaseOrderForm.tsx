@@ -1,27 +1,25 @@
 import {
-    DeleteOutlined,
     PlusOutlined,
     UserOutlined
 } from "@ant-design/icons";
 import {
     Button,
-    Card,
     Col,
     DatePicker,
     Divider,
     Form,
     Input,
-    InputNumber,
     Modal,
     Row,
     Select,
     Space,
     Tabs,
-    Typography,
+    Typography
 } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import ProductSelectionForm from "../../../layouts/ProductSelection";
 import { getOrganization, type OrganizationItem } from "../../../redux/reducers/organization.slice";
 import type { ProductItem } from "../../../redux/reducers/products.slice";
 import type { AppDispatch, RootState } from "../../../redux/store";
@@ -29,8 +27,6 @@ import { toTitleCase } from "../../../shared/Utils/utils";
 import OrganizationForm from "../../Organization/components/OrganizationForm";
 
 const { Text, Title } = Typography;
-
-const GST_OPTIONS = [0, 5, 12, 18, 28];
 
 type Option = {
     label: string;
@@ -67,7 +63,7 @@ const calculateItemAmount = (item: any) => {
     const qty = num(item?.quantity);
     const price = num(item?.price);
     const discount = num(item?.discount);
-    const gst = num(item?.tax);
+    const gst = num(item?.tax) || 18;
 
     const base = qty * price;
     const taxable = Math.max(base - discount, 0);
@@ -108,97 +104,39 @@ export default function PurchaseOrderForm({
         (state: RootState) => state.organization?.orgList || [],
     );
 
-    const getProductPrice = (product: any) => {
-        return num(
-            product?.selling_price ??
-            0
-        );
-    };
+    const watchedItems = Form.useWatch("items", form) || [];
+    const watchedShipping = Form.useWatch("shipping", form);
 
-    const getProductTax = (product: any) => {
-        const cgst = num(
-            product?.cgst ??
-            product?.cgst_percentage ??
-            product?.cgst_percent ??
-            0
-        );
-
-        const sgst = num(
-            product?.sgst ??
-            product?.sgst_percentage ??
-            product?.sgst_percent ??
-            0
-        );
-
-        const directTax = num(
-            product?.tax ??
-            product?.tax_rate ??
-            product?.gst ??
-            product?.gst_rate ??
-            product?.tax_percentage ??
-            product?.tax_percent ??
-            product?.gst_percentage ??
-            product?.gst_percent ??
-            0
-        );
-
-        if (directTax > 0) return directTax;
-
-        return cgst + sgst;
-    };
-
-    const handleProductChange = (rowIndex: number, productId?: string) => {
-        const currentItems = form.getFieldValue("items") || [];
-        const product: any = productOptions.find((item: any) => item.id === productId);
-
-        if (!productId) {
-            currentItems[rowIndex] = {
-                ...currentItems[rowIndex],
-                product_id: undefined,
-                product_name: "",
-                sku: "",
-                price: 0,
-                tax: 18,
-                quantity: currentItems[rowIndex]?.quantity || 1,
-                discount: currentItems[rowIndex]?.discount || 0,
-                amount: 0,
-            };
-
-            form.setFieldsValue({ items: currentItems });
-
-            setTimeout(() => {
-                calculateTotals();
-            }, 0);
-
-            return;
-        }
-
-        if (!product) return;
-
-        const updatedItem = {
-            ...currentItems[rowIndex],
-            product_id: product.id,
-            product_name: product.name || product.product_name || "",
-            sku: product.sku || product.item_code || product.part_no || product.part_number || "",
-            quantity: currentItems[rowIndex]?.quantity || 1,
-            price: getProductPrice(product),
-            discount: currentItems[rowIndex]?.discount || 0,
-            tax: 18,
-        };
-
-        const calc = calculateItemAmount(updatedItem);
-
-        currentItems[rowIndex] = {
-            ...updatedItem,
-            amount: calc.amount,
-        };
-
-        form.setFieldsValue({ items: currentItems });
-
-        setTimeout(() => {
-            calculateTotals();
+    const totals = useMemo(() => {
+        const total = watchedItems.reduce((sum: number, item: any) => {
+            return sum + calculateItemAmount(item).base;
         }, 0);
-    };
+
+        const itemDiscount = watchedItems.reduce((sum: number, item: any) => {
+            return sum + num(item?.discount);
+        }, 0);
+
+        const itemTax = watchedItems.reduce((sum: number, item: any) => {
+            return sum + calculateItemAmount(item).taxAmount;
+        }, 0);
+
+        const shipping = num(watchedShipping);
+
+        const subtotal = Math.max(total - itemDiscount, 0);
+        const grandTotal = subtotal + shipping + itemTax;
+
+        return {
+            total,
+            discount: itemDiscount,
+            subtotal,
+            tax: itemTax,
+            cgst: itemTax / 2,
+            sgst: itemTax / 2,
+            shipping,
+            grand_total: grandTotal,
+            grandTotal,
+        };
+    }, [watchedItems, watchedShipping]);
 
     const calculateTotals = () => {
         const items = form.getFieldValue("items") || [];
@@ -231,16 +169,33 @@ export default function PurchaseOrderForm({
         });
     };
 
+    useEffect(() => {
+        form.setFieldsValue({
+            total: Number(totals.total.toFixed(2)),
+            discount: Number(totals.discount.toFixed(2)),
+            subtotal: Number(totals.subtotal.toFixed(2)),
+            tax: Number(totals.tax.toFixed(2)),
+            cgst: Number(totals.cgst.toFixed(2)),
+            sgst: Number(totals.sgst.toFixed(2)),
+            grand_total: Number(totals.grand_total.toFixed(2)),
+        });
+    }, [totals, form]);
+
     const handleSubmit = (values: any) => {
         const items = (values.items || []).map((item: any) => {
-            const calc = calculateItemAmount(item);
+            const normalizedItem = {
+                ...item,
+                tax: num(item.tax) || 18,
+            };
+
+            const calc = calculateItemAmount(normalizedItem);
 
             return {
-                ...item,
-                quantity: num(item.quantity),
-                price: num(item.price),
-                discount: num(item.discount),
-                tax: num(item.tax),
+                ...normalizedItem,
+                quantity: num(normalizedItem.quantity),
+                price: num(normalizedItem.price),
+                discount: num(normalizedItem.discount),
+                tax: num(normalizedItem.tax),
                 cgst: calc.cgst,
                 sgst: calc.sgst,
                 cgst_amount: calc.cgstAmount,
@@ -290,7 +245,20 @@ export default function PurchaseOrderForm({
                 expected_delivery_date: initialValues.expected_delivery_date
                     ? dayjs(initialValues.expected_delivery_date)
                     : dayjs(),
-                items: initialValues.items?.length ? initialValues.items : [DEFAULT_ITEM],
+                items: initialValues.items?.length
+                    ? initialValues.items.map((item: any) => ({
+                        ...DEFAULT_ITEM,
+                        ...item,
+                        product_id: item.product_id || undefined,
+                        product_name: item.product_name || item.item_name || item.name || "",
+                        sku: item.sku || item.item_code || item.part_number || "",
+                        quantity: num(item.quantity) || 1,
+                        price: num(item.price || item.rate || item.sale_price || item.list_price),
+                        discount: num(item.discount || item.discount_value),
+                        tax: num(item.tax || item.tax_rate) || 18,
+                        amount: num(item.amount || item.line_total),
+                    }))
+                    : [DEFAULT_ITEM],
             });
 
             setTimeout(() => {
@@ -424,8 +392,6 @@ export default function PurchaseOrderForm({
                                                 <DatePicker disabledDate={(current) => current && current.isBefore(dayjs())} style={{ width: "100%" }} format="DD/MM/YYYY" />
                                             </Form.Item>
                                         </Col>
-
-
                                     </Row>
                                 </>
                             ),
@@ -435,145 +401,31 @@ export default function PurchaseOrderForm({
                             label: "Order Items",
                             children: (
                                 <>
-
-                                    <Row gutter={[16, 16]}>
-                                        <Col span={24}>
-                                            <Form.List name="items">
-                                                {(fields, { add, remove }) => (
-                                                    <>
-                                                        <Space direction="vertical" size={14} style={{ width: "100%" }}>
-                                                            {fields.map(({ key, name }) => (
-                                                                <Card key={key} size="small" style={{ borderRadius: 12 }}>
-                                                                    <Row gutter={12} align="middle">
-                                                                        <Col xs={24} md={6}>
-                                                                            <Form.Item
-                                                                                label="Product"
-                                                                                name={[name, "product_id"]}
-                                                                                rules={[
-                                                                                    {
-                                                                                        required: true,
-                                                                                        message: "Product is required",
-                                                                                    },
-                                                                                ]}
-                                                                            >
-                                                                                <Select
-                                                                                    showSearch
-                                                                                    allowClear
-                                                                                    placeholder="Select product"
-                                                                                    options={productOptions?.map((val: any) => ({
-                                                                                        label: val.name || val.product_name,
-                                                                                        value: val.id,
-                                                                                    }))}
-                                                                                    optionFilterProp="label"
-                                                                                    onChange={(value) => handleProductChange(name, value)}
-                                                                                />
-                                                                            </Form.Item>
-                                                                        </Col>
-
-                                                                        <Col xs={24} md={3}>
-                                                                            <Form.Item label="SKU" name={[name, "sku"]}>
-                                                                                <Input placeholder="SKU" />
-                                                                            </Form.Item>
-                                                                        </Col>
-
-                                                                        <Col xs={24} md={2}>
-                                                                            <Form.Item label="Qty" name={[name, "quantity"]}>
-                                                                                <InputNumber min={0} style={{ width: "100%" }} />
-                                                                            </Form.Item>
-                                                                        </Col>
-
-                                                                        <Col xs={24} md={3}>
-                                                                            <Form.Item label="Price" name={[name, "price"]}>
-                                                                                <InputNumber min={0} style={{ width: "100%" }} />
-                                                                            </Form.Item>
-                                                                        </Col>
-
-                                                                        <Col xs={24} md={3}>
-                                                                            <Form.Item label="Discount" name={[name, "discount"]}>
-                                                                                <InputNumber min={0} style={{ width: "100%" }} />
-                                                                            </Form.Item>
-                                                                        </Col>
-
-                                                                        <Col xs={24} md={3}>
-                                                                            <Form.Item label="GST" name={[name, "tax"]}>
-                                                                                <Select
-                                                                                    placeholder="GST"
-                                                                                    options={GST_OPTIONS.map((gst) => ({
-                                                                                        label: `${gst}%`,
-                                                                                        value: gst,
-                                                                                    }))}
-                                                                                />
-                                                                            </Form.Item>
-                                                                        </Col>
-
-                                                                        <Col xs={20} md={3}>
-                                                                            <Form.Item shouldUpdate noStyle>
-                                                                                {() => {
-                                                                                    const item = form.getFieldValue(["items", name]) || {};
-                                                                                    const calc = calculateItemAmount(item);
-
-                                                                                    return (
-                                                                                        <div style={{ paddingTop: 4 }}>
-                                                                                            <Text strong>₹{calc.amount.toFixed(2)}</Text>
-                                                                                            <br />
-                                                                                            <Text type="secondary" style={{ fontSize: 11 }}>
-                                                                                                CGST {calc.cgst}% + SGST {calc.sgst}%
-                                                                                            </Text>
-                                                                                        </div>
-                                                                                    );
-                                                                                }}
-                                                                            </Form.Item>
-                                                                        </Col>
-
-                                                                        <Col xs={4} md={1}>
-                                                                            <Button
-                                                                                danger
-                                                                                icon={<DeleteOutlined />}
-                                                                                onClick={() => remove(name)}
-                                                                                disabled={fields.length === 1}
-                                                                            />
-                                                                        </Col>
-                                                                    </Row>
-                                                                </Card>
-                                                            ))}
-                                                        </Space>
-
-                                                        <Button
-                                                            block
-                                                            type="dashed"
-                                                            icon={<PlusOutlined />}
-                                                            style={{ marginTop: 14 }}
-                                                            onClick={() => add({ ...DEFAULT_ITEM })}
-                                                        >
-                                                            Add Product
-                                                        </Button>
-                                                    </>
-                                                )}
-                                            </Form.List>
-                                        </Col>
-                                    </Row>
-
-                                    <Divider />
+                                    <ProductSelectionForm
+                                        form={form}
+                                        products={productOptions || []}
+                                        totals={totals}
+                                        name="items"
+                                        title="Order Items"
+                                    />
 
                                     <Row gutter={[8, 8]}>
-                                        <Col span={16}>
-                                            <Col xs={24} md={24}>
-                                                <Form.Item
-                                                    label="Payment Terms Description"
-                                                    name="payment_terms_description"
-                                                >
-                                                    <Input.TextArea rows={4} placeholder="Enter payment terms" />
-                                                </Form.Item>
-                                            </Col>
-
-                                            <Col xs={24} md={24}>
-                                                <Form.Item label="Description" name="description">
-                                                    <Input.TextArea rows={4} placeholder="Enter description" />
-                                                </Form.Item>
-                                            </Col>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item
+                                                label="Payment Terms Description"
+                                                name="payment_terms_description"
+                                            >
+                                                <Input.TextArea rows={4} placeholder="Enter payment terms" />
+                                            </Form.Item>
                                         </Col>
 
-                                        <Col span={8}>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item label="Description" name="description">
+                                                <Input.TextArea rows={4} placeholder="Enter description" />
+                                            </Form.Item>
+                                        </Col>
+
+                                        {/* <Col span={8}>
                                             <Card style={{ borderRadius: 14 }} title="Summary">
                                                 <Form.Item shouldUpdate noStyle>
                                                     {() => (
@@ -617,7 +469,7 @@ export default function PurchaseOrderForm({
                                                     )}
                                                 </Form.Item>
                                             </Card>
-                                        </Col>
+                                        </Col> */}
                                     </Row>
 
                                     <Divider />
@@ -629,19 +481,14 @@ export default function PurchaseOrderForm({
                                         </Button>
                                     </Space>
                                 </>
-
                             ),
                         },
-
                     ]}
                 />
             </Form>
         </>
     );
-
 }
-
-
 
 function SummaryRow({ label, value }: { label: string; value: number }) {
     return (

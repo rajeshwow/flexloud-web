@@ -133,6 +133,7 @@ export default function OrganizationForm({
     const handleSubmit = async (values: OrganizationFormValues) => {
         try {
 
+
             const payload = {
                 ...values,
                 id: mode === 'edit' ? initialData.id : undefined,
@@ -178,7 +179,7 @@ export default function OrganizationForm({
                     status: branch.status || "active",
                 })),
             };
-            debugger
+
 
             const response = mode === 'create' ? await dispatch(createOrganization(payload)).unwrap() : await dispatch(updateOrganization(payload)).unwrap();
 

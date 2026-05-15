@@ -1,9 +1,7 @@
 import {
     ArrowLeftOutlined,
-    DeleteOutlined,
     PlusOutlined,
     SaveOutlined,
-    ShoppingCartOutlined,
 } from "@ant-design/icons";
 import {
     Button,
@@ -13,18 +11,18 @@ import {
     Divider,
     Form,
     Input,
-    InputNumber,
     Modal,
     Row,
     Select,
     Space,
     Typography,
-    message,
+    message
 } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import ProductSelectionForm from "../../layouts/ProductSelection";
 import { getOrganization } from "../../redux/reducers/organization.slice";
 import { getProducts } from "../../redux/reducers/products.slice";
 import { fetchQuoteById } from "../../redux/reducers/quotes.slice";
@@ -41,15 +39,13 @@ import OrganizationForm from "../Organization/components/OrganizationForm";
 
 const { Title, Text } = Typography;
 
-const GST_OPTIONS = [0, 5, 12, 18, 28];
-
 const toNumber = (value: any) => Number(value || 0);
 
 const calculateItem = (item: any) => {
     const quantity = toNumber(item?.quantity);
     const price = toNumber(item?.price);
     const discount = toNumber(item?.discount);
-    const gstPercent = toNumber(item?.tax);
+    const gstPercent = Number(item?.tax || 18);
 
     const grossAmount = quantity * price;
     const taxableAmount = Math.max(grossAmount - discount, 0);
@@ -76,7 +72,7 @@ const calculateItem = (item: any) => {
 };
 
 interface Props {
-    isEdit?: boolean,
+    isEdit?: boolean;
 }
 
 export default function SalesOrderFormPage({ isEdit = false }: Props) {
@@ -108,7 +104,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
             const [orgRes, userRes, productRes] = await Promise.all([
                 dispatch(getOrganization({ limit: 1000 })).unwrap(),
                 dispatch(getUsers({ limit: 1000 })).unwrap(),
-                dispatch(getProducts({ limit: 100 })).unwrap(),
+                dispatch(getProducts({ limit: 10000 })).unwrap(),
             ]);
 
             setCustomers(orgRes?.data || []);
@@ -123,7 +119,6 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
 
     const loadQuoteForSalesOrder = async (quoteId: string) => {
         try {
-
             const res = await dispatch(fetchQuoteById(quoteId)).unwrap();
 
             const quote = res?.data?.data || res?.data || res;
@@ -171,6 +166,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
 
                 items: quoteItems.length
                     ? quoteItems.map((item: any) => ({
+                        id: item.id,
                         product_id: item.product_id || undefined,
                         sku: item.sku || item.item_code || item.part_number || "",
                         product_name:
@@ -189,19 +185,11 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                             0
                         ),
 
-                        discount: Number(
-                            item.discount_value ||
-                            item.discount ||
-                            0
-                        ),
+                        discount: Number(item.discount_value || item.discount || 0),
 
-                        tax: Number(
-                            item.tax_rate ||
-                            item.tax ||
-                            0
-                        ),
+                        tax: Number(item.tax_rate || item.tax || 18) || 18,
                     }))
-                    : [{ quantity: 1, price: 0, discount: 0, tax: 0 }],
+                    : [{ quantity: 1, price: 0, discount: 0, tax: 18 }],
             });
         } catch (error: any) {
             message.error(error?.response?.data?.message || "Quote details load nahi ho paye");
@@ -233,15 +221,19 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                 expected_delivery_date: detail.expected_delivery_date
                     ? dayjs(detail.expected_delivery_date)
                     : undefined,
-                items: detail.items?.map((x: any) => ({
-                    product_id: x.product_id || x.raw_tally_data?.product_id,
-                    sku: x.sku || x.item_code || x.product_master_sku || "",
-                    product_name: x.product_name || x.item_name || x.product_master_name || "",
-                    quantity: Number(x.quantity || 1),
-                    price: Number(x.price || x.rate || 0),
-                    discount: Number(x.discount || x.raw_tally_data?.discount || 0),
-                    tax: Number(x.tax || x.raw_tally_data?.tax || 0),
-                })),
+                items: detail.items?.length
+                    ? detail.items.map((x: any) => ({
+                        id: x.id,
+                        product_id: x.product_id || x.raw_tally_data?.product_id,
+                        sku: x.sku || x.item_code || x.product_master_sku || "",
+                        product_name:
+                            x.product_name || x.item_name || x.product_master_name || "",
+                        quantity: Number(x.quantity || 1),
+                        price: Number(x.price || x.rate || 0),
+                        discount: Number(x.discount || x.raw_tally_data?.discount || 0),
+                        tax: Number(x.tax || x.raw_tally_data?.tax || 18) || 18,
+                    }))
+                    : [{ quantity: 1, price: 0, discount: 0, tax: 18 }],
             });
         }
     }, [detail]);
@@ -254,12 +246,6 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
     const userOptions = users.map((x: any) => ({
         label: toTitleCase(x.name || x.full_name || x.email),
         value: x.id,
-    }));
-
-    const productOptions = products.map((x: any) => ({
-        label: toTitleCase(x.name || x.product_name),
-        value: x.id,
-        data: x,
     }));
 
     const totals = useMemo(() => {
@@ -287,39 +273,33 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
         const shipping = toNumber(shippingWatch);
         const grand_total = subtotal - discount + tax + shipping;
 
-        return { subtotal, discount, cgst, sgst, tax, shipping, grand_total };
-    }, [items, shippingWatch]);
-
-    const handleProductChange = (rowIndex: number, productId: string) => {
-        const product = products.find((p: any) => p.id === productId);
-        if (!product) return;
-
-        const currentItems = form.getFieldValue("items") || [];
-
-        currentItems[rowIndex] = {
-            ...currentItems[rowIndex],
-            product_id: product.id,
-            product_name: product.name || product.product_name || "",
-            sku: product.sku || product.item_code || "",
-            price: Number(product.price || product.selling_price || product.rate || 0),
-            quantity: currentItems[rowIndex]?.quantity || 1,
-            discount: currentItems[rowIndex]?.discount || 0,
-            tax: currentItems[rowIndex]?.tax || 0,
+        return {
+            subtotal,
+            discount,
+            cgst,
+            sgst,
+            tax,
+            shipping,
+            grand_total,
+            grandTotal: grand_total,
         };
-
-        form.setFieldsValue({ items: currentItems });
-    };
+    }, [items, shippingWatch]);
 
     const onFinish = async (values: any) => {
         const normalizedItems = (values.items || []).map((item: any) => {
-            const calc = calculateItem(item);
+            const normalizedItem = {
+                ...item,
+                tax: Number(item.tax || 18),
+            };
+
+            const calc = calculateItem(normalizedItem);
 
             return {
-                ...item,
-                quantity: toNumber(item.quantity),
-                price: toNumber(item.price),
-                discount: toNumber(item.discount),
-                tax: toNumber(item.tax), // GST %
+                ...normalizedItem,
+                quantity: toNumber(normalizedItem.quantity),
+                price: toNumber(normalizedItem.price),
+                discount: toNumber(normalizedItem.discount),
+                tax: toNumber(normalizedItem.tax),
                 cgst: calc.cgstPercent,
                 sgst: calc.sgstPercent,
                 cgst_amount: calc.cgstAmount,
@@ -399,13 +379,17 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                     currency: "₹",
                     status: "draft",
                     shipping: 0,
-                    items: [{ quantity: 1, price: 0, discount: 0, tax: 0 }],
+                    items: [{ quantity: 1, price: 0, discount: 0, tax: 18 }],
                 }}
             >
                 <Card style={{ borderRadius: 14, marginBottom: 16 }}>
                     <Row gutter={16}>
                         <Col span={8}>
-                            <Form.Item name="customer_id" label="Customer" rules={[{ required: true }]}>
+                            <Form.Item
+                                name="customer_id"
+                                label="Customer"
+                                rules={[{ required: true }]}
+                            >
                                 <Select
                                     showSearch
                                     allowClear
@@ -435,6 +419,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                                 />
                             </Form.Item>
                         </Col>
+
                         <Col>
                             <Form.Item name="quote_id" initialValue={quoteIdFromState} hidden>
                                 <Input />
@@ -455,154 +440,65 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                         </Col>
 
                         <Col span={8}>
-                            <Form.Item name="so_date" label="SO Date" rules={[{ required: true }]}>
+                            <Form.Item
+                                name="so_date"
+                                label="SO Date"
+                                rules={[{ required: true }]}
+                            >
                                 <DatePicker
                                     style={{ width: "100%" }}
-                                    disabledDate={(current) => current.isBefore(dayjs().startOf("day"))}
+                                    disabledDate={(current) =>
+                                        current.isBefore(dayjs().startOf("day"))
+                                    }
                                 />
                             </Form.Item>
                         </Col>
 
                         <Col span={8}>
-                            <Form.Item name="expected_delivery_date" label="Expected Delivery Date">
+                            <Form.Item
+                                name="expected_delivery_date"
+                                label="Expected Delivery Date"
+                            >
                                 <DatePicker
                                     style={{ width: "100%" }}
-                                    disabledDate={(current) => current.isBefore(dayjs().startOf("day"))}
+                                    disabledDate={(current) =>
+                                        current.isBefore(dayjs().startOf("day"))
+                                    }
                                 />
                             </Form.Item>
                         </Col>
 
                         <Col span={8}>
                             <Form.Item name="status" label="Status">
-                                <Select
-                                    options={getSalesOrderStatusOptions()}
-                                />
+                                <Select options={getSalesOrderStatusOptions()} />
                             </Form.Item>
                         </Col>
                     </Row>
                 </Card>
 
-                <Card
-                    style={{ borderRadius: 14, marginBottom: 16 }}
-                    title={
-                        <Space>
-                            <ShoppingCartOutlined />
-                            <span>Order Items</span>
-                        </Space>
-                    }
-                >
-                    <Form.List name="items">
-                        {(fields, { add, remove }) => (
-                            <>
-                                {fields.map(({ key, name }) => {
-                                    const itemCalc = calculateItem(items?.[name]);
-
-                                    return (
-                                        <Card key={key} size="small" style={{ borderRadius: 12, marginBottom: 12 }}>
-                                            <Row gutter={12} align="middle">
-                                                <Col span={6}>
-                                                    <Form.Item
-                                                        name={[name, "product_id"]}
-                                                        label="Product"
-                                                        rules={[{ required: true }]}
-                                                    >
-                                                        <Select
-                                                            showSearch
-                                                            loading={loadingOptions}
-                                                            placeholder="Select product"
-                                                            optionFilterProp="label"
-                                                            options={productOptions}
-                                                            onChange={(value) => handleProductChange(name, value)}
-                                                        />
-                                                    </Form.Item>
-                                                </Col>
-
-                                                <Col span={3}>
-                                                    <Form.Item name={[name, "sku"]} label="SKU">
-                                                        <Input placeholder="SKU" />
-                                                    </Form.Item>
-                                                </Col>
-
-                                                <Col span={2}>
-                                                    <Form.Item name={[name, "quantity"]} label="Qty">
-                                                        <InputNumber min={1} style={{ width: "100%" }} />
-                                                    </Form.Item>
-                                                </Col>
-
-                                                <Col span={3}>
-                                                    <Form.Item name={[name, "price"]} label="Price">
-                                                        <InputNumber min={0} style={{ width: "100%" }} />
-                                                    </Form.Item>
-                                                </Col>
-
-                                                <Col span={3}>
-                                                    <Form.Item name={[name, "discount"]} label="Discount">
-                                                        <InputNumber min={0} style={{ width: "100%" }} />
-                                                    </Form.Item>
-                                                </Col>
-
-                                                <Col span={3}>
-                                                    <Form.Item name={[name, "tax"]} label="GST">
-                                                        <Select
-                                                            placeholder="GST"
-                                                            options={GST_OPTIONS.map((gst) => ({
-                                                                label: `${gst}%`,
-                                                                value: gst,
-                                                            }))}
-                                                        />
-                                                    </Form.Item>
-                                                </Col>
-
-                                                <Col span={3}>
-                                                    <div>
-                                                        <Text strong>₹{itemCalc.amount.toFixed(2)}</Text>
-                                                        <br />
-                                                        <Text type="secondary" style={{ fontSize: 11 }}>
-                                                            CGST {itemCalc.cgstPercent}% + SGST {itemCalc.sgstPercent}%
-                                                        </Text>
-                                                    </div>
-                                                </Col>
-
-                                                <Col span={1}>
-                                                    <Button
-                                                        danger
-                                                        icon={<DeleteOutlined />}
-                                                        onClick={() => remove(name)}
-                                                        disabled={fields.length === 1}
-                                                    />
-                                                </Col>
-                                            </Row>
-                                        </Card>
-                                    );
-                                })}
-
-                                <Button
-                                    type="dashed"
-                                    icon={<PlusOutlined />}
-                                    onClick={() => add({ quantity: 1, price: 0, discount: 0, tax: 0 })}
-                                    block
-                                >
-                                    Add Product
-                                </Button>
-                            </>
-                        )}
-                    </Form.List>
-                </Card>
+                <ProductSelectionForm
+                    form={form}
+                    products={products}
+                    totals={totals}
+                    loadingOptions={loadingOptions}
+                    name="items"
+                    title="Order Items"
+                />
 
                 <Row gutter={16}>
-                    <Col span={16}>
-                        <Card style={{ borderRadius: 14 }}>
-                            <Form.Item name="notes" label="Notes">
-                                <Input.TextArea rows={3} placeholder="Internal notes" />
-                            </Form.Item>
-
-                            <Form.Item name="terms" label="Terms & Conditions">
-                                <Input.TextArea rows={3} placeholder="Payment/delivery terms" />
-                            </Form.Item>
-                        </Card>
+                    <Col span={12}>
+                        <Form.Item name="notes" label="Notes">
+                            <Input.TextArea rows={3} placeholder="Internal notes" />
+                        </Form.Item>
                     </Col>
 
-                    <Col span={8}>
+                    <Col span={12}>
+                        <Form.Item name="terms" label="Terms & Conditions">
+                            <Input.TextArea rows={3} placeholder="Payment/delivery terms" />
+                        </Form.Item>
+                    </Col>
+
+                    {/* <Col span={8}>
                         <Card style={{ borderRadius: 14 }} title="Summary">
                             <Space direction="vertical" style={{ width: "100%" }}>
                                 <SummaryRow label="Subtotal" value={totals.subtotal} />
@@ -617,13 +513,20 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
 
                                 <Divider />
 
-                                <Space style={{ width: "100%", justifyContent: "space-between" }}>
+                                <Space
+                                    style={{
+                                        width: "100%",
+                                        justifyContent: "space-between",
+                                    }}
+                                >
                                     <Title level={4}>Grand Total</Title>
-                                    <Title level={4}>₹{totals.grand_total.toFixed(2)}</Title>
+                                    <Title level={4}>
+                                        ₹{Number(totals.grand_total || 0).toFixed(2)}
+                                    </Title>
                                 </Space>
                             </Space>
                         </Card>
-                    </Col>
+                    </Col> */}
                 </Row>
             </Form>
 
@@ -640,15 +543,12 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                     onSubmit={async (createdOrg?: any) => {
                         setOrgModalOpen(false);
 
-
                         const res = await dispatch(getOrganization({ limit: 1000 })).unwrap();
                         setCustomers(res?.data || []);
 
                         if (createdOrg?.id) {
                             form.setFieldValue("customer_id", createdOrg.id);
                         }
-
-                        // message.success("Organization created successfully");
                     }}
                 />
             </Modal>

@@ -161,7 +161,7 @@ export default function CreateOpportunityPage() {
         fetchOrganizations();
         fetchContactsFn();
         dispatch(getUsers());
-        dispatch(getProducts({}));
+        dispatch(getProducts({ limit: 10000 }));
     }, [fetchOrganizations, dispatch]);
 
     const fetchContactsFn = async () => {

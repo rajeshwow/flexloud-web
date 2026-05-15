@@ -59,12 +59,9 @@ const formatDate = (value?: string | null) => {
 };
 
 const money = (value?: number | string | null) => {
-    const num = Number(value || 0);
-    return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "₹",
-        maximumFractionDigits: 2,
-    }).format(num);
+    if (!value) return "₹ 0.00";
+
+    return `₹ ${value}`;
 };
 
 const getText = (...values: any[]) => {

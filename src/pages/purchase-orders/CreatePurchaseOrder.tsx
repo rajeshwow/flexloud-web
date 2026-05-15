@@ -54,7 +54,7 @@ export default function CreatePurchaseOrder({ isEdit = false }: Props) {
     useEffect(() => {
         dispatch(getUsers());
         dispatch(getOrganization());
-        dispatch(getProducts({}));
+        dispatch(getProducts({ limit: 10000 }));
 
         if (isEdit && id) {
             dispatch(getPurchaseOrderById(id));

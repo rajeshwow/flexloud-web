@@ -59,7 +59,7 @@ export default function CreateDeliveryChallanPage() {
             const [customersRes, productsRes] = await Promise.all([
 
                 await dispatch(getOrganization({})).unwrap(),
-                await dispatch(getProducts({})).unwrap()
+                await dispatch(getProducts({ limit: 10000 })).unwrap()
 
                 // Client.get(withTenant("/organizations"), {
                 //     params: { page: 1, limit: 500 },

@@ -1,8 +1,6 @@
 import {
     ArrowLeftOutlined,
-    CloseOutlined,
-    EditOutlined,
-    SaveOutlined,
+    EditOutlined
 } from "@ant-design/icons";
 import { Button, Form, Space, Spin, message } from "antd";
 import { useEffect, useMemo, useState } from "react";
@@ -190,8 +188,7 @@ export default function OrgDetailsPage() {
 
         try {
             setSaveLoading(true);
-            await Client.patch(withTenant(`/organizations/${id}`), values);
-            message.success("Organization updated successfully");
+
             setIsEditing(false);
             fetchOrganizationDetails();
         } catch (error: any) {
@@ -218,7 +215,7 @@ export default function OrgDetailsPage() {
                     </Button>
                 ) : (
                     <Space>
-                        <Button icon={<CloseOutlined />} onClick={handleCancelEdit}>
+                        {/* <Button icon={<CloseOutlined />} onClick={handleCancelEdit}>
                             Cancel
                         </Button>
                         <Button
@@ -228,7 +225,7 @@ export default function OrgDetailsPage() {
                             onClick={() => form.submit()}
                         >
                             Save
-                        </Button>
+                        </Button> */}
                     </Space>
                 )}
             </Space>

@@ -55,13 +55,11 @@ type ActiveTab = "sales-orders" | "purchase-orders";
 
 
 function formatCurrency(value?: number | string | null) {
-    const amount = Number(value || 0);
+    if (!value) return "₹ 0.00";
 
-    return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "₹",
-        maximumFractionDigits: 2,
-    }).format(amount);
+    return `₹ ${value}`;
+
+
 }
 
 function titleCaseStatus(status?: string) {
