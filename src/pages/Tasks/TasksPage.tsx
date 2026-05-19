@@ -25,6 +25,7 @@ import { useNavigate, useParams } from "react-router-dom";
 // import { deleteTask, getTasks, type GetTasksParams } from "../../redux/reducers/tasks.slice";
 import { getTasks } from "../../redux/reducers/tasks.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Title, Text } = Typography;
 
@@ -149,7 +150,7 @@ export default function TasksPage() {
                     }}
                     onClick={() => navigate(`/${slug}/tasks/${record.id}`)}
                 >
-                    {record.subject}
+                    {toTitleCase(record.subject)}
                 </Button>
             ),
         },

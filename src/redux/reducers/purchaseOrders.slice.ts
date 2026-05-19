@@ -41,6 +41,12 @@ export type PurchaseOrder = {
   deleted_at?: string | null;
 
   items?: PurchaseOrderItem[];
+
+  subtotal?: number;
+  discount?: number;
+  tax?: number;
+  shipping?: number;
+  grand_total?: number;
 };
 
 export type GetPurchaseOrdersParams = {

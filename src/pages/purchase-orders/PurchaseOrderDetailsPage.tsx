@@ -41,8 +41,20 @@ const { Title, Text } = Typography;
 const formatDate = (value?: string) =>
     value ? dayjs(value).format("DD MMM YYYY") : "-";
 
+const toNumber = (value: any) => {
+    if (value === undefined || value === null || value === "") return 0;
+
+    const cleaned = String(value).replace(/,/g, "").replace(/[^\d.-]/g, "");
+    const num = Number(cleaned);
+
+    return Number.isFinite(num) ? num : 0;
+};
+
 const formatCurrency = (value?: number | string) =>
-    `₹ ${Number(value || 0).toLocaleString("en-IN")}`;
+    `₹ ${toNumber(value).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    })}`;
 
 const getStatusColor = (status?: string) => {
     const value = String(status || "").toLowerCase();
@@ -79,6 +91,41 @@ export default function PurchaseOrderDetailsPage() {
     const rawData = selected?.raw_tally_data || {};
     const items = selected?.items || rawData?.items || [];
 
+    const itemSubtotal = items.reduce((sum: number, item: any) => {
+        const amount = toNumber(item.amount);
+
+        if (amount) return sum + amount;
+
+        return (
+            sum +
+            toNumber(item.quantity) * toNumber(item.rate || item.price) -
+            toNumber(item.discount || item?.raw_tally_data?.discount)
+        );
+    }, 0);
+
+    const grandTotal = toNumber(
+        selected?.grand_total ||
+        selected?.total_amount ||
+        rawData?.grand_total ||
+        rawData?.totalAmount,
+    );
+
+    const subtotal = toNumber(selected?.subtotal || rawData?.subtotal) || itemSubtotal;
+    const discount = toNumber(selected?.discount || rawData?.discount);
+    const shipping = toNumber(selected?.shipping || rawData?.shipping);
+
+    const rawTax = toNumber(
+        selected?.tax ||
+        rawData?.tax ||
+        rawData?.taxAmount ||
+        rawData?.gstAmount,
+    );
+
+    const derivedTax =
+        grandTotal > subtotal ? grandTotal - subtotal + discount - shipping : 0;
+
+    const tax = rawTax || derivedTax;
+
     const columns: ColumnsType<any> = [
         {
             title: "#",
@@ -103,7 +150,7 @@ export default function PurchaseOrderDetailsPage() {
             title: "Qty",
             dataIndex: "quantity",
             width: 110,
-            render: (value: any) => Number(value || 0),
+            render: (value: any) => toNumber(value),
         },
         {
             title: "Rate",
@@ -133,8 +180,8 @@ export default function PurchaseOrderDetailsPage() {
             render: (value: any, record: any) => {
                 const amount =
                     value ??
-                    Number(record.quantity || 0) * Number(record.rate || record.price || 0) -
-                    Number(record.discount || record?.raw_tally_data?.discount || 0);
+                    toNumber(record.quantity) * toNumber(record.rate || record.price) -
+                    toNumber(record.discount || record?.raw_tally_data?.discount);
 
                 return <Text strong>{formatCurrency(amount)}</Text>;
             },
@@ -254,7 +301,7 @@ export default function PurchaseOrderDetailsPage() {
                             <div>
                                 <Text type="secondary">Total Amount</Text>
                                 <br />
-                                <Text strong>{formatCurrency(selected.total_amount)}</Text>
+                                <Text strong>{formatCurrency(grandTotal)}</Text>
                             </div>
                         </Space>
                     </Card>
@@ -361,27 +408,23 @@ export default function PurchaseOrderDetailsPage() {
                     <Col xs={24} md={10} lg={8}>
                         <Descriptions column={1} size="small" bordered>
                             <Descriptions.Item label="Subtotal">
-                                {formatCurrency(rawData.subtotal)}
+                                {formatCurrency(subtotal)}
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Discount">
-                                {formatCurrency(rawData.discount)}
+                                {formatCurrency(discount)}
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Shipping">
-                                {formatCurrency(rawData.shipping)}
+                                {formatCurrency(shipping)}
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Tax">
-                                {formatCurrency(rawData.tax)}
+                                {formatCurrency(tax)}
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Grand Total">
-                                <Text strong>
-                                    {formatCurrency(
-                                        rawData.grand_total || selected.total_amount,
-                                    )}
-                                </Text>
+                                <Text strong>{formatCurrency(grandTotal)}</Text>
                             </Descriptions.Item>
                         </Descriptions>
                     </Col>

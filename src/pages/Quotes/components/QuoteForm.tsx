@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect */
+import { PlusOutlined } from "@ant-design/icons";
 import {
     Button,
     Card,
@@ -25,6 +26,7 @@ import ProductSelectionForm, {
     type OpportunityLineItem,
 } from "../../../layouts/ProductSelection";
 import { fetchLeads } from "../../../redux/reducers/leads.slice";
+import { getOrganization } from "../../../redux/reducers/organization.slice";
 import { getProducts } from "../../../redux/reducers/products.slice";
 import type { AppDispatch, RootState } from "../../../redux/store";
 import { Client } from "../../../shared/Utils/api-client";
@@ -150,7 +152,7 @@ export default function QuoteForm({
 }: Props) {
     const dispatch = useDispatch<AppDispatch>();
 
-    const [organizationOptions, setOrganizationOptions] = useState<OptionItem[]>([]);
+    const [organizationOptions, setOrganizationOptions] = useState([] as any[]);
     const [userOptions, setUserOptions] = useState<OptionItem[]>([]);
 
     const [countryOptions, setCountryOptions] = useState<OptionItem[]>([]);
@@ -159,6 +161,8 @@ export default function QuoteForm({
 
     const [allStates, setAllStates] = useState<MasterValueItem[]>([]);
     const [allCities, setAllCities] = useState<MasterValueItem[]>([]);
+    const [orgModalOpen, setOrgModalOpen] = useState(false);
+
 
     const [branchOptions, setBranchOptions] = useState<OptionItem[]>([]);
     const [activeTab, setActiveTab] = useState("overview");
@@ -942,13 +946,40 @@ export default function QuoteForm({
                                                         },
                                                     ]}
                                                 >
-                                                    <Select
+                                                    {/* <Select
                                                         placeholder="Select  organization"
                                                         showSearch
                                                         optionFilterProp="label"
                                                         options={organizationOptions}
                                                         onChange={handleOrganizationChange}
                                                         allowClear
+                                                    /> */}
+                                                    <Select
+                                                        showSearch
+                                                        allowClear
+                                                        // loading={loadingOptions}
+                                                        placeholder="Select customer"
+                                                        optionFilterProp="label"
+                                                        options={organizationOptions}
+                                                        dropdownRender={(menu) => (
+                                                            <>
+                                                                <div style={{ padding: 8 }}>
+                                                                    <Button
+                                                                        type="dashed"
+                                                                        icon={<PlusOutlined />}
+                                                                        block
+                                                                        onMouseDown={(e) => e.preventDefault()}
+                                                                        onClick={() => setOrgModalOpen(true)}
+                                                                    >
+                                                                        Add New Organization
+                                                                    </Button>
+                                                                </div>
+
+                                                                <Divider style={{ margin: "4px 0" }} />
+
+                                                                {menu}
+                                                            </>
+                                                        )}
                                                     />
                                                 </Form.Item>
                                             </Col>
@@ -1416,6 +1447,32 @@ export default function QuoteForm({
                     </Row>
                 </Card>
             </Form>
+
+            <Modal
+                title="Create Organization"
+                open={orgModalOpen}
+                footer={null}
+                width={1100}
+                destroyOnHidden
+                onCancel={() => setOrgModalOpen(false)}
+            >
+                <OrganizationForm
+                    mode="create"
+                    onSubmit={async (createdOrg?: any) => {
+                        setOrgModalOpen(false);
+
+                        const res = await dispatch(getOrganization({ limit: 1000 })).unwrap();
+                        setOrganizationOptions(res?.data?.map((item: any) => ({
+                            label: item.name,
+                            value: item.id,
+                        })));
+
+                        if (createdOrg?.id) {
+                            form.setFieldValue("organization_id", createdOrg.id);
+                        }
+                    }}
+                />
+            </Modal>
         </>
     );
 }

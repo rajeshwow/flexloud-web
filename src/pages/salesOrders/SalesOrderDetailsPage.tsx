@@ -55,8 +55,17 @@ const getStatusColor = (status?: string) => {
     }
 };
 
+const toNumber = (value: any) => {
+    if (value === undefined || value === null || value === "") return 0;
+
+    const cleaned = String(value).replace(/,/g, "").replace(/[^\d.-]/g, "");
+    const num = Number(cleaned);
+
+    return Number.isFinite(num) ? num : 0;
+};
+
 const formatMoney = (value: any, currency = "₹") =>
-    `${currency} ${Number(value || 0).toFixed(2)}`;
+    `${currency} ${toNumber(value).toFixed(2)}`;
 
 const formatDate = (value?: string) =>
     value ? dayjs(value).format("DD MMM YYYY") : "-";
@@ -91,6 +100,14 @@ export default function SalesOrderDetailsPage() {
             </Card>
         );
     }
+
+    const subtotal = toNumber(detail.subtotal);
+    const discount = toNumber(detail.discount);
+    const tax = toNumber(detail.tax);
+    const shipping = toNumber(detail.shipping);
+    const totalPayable = toNumber(
+        detail.total_payable || detail.grand_total || detail.total_amount,
+    );
 
     const currency = detail.currency || "₹";
 
@@ -237,17 +254,17 @@ export default function SalesOrderDetailsPage() {
 
                         <Divider />
 
-                        <SummaryRow label="Subtotal" value={formatMoney(detail.subtotal, currency)} />
-                        <SummaryRow label="Discount" value={formatMoney(detail.discount, currency)} />
-                        <SummaryRow label="Tax" value={formatMoney(detail.tax, currency)} />
-                        <SummaryRow label="Shipping" value={formatMoney(detail.shipping, currency)} />
+                        <SummaryRow label="Subtotal" value={formatMoney(subtotal, currency)} />
+                        <SummaryRow label="Discount" value={formatMoney(discount, currency)} />
+                        <SummaryRow label="Tax" value={formatMoney(tax, currency)} />
+                        <SummaryRow label="Shipping" value={formatMoney(shipping, currency)} />
 
                         <Divider />
 
                         <SummaryRow
                             strong
                             label="Total Payable"
-                            value={formatMoney(detail.grand_total || detail.total_amount, currency)}
+                            value={formatMoney(totalPayable, currency)}
                         />
                     </Card>
 
