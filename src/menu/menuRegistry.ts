@@ -251,6 +251,13 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "FundProjectionScreenOutlined",
         requiresAny: ["warehouse.view"],
       },
+      {
+        key: "outstandings.view",
+        label: "Outstandings",
+        path: "/outstandings",
+        icon: "FundProjectionScreenOutlined",
+        requiresAny: ["outstandings.view"],
+      },
     ],
   },
 

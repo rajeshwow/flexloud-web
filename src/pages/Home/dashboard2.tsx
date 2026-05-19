@@ -62,6 +62,7 @@ import {
 } from "recharts";
 import { fetchDashboardSummary } from "../../redux/reducers/dashboard.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import CostCenterAnalyticsPage from "../cost-centers/CostCenterAnalyticsPage";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -1396,6 +1397,14 @@ export default function DashboardPage() {
         </>
     );
 
+    const CostCentersTab = (
+        <Row gutter={[14, 14]}>
+            <Col xs={24} lg={24} xl={24}>
+                <CostCenterAnalyticsPage />
+            </Col>
+        </Row>
+    );
+
     const InsightsTab = (
         <Row gutter={[14, 14]}>
             <Col xs={24} lg={12} xl={8}>
@@ -1564,6 +1573,16 @@ export default function DashboardPage() {
                                     </Space>
                                 ),
                                 children: InsightsTab,
+                            },
+                            {
+                                key: "cost-centers",
+                                label: (
+                                    <Space>
+                                        <LineChartOutlined />
+                                        Cost Centers
+                                    </Space>
+                                ),
+                                children: CostCentersTab,
                             },
                         ]}
                     />

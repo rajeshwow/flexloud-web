@@ -19,6 +19,7 @@ import {
 import { toTitleCase } from "../shared/Utils/utils";
 
 const { Text } = Typography;
+const { TextArea } = Input;
 
 export type OpportunityLineItem = {
     id?: string;
@@ -222,7 +223,7 @@ export default function ProductSelectionForm({
 
                                 >
 
-                                    <Row>
+                                    <Row gutter={12} align="middle">
                                         <Col xs={24} md={12}>
                                             <Form.Item
                                                 name={[fieldName, "product_id"]}
@@ -254,6 +255,12 @@ export default function ProductSelectionForm({
                                                 />
                                             </Form.Item>
                                         </Col>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item name={[fieldName, "description"]} label="Product Description">
+                                                <TextArea rows={3} placeholder="Product Description" />
+                                            </Form.Item>
+                                        </Col>
+
                                     </Row>
 
                                     <Row gutter={12} align="middle">

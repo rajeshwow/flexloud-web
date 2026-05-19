@@ -505,7 +505,7 @@ export default function WarehouseListingPage() {
             {
                 title: "Status",
                 dataIndex: "status",
-                width: 150,
+                width: 120,
                 render: (status) => (
                     <Tag color={getSalesOrderStatusColor(status)}>{titleCaseStatus(status)}</Tag>
                 ),
@@ -513,6 +513,7 @@ export default function WarehouseListingPage() {
             {
                 title: "Items",
                 dataIndex: "items_summary",
+                width: 200,
                 ellipsis: true,
                 render: (_: any, record: any) => (
                     <Tooltip title={record.items_summary}>
@@ -634,7 +635,7 @@ export default function WarehouseListingPage() {
         {
             title: "Status",
             dataIndex: "status",
-            width: 160,
+            width: 120,
             render: (status: any) => (
                 <Tag color={getPurchaseOrderStatusColor(status)}>{titleCaseStatus(status)}</Tag>
             ),
@@ -643,6 +644,7 @@ export default function WarehouseListingPage() {
             title: "Items",
             dataIndex: "items_summary",
             ellipsis: true,
+            width: 200,
             render: (_: any, record: any) => (
                 <Tooltip title={record.items_summary}>
                     <Space direction="vertical" size={1}>
@@ -656,7 +658,7 @@ export default function WarehouseListingPage() {
         },
         {
             title: "Courier / Tracking",
-            width: 200,
+            width: 150,
             render: (_: any, record: any) => (
                 <Space direction="vertical" size={1}>
                     <Text>{record.courier_name || "-"}</Text>

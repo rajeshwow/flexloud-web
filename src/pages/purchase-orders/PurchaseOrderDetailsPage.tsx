@@ -141,7 +141,10 @@ export default function PurchaseOrderDetailsPage() {
                         {record.item_name || record.product_name || record.name || "-"}
                     </Text>
                     <Text type="secondary">
-                        {record.item_code || record.product_id || "-"}
+                        Code: {record.item_code || record.product_id || "-"}
+                    </Text>
+                    <Text type="secondary">
+                        Description: {record.description || "-"}
                     </Text>
                 </Space>
             ),
@@ -373,9 +376,7 @@ export default function PurchaseOrderDetailsPage() {
                                 {toTitleCase(selected.assigned_to_name as string) || rawData.assigned_to_name || "-"}
                             </Descriptions.Item>
 
-                            <Descriptions.Item label="Assigned User ID">
-                                {selected.assigned_to || rawData.assigned_to || "-"}
-                            </Descriptions.Item>
+
 
                             <Descriptions.Item label="Currency">
                                 {rawData.currency || "₹"}

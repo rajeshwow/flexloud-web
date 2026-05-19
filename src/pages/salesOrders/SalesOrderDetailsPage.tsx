@@ -120,6 +120,9 @@ export default function SalesOrderDetailsPage() {
                     <Text type="secondary" style={{ fontSize: 12 }}>
                         SKU: {r.sku || r.item_code || "-"}
                     </Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                        Description: {r.description || "-"}
+                    </Text>
                 </Space>
             ),
         },

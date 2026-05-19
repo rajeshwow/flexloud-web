@@ -427,7 +427,9 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                         </Col>
 
                         <Col span={8}>
-                            <Form.Item name="assigned_to" label="Assigned To">
+                            <Form.Item name="assigned_to" label="Assigned To" rules={[
+                                { required: true, message: "Please select assigned to" }
+                            ]}>
                                 <Select
                                     allowClear
                                     showSearch

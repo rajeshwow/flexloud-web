@@ -412,7 +412,7 @@ export default function TallyPerformancePage() {
             key: "employee_name",
             fixed: "left",
             width: 220,
-            render: (value) => <Text strong>{value}</Text>,
+            render: (value) => <Text strong>{toTitleCase(value)}</Text>,
         },
         {
             title: "No Due Date",
@@ -477,7 +477,7 @@ export default function TallyPerformancePage() {
             width: 260,
             render: (_: any, record) => (
                 <Space direction="vertical" size={0}>
-                    <Text strong>{record.organization_name}</Text>
+                    <Text strong>{toTitleCase(record.organization_name)}</Text>
                     <Text type="secondary" style={{ fontSize: 12 }}>
                         {record.organization_email || "-"}
                     </Text>

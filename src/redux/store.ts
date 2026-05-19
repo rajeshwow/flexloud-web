@@ -5,6 +5,7 @@ import aiInsightsReducer from "./reducers/aiInsights.slice";
 import attendanceReducer from "./reducers/attendance.slice";
 import authReducer from "./reducers/auth.slice";
 import contactsReducer from "./reducers/contacts.slice";
+import costCentersReducer from "./reducers/costCenters.slice";
 import dashboardReducer from "./reducers/dashboard.slice";
 import deliveryChallanReducer from "./reducers/deliveryChallans/deliveryChallanSlice";
 import geoVisitsReducer from "./reducers/geoVisits.slice";
@@ -16,6 +17,7 @@ import mastersReducer from "./reducers/masters.slice";
 import myDayReducer from "./reducers/myDay.slice";
 import opportunitiesReducer from "./reducers/opportunities.slice";
 import organizationReducer from "./reducers/organization.slice";
+import outstandingsReducer from "./reducers/outstandings.slice";
 import productsReducer from "./reducers/products.slice";
 import purchaseOrdersReducer from "./reducers/purchaseOrders.slice";
 import quotesReducer from "./reducers/quotes.slice";
@@ -60,6 +62,8 @@ export const store = configureStore({
     tallyPerformance: tallyPerformanceReducer,
     tallyEmployees: tallyEmployeesReducer,
     warehouse: warehouseReducer,
+    costCenters: costCentersReducer,
+    outstandings: outstandingsReducer,
   },
 });
 

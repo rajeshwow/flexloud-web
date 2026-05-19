@@ -1,6 +1,8 @@
 import { Spin } from "antd";
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+const CostCenterAnalyticsPage = lazy(() => import("../pages/cost-centers/CostCenterAnalyticsPage"));
+const OutstandingListingPage = lazy(() => import("../pages/outstandings/OutstandingListingPage"));
 const AppShell = lazy(() => import("../layouts/sidebar"));
 const AccountSlugRequiredPage2 = lazy(() => import("../pages/account/AccountSlugRequiredPage2"));
 const AttendanceView = lazy(() => import("../pages/Attendance/AttendanceView"));
@@ -635,6 +637,28 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="warehouse.view">
                 <PageLoader><WarehouseListingPage /></PageLoader>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ----------------------------------------------------------------------------------- */}
+
+          <Route
+            path="cost-centers"
+            element={
+              <ProtectedRoute required="cost-centers.view">
+                <PageLoader><CostCenterAnalyticsPage /></PageLoader>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ----------------------------------------------------------------------------------- */}
+
+          <Route
+            path="outstandings"
+            element={
+              <ProtectedRoute required="outstandings.view">
+                <PageLoader><OutstandingListingPage /></PageLoader>
               </ProtectedRoute>
             }
           />
