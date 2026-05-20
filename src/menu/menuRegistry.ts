@@ -258,6 +258,13 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "FundProjectionScreenOutlined",
         requiresAny: ["outstandings.view"],
       },
+      {
+        key: "cost-center-performance.view",
+        label: "Cost Center Performance",
+        path: "/cost-center-performance",
+        icon: "FundProjectionScreenOutlined",
+        requiresAny: ["cost-center-performance.view"],
+      },
     ],
   },
 

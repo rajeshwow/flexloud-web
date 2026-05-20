@@ -1,6 +1,7 @@
 import { Spin } from "antd";
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+const CostCenterPerformancePage = lazy(() => import("../pages/cost-centers/CostCenterPerformancePage"));
 const CostCenterAnalyticsPage = lazy(() => import("../pages/cost-centers/CostCenterAnalyticsPage"));
 const OutstandingListingPage = lazy(() => import("../pages/outstandings/OutstandingListingPage"));
 const AppShell = lazy(() => import("../layouts/sidebar"));
@@ -662,6 +663,19 @@ export default function CrmRoutes() {
               </ProtectedRoute>
             }
           />
+
+          {/* --------------------------------------------------------- */}
+
+          <Route
+            path="cost-center-performance"
+            element={
+              <ProtectedRoute required="cost-center-performance.view">
+                <PageLoader><CostCenterPerformancePage /></PageLoader>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* --------------------------------------------------------- */}
 
         </Route>
       </Route>

@@ -30,6 +30,7 @@ import tenantReducer from "./reducers/tenant.slice";
 import usersReducer from "./reducers/user.slice";
 import visitsReducer from "./reducers/visits.slice";
 import warehouseReducer from "./reducers/warehouse.slice";
+import costCenterPerformanceReducer from "./reducers/costCenterPerformance.slice";
 
 export const store = configureStore({
   reducer: {
@@ -64,6 +65,7 @@ export const store = configureStore({
     warehouse: warehouseReducer,
     costCenters: costCentersReducer,
     outstandings: outstandingsReducer,
+    costCenterPerformance: costCenterPerformanceReducer,
   },
 });
 
