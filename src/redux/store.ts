@@ -5,6 +5,7 @@ import aiInsightsReducer from "./reducers/aiInsights.slice";
 import attendanceReducer from "./reducers/attendance.slice";
 import authReducer from "./reducers/auth.slice";
 import contactsReducer from "./reducers/contacts.slice";
+import costCenterPerformanceReducer from "./reducers/costCenterPerformance.slice";
 import costCentersReducer from "./reducers/costCenters.slice";
 import dashboardReducer from "./reducers/dashboard.slice";
 import deliveryChallanReducer from "./reducers/deliveryChallans/deliveryChallanSlice";
@@ -25,12 +26,12 @@ import rbacReducer from "./reducers/rbac.slice";
 import salesOrdersReducer from "./reducers/salesOrders.slice";
 import tallyEmployeesReducer from "./reducers/tallyEmployees.slice";
 import tallyPerformanceReducer from "./reducers/tallyPerformance.slice";
+import tallySyncReducer from "./reducers/tallySync.slice";
 import tasksReducer from "./reducers/tasks.slice";
 import tenantReducer from "./reducers/tenant.slice";
 import usersReducer from "./reducers/user.slice";
 import visitsReducer from "./reducers/visits.slice";
 import warehouseReducer from "./reducers/warehouse.slice";
-import costCenterPerformanceReducer from "./reducers/costCenterPerformance.slice";
 
 export const store = configureStore({
   reducer: {
@@ -66,6 +67,7 @@ export const store = configureStore({
     costCenters: costCentersReducer,
     outstandings: outstandingsReducer,
     costCenterPerformance: costCenterPerformanceReducer,
+    tallySync: tallySyncReducer,
   },
 });
 

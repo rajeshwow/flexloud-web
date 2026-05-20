@@ -1,5 +1,7 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+
+
 import {
+  ApartmentOutlined,
   AppstoreOutlined,
   AuditOutlined,
   BankOutlined,
@@ -11,6 +13,7 @@ import {
   CheckCircleOutlined,
   CheckSquareOutlined,
   ClockCircleOutlined,
+  CloudSyncOutlined,
   CloudUploadOutlined,
   ContactsOutlined,
   DashboardOutlined,
@@ -18,6 +21,7 @@ import {
   EnvironmentOutlined,
   EyeOutlined,
   FieldTimeOutlined,
+  FileDoneOutlined,
   FilePdfOutlined,
   FileProtectOutlined,
   FileTextOutlined,
@@ -29,6 +33,8 @@ import {
   // optional extra icons (safe to keep)
   HomeOutlined,
   ImportOutlined,
+  InboxOutlined,
+  LineChartOutlined,
   LoginOutlined,
   LogoutOutlined,
   MailOutlined,
@@ -47,7 +53,7 @@ import {
   TeamOutlined,
   TrophyOutlined,
   TruckOutlined,
-  UserOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import { Avatar, Badge, Button, Grid, Layout, Menu, message, Popover, Space, Switch, Typography } from "antd";
 import { startTransition, useEffect, useMemo, useState } from "react";
@@ -120,6 +126,12 @@ const iconMap: Record<string, React.ReactNode> = {
   CloudUploadOutlined: <CloudUploadOutlined />,
   AuditOutlined: <AuditOutlined />,
   FundProjectionScreenOutlined: <FundProjectionScreenOutlined />,
+  LineChartOutlined: <LineChartOutlined />,
+  InboxOutlined: <InboxOutlined />,
+  FileDoneOutlined: <FileDoneOutlined />,
+  ApartmentOutlined: <ApartmentOutlined />,
+  CloudSyncOutlined: <CloudSyncOutlined />,
+
 };
 
 type AttendanceWatchProps = {
@@ -605,6 +617,7 @@ export default function AppShell({ children, user }: Props) {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpenKeys((prev) => {
       // route change pe selected menu ka parent open karo
       // but user manually submenu open kar raha hai to usko baar-baar reset mat karo

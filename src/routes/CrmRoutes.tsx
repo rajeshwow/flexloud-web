@@ -1,6 +1,7 @@
 import { Spin } from "antd";
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import TallySyncPage from "../pages/Tally/TallySyncPage";
 const CostCenterPerformancePage = lazy(() => import("../pages/cost-centers/CostCenterPerformancePage"));
 const CostCenterAnalyticsPage = lazy(() => import("../pages/cost-centers/CostCenterAnalyticsPage"));
 const OutstandingListingPage = lazy(() => import("../pages/outstandings/OutstandingListingPage"));
@@ -676,6 +677,15 @@ export default function CrmRoutes() {
           />
 
           {/* --------------------------------------------------------- */}
+
+          <Route
+            path="tally-sync"
+            element={
+              <ProtectedRoute required="tally.view">
+                <PageLoader><TallySyncPage /></PageLoader>
+              </ProtectedRoute>
+            }
+          />
 
         </Route>
       </Route>

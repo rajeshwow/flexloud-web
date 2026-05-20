@@ -35,6 +35,16 @@ export const toTitleCase = (str: string = ""): string => {
   // return lower.charAt(0).toUpperCase() + lower.slice(1);
 };
 
+export const formatUnderScoreToSpace = (str: string = "") => {
+  if (!str) return "";
+
+  return str
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
 export const organizationTypeOptions = [
   { label: "End User", value: "end_user" },
   { label: "Government", value: "government" },

@@ -217,6 +217,13 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
     requiresAny: ["tally-operations.view"],
     children: [
       {
+        key: "products.view",
+        label: "Stock Items",
+        path: "/products",
+        icon: "AppstoreOutlined",
+        requiresAny: ["products.view"],
+      },
+      {
         key: "purchase-orders.view",
         label: "Purchase Orders",
         path: "/purchase-orders",
@@ -231,39 +238,47 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         requiresAny: ["sales-orders.view"],
       },
       {
-        key: "tally-performance.view",
-        label: "Tally Performance",
-        path: "/tally-performance",
-        icon: "FundProjectionScreenOutlined",
-        requiresAny: ["tally-performance.view"],
-      },
-      {
-        key: "tally-employees.view",
-        label: "Tally Employees",
-        path: "/tally-employees",
-        icon: "FundProjectionScreenOutlined",
-        requiresAny: ["tally-employees.view"],
-      },
-      {
         key: "warehouse.view",
         label: "Warehouse",
         path: "/warehouse",
-        icon: "FundProjectionScreenOutlined",
+        icon: "InboxOutlined",
         requiresAny: ["warehouse.view"],
       },
       {
         key: "outstandings.view",
         label: "Outstandings",
         path: "/outstandings",
-        icon: "FundProjectionScreenOutlined",
+        icon: "FileDoneOutlined",
         requiresAny: ["outstandings.view"],
       },
       {
         key: "cost-center-performance.view",
         label: "Cost Center Performance",
         path: "/cost-center-performance",
-        icon: "FundProjectionScreenOutlined",
+        icon: "ApartmentOutlined",
         requiresAny: ["cost-center-performance.view"],
+      },
+      {
+        key: "tally.view",
+        label: "Tally Sync",
+        path: "/tally-sync",
+        icon: "CloudSyncOutlined",
+        requiresAny: ["tally.view"],
+      },
+
+      {
+        key: "tally-performance.view",
+        label: "Tally Performance",
+        path: "/tally-performance",
+        icon: "LineChartOutlined",
+        requiresAny: ["tally-performance.view"],
+      },
+      {
+        key: "tally-employees.view",
+        label: "Tally Employees",
+        path: "/tally-employees",
+        icon: "TeamOutlined",
+        requiresAny: ["tally-employees.view"],
       },
     ],
   },
@@ -314,13 +329,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "ImportOutlined",
         requiresAny: ["calls.import"],
       },
-      {
-        key: "products.view",
-        label: "Products",
-        path: "/products",
-        icon: "AppstoreOutlined",
-        requiresAny: ["products.view"],
-      },
+
       {
         key: "meetings.schedule",
         label: "Schedule Meeting",
