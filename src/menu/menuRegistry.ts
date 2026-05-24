@@ -274,12 +274,19 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         requiresAny: ["tally-performance.view"],
       },
       {
-        key: "tally-employees.view",
-        label: "Tally Employees",
-        path: "/tally-employees",
+        key: "tally-companies.view",
+        label: "Tally Companies",
+        path: "/tally-companies",
         icon: "TeamOutlined",
-        requiresAny: ["tally-employees.view"],
+        requiresAny: ["tally-companies.view"],
       },
+      // {
+      //   key: "tally-employees.view",
+      //   label: "Tally Employees",
+      //   path: "/tally-employees",
+      //   icon: "TeamOutlined",
+      //   requiresAny: ["tally-employees.view"],
+      // },
     ],
   },
 

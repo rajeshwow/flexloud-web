@@ -188,7 +188,7 @@ export default function QuotesListPage() {
         {
             title: "Actions",
             key: "actions",
-            fixed: "right",
+            // fixed: "right",
             width: 280,
             render: (_, record) => {
                 const quoteStage = String(record?.quote_stage || "").toLowerCase();
@@ -244,7 +244,7 @@ export default function QuotesListPage() {
                                     })
                                 }
                             >
-                                Create SO
+                                C'SO
                             </Button>
                         )}
                         {record?.sales_order_id && (

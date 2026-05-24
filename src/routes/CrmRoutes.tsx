@@ -1,7 +1,8 @@
 import { Spin } from "antd";
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
-import TallySyncPage from "../pages/Tally/TallySyncPage";
+const TallySyncPage = lazy(() => import("../pages/Tally/TallySyncPage"));
+const TallyCompaniesPage = lazy(() => import("../pages/tally-companies/TallyCompaniesPage"));
 const CostCenterPerformancePage = lazy(() => import("../pages/cost-centers/CostCenterPerformancePage"));
 const CostCenterAnalyticsPage = lazy(() => import("../pages/cost-centers/CostCenterAnalyticsPage"));
 const OutstandingListingPage = lazy(() => import("../pages/outstandings/OutstandingListingPage"));
@@ -686,6 +687,19 @@ export default function CrmRoutes() {
               </ProtectedRoute>
             }
           />
+
+          {/* ------------------------------------------------------------------------ */}
+
+          <Route
+            path="tally-companies"
+            element={
+              <ProtectedRoute required="tally-companies.view">
+                <PageLoader><TallyCompaniesPage /></PageLoader>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ------------------------------------------------------------------------ */}
 
         </Route>
       </Route>
