@@ -217,7 +217,7 @@ export default function TallyPerformancePage() {
                 width: 240,
                 render: (_: any, record) => (
                     <Space direction="vertical" size={0}>
-                        <Text strong>{record.employee_name}</Text>
+                        <Text strong>{toTitleCase(record.employee_name)}</Text>
                         <Text type="secondary" style={{ fontSize: 12 }}>
                             {record.employee_email}
                         </Text>
@@ -233,14 +233,14 @@ export default function TallyPerformancePage() {
                 title: "Assigned Orgs",
                 dataIndex: "assigned_organizations",
                 key: "assigned_organizations",
-                width: 130,
+                width: 120,
                 align: "center",
             },
             {
                 title: "Receivable",
                 dataIndex: "total_receivable",
                 key: "total_receivable",
-                width: 150,
+                width: 120,
                 align: "right",
                 sorter: (a, b) => toNumber(a.total_receivable) - toNumber(b.total_receivable),
                 render: (value) => <Text strong>{formatAmount(value)}</Text>,
@@ -249,7 +249,7 @@ export default function TallyPerformancePage() {
                 title: "Overdue",
                 dataIndex: "overdue_receivable",
                 key: "overdue_receivable",
-                width: 150,
+                width: 100,
                 align: "right",
                 sorter: (a, b) =>
                     toNumber(a.overdue_receivable) - toNumber(b.overdue_receivable),
@@ -263,7 +263,7 @@ export default function TallyPerformancePage() {
                 title: "Critical",
                 dataIndex: "critical_receivable",
                 key: "critical_receivable",
-                width: 150,
+                width: 100,
                 align: "right",
                 render: (value) => (
                     <Text type={toNumber(value) > 0 ? "danger" : undefined}>
@@ -488,7 +488,7 @@ export default function TallyPerformancePage() {
             title: "Assigned To",
             dataIndex: "assigned_to_name",
             key: "assigned_to_name",
-            width: 180,
+            width: 150,
             render: (value) => toTitleCase(value) || "-",
         },
         {
@@ -687,7 +687,7 @@ export default function TallyPerformancePage() {
                                     loading={ageingLoading}
                                     columns={ageingColumns}
                                     dataSource={ageing}
-                                    scroll={{ x: 1000 }}
+                                    scroll={{ x: 900 }}
                                     pagination={{
                                         pageSize: 10,
                                         showSizeChanger: true,
@@ -707,7 +707,7 @@ export default function TallyPerformancePage() {
                                     loading={riskyCustomersLoading}
                                     columns={riskyCustomerColumns}
                                     dataSource={riskyCustomers}
-                                    scroll={{ x: 1000 }}
+                                    scroll={{ x: 900 }}
                                     pagination={{
                                         pageSize: 10,
                                         showSizeChanger: true,

@@ -38,7 +38,7 @@ import {
     Tabs,
     Tag,
     Typography,
-    theme,
+    theme
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { Dayjs } from "dayjs";
@@ -62,6 +62,7 @@ import {
 } from "recharts";
 import { fetchDashboardSummary } from "../../redux/reducers/dashboard.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 import CostCenterAnalyticsPage from "../cost-centers/CostCenterAnalyticsPage";
 
 const { Title, Text } = Typography;
@@ -820,7 +821,7 @@ export default function DashboardPage() {
                             }
                             options={(rawSummary?.users ?? rawSummary?.teamMetrics?.users ?? []).map(
                                 (user: any) => ({
-                                    label: user.name || user.email,
+                                    label: <Space>{toTitleCase(user.name) || user.email}</Space>,
                                     value: user.id,
                                 })
                             )}

@@ -167,9 +167,10 @@ export default function SalesOrderDetailsPage() {
                                     {(detail.status || "draft").toUpperCase()}
                                 </Tag>
                             </Space>
+                            <br />
 
                             <Text type="secondary">
-                                Sales order for {detail.customer_name || "customer"}
+                                Sales order for <Tag color="blue">{toTitleCase(detail.customer_name || "customer")}</Tag>
                             </Text>
                         </div>
                     </Space>

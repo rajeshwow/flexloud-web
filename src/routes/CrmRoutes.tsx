@@ -1,6 +1,7 @@
 import { Spin } from "antd";
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import AppearanceSettingsPage from "../pages/settings/AppearanceSettingsPage";
 const TallySyncPage = lazy(() => import("../pages/Tally/TallySyncPage"));
 const TallyCompaniesPage = lazy(() => import("../pages/tally-companies/TallyCompaniesPage"));
 const CostCenterPerformancePage = lazy(() => import("../pages/cost-centers/CostCenterPerformancePage"));
@@ -628,6 +629,16 @@ export default function CrmRoutes() {
             element={
               <ProtectedRoute required="my-day.view">
                 <PageLoader><MyDayPage /></PageLoader>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="settings/appearance"
+            element={
+              <ProtectedRoute >
+                {/* /required="settings.view"/ */}
+                <PageLoader><AppearanceSettingsPage /></PageLoader>
               </ProtectedRoute>
             }
           />

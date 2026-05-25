@@ -7,6 +7,7 @@ import {
   BankOutlined,
   BarChartOutlined,
   BellOutlined,
+  BgColorsOutlined,
   // BoxOutlined,
   BulbOutlined,
   CalendarOutlined,
@@ -55,7 +56,7 @@ import {
   TruckOutlined,
   UserOutlined
 } from "@ant-design/icons";
-import { Avatar, Badge, Button, Grid, Layout, Menu, message, Popover, Space, Switch, Typography } from "antd";
+import { Avatar, Badge, Button, Divider, Grid, Layout, Menu, message, Popover, Progress, Space, Switch, Tooltip, Typography } from "antd";
 import { startTransition, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAppTheme } from "../theme/ThemeProvider";
@@ -68,8 +69,10 @@ import { MENU_REGISTRY } from "../menu/menuRegistry";
 import NotificationCenterDrawer from "../pages/my-day/components/NotificationCenterDrawer";
 import { clockInAttendance, clockOutAttendance, getTodayAttendance } from "../redux/reducers/attendance.slice";
 import { fetchMyDay, fetchMyDayCounts, setNotificationDrawerOpen } from "../redux/reducers/myDay.slice";
+import { getTargetProgress } from "../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../redux/store";
 import GlobalQuickCreate from "./GlobalQuickCreate";
+import HeaderThemeSwitcher from "./HeaderThemeSwitcher";
 
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
@@ -131,12 +134,144 @@ const iconMap: Record<string, React.ReactNode> = {
   FileDoneOutlined: <FileDoneOutlined />,
   ApartmentOutlined: <ApartmentOutlined />,
   CloudSyncOutlined: <CloudSyncOutlined />,
+  BgColorsOutlined: <BgColorsOutlined />,
 
 };
 
 type AttendanceWatchProps = {
   dark: boolean;
 };
+
+type HeaderTargetProgress = {
+  target_amount: number;
+  achieved_amount: number;
+  remaining_amount: number;
+  progress_percent: number;
+};
+
+function TargetProgressMini({ dark }: { dark: boolean }) {
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState<HeaderTargetProgress | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadTargetProgress = async () => {
+      try {
+        setLoading(true);
+
+        const response = await dispatch(getTargetProgress()).unwrap()
+
+        if (!mounted) return;
+
+        setProgress(response.data || null);
+      } catch {
+        if (!mounted) return;
+        setProgress(null);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadTargetProgress();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const targetAmount = Number(progress?.target_amount || 0);
+  const achievedAmount = Number(progress?.achieved_amount || 0);
+  const remainingAmount = Number(progress?.remaining_amount || 0);
+  const percent = Number(progress?.progress_percent || 0);
+
+  if (!loading && targetAmount <= 0) {
+    return null;
+  }
+
+  return (
+    <Tooltip
+      title={
+        targetAmount > 0
+          ? `Achieved ₹${achievedAmount.toLocaleString("en-IN")} / Target ₹${targetAmount.toLocaleString("en-IN")} • ₹${remainingAmount.toLocaleString("en-IN")} left`
+          : "Target progress"
+      }
+    >
+      <div
+        style={{
+          width: 260,
+          height: 40,
+          padding: "6px 12px",
+          borderRadius: 12,
+          border: dark
+            ? "1px solid rgba(255,255,255,0.12)"
+            : "1px solid rgba(15,23,42,0.08)",
+          background: dark ? "rgba(255,255,255,0.04)" : "#ffffff",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          boxShadow: dark ? "none" : "0 4px 12px rgba(15, 23, 42, 0.04)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+            lineHeight: 1,
+            marginBottom: 4,
+          }}
+        >
+          <Space size={5}>
+            <TrophyOutlined style={{ color: "#faad14", fontSize: 12 }} />
+            <Text style={{ fontSize: 11, lineHeight: 1 }} type="secondary">
+              ₹{achievedAmount.toLocaleString("en-IN")}
+            </Text>
+          </Space>
+
+          <Text
+            style={{
+              fontSize: 11,
+              lineHeight: 1,
+              color: percent >= 100 ? "#52c41a" : "#1677ff",
+              fontWeight: 700,
+            }}
+          >
+            {percent}%
+          </Text>
+
+          <Space size={5}>
+            <RiseOutlined
+              style={{
+                color: percent >= 100 ? "#52c41a" : "#1677ff",
+                fontSize: 12,
+              }}
+            />
+            <Text style={{ fontSize: 11, lineHeight: 1 }} type="secondary">
+              ₹{targetAmount.toLocaleString("en-IN")}
+            </Text>
+          </Space>
+        </div>
+
+        <Progress
+          percent={percent}
+          showInfo={false}
+          size="small"
+          status={percent >= 100 ? "success" : "active"}
+          style={{
+            lineHeight: 1,
+            margin: 0,
+          }}
+        />
+      </div>
+    </Tooltip>
+  );
+}
 
 type BrowserLocation = {
   lat: number;
@@ -497,7 +632,7 @@ function AttendanceWatch({ dark }: AttendanceWatchProps) {
 }
 
 export default function AppShell({ children, user }: Props) {
-  const { dark, setDark } = useAppTheme();
+  const { dark, setDark, accentTheme } = useAppTheme();
 
   const { slug } = useParams();
   const location = useLocation();
@@ -684,11 +819,11 @@ export default function AppShell({ children, user }: Props) {
   --fl-content: ${dark ? "#0b1220" : "#f5f7fb"};
   --fl-shadow: ${dark ? "0 16px 40px rgba(0,0,0,0.35)" : "0 10px 24px rgba(15,23,42,0.06)"};
 
-  --fl-active-bg: ${dark ? "#1668dc" : "#1677ff"};
-  --fl-active-text: #ffffff;
-  --fl-hover-bg: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"};
-  --fl-child-selected-bg: ${dark ? "rgba(255,255,255,0.10)" : "rgba(22,119,255,0.10)"};
-  --fl-child-selected-text: ${dark ? "#ffffff" : "#1677ff"};
+ --fl-active-bg: var(--crm-primary);
+--fl-active-text: #ffffff;
+--fl-hover-bg: ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"};
+--fl-child-selected-bg: var(--crm-active-tab-bg);
+--fl-child-selected-text: ${dark ? "#ffffff" : "var(--crm-primary)"};
 }
 
   .fl-sider {
@@ -715,8 +850,8 @@ export default function AppShell({ children, user }: Props) {
     width: 38px;
     height: 38px;
     border-radius: 12px;
-    background: radial-gradient(circle at 30% 30%, #69b1ff, #1677ff 55%, #10239e);
-    box-shadow: 0 12px 28px rgba(22,119,255,0.35);
+      background: radial-gradient(circle at 30% 30%, var(--crm-primary-hover), var(--crm-primary) 58%, var(--crm-primary-active));
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--crm-primary) 35%, transparent);
     display: grid;
     place-items: center;
     color: #fff;
@@ -843,12 +978,12 @@ export default function AppShell({ children, user }: Props) {
   }
 
   .fl-contentBg{
-    background:
-      radial-gradient(circle at 20% 10%, rgba(22,119,255,0.10), transparent 35%),
-      radial-gradient(circle at 80% 0%, rgba(105,177,255,0.16), transparent 40%),
-      var(--fl-content);
-    padding: 6px;
-  }
+  background:
+    radial-gradient(circle at 20% 10%, color-mix(in srgb, var(--crm-primary) 10%, transparent), transparent 35%),
+    radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--crm-primary-hover) 14%, transparent), transparent 40%),
+    var(--fl-content);
+  padding: 6px;
+}
 
   .fl-card{
     background: var(--fl-cardbg);
@@ -924,7 +1059,7 @@ export default function AppShell({ children, user }: Props) {
         <div>
           <div className="fl-profile" style={{ justifyContent: collapsed ? "center" : "space-between" }}>
             <Space>
-              <Avatar style={{ backgroundColor: "#1677ff" }}>
+              <Avatar style={{ backgroundColor: "var(--crm-primary)" }}>
                 {(user?.name || "A").slice(0, 1).toUpperCase()}
               </Avatar>
               {!collapsed && (
@@ -981,10 +1116,16 @@ export default function AppShell({ children, user }: Props) {
           <div style={{ marginLeft: "auto" }} />
 
           <Space size={12}>
+            <TargetProgressMini dark={dark} />
+            <Divider type="vertical" />
             <AttendanceWatch dark={dark} />
-
+            <Divider type="vertical" />
+            <HeaderThemeSwitcher />
+            <Divider type="vertical" />
             <BulbOutlined style={{ color: "var(--fl-text2)" }} />
+            {/* <Divider type="vertical" /> */}
             <Switch checked={dark} onChange={setDark} />
+            <Divider type="vertical" />
             <Button
               type="text"
               onClick={() => dispatch(setNotificationDrawerOpen(true))}

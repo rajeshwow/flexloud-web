@@ -44,6 +44,7 @@ import {
     type UserCostCenter
 } from "../../redux/reducers/tallyCompanies.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
+import { toTitleCase } from "../../shared/Utils/utils";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -275,10 +276,10 @@ export default function TallyCompaniesPage() {
             ),
         },
         {
-            title: "Mapped Cost Centers",
+            title: "Cost Centers",
             dataIndex: "cost_center_count",
             key: "cost_center_count",
-            width: 180,
+            width: 120,
             render: (value) => (
                 <Badge
                     count={value || 0}
@@ -290,19 +291,72 @@ export default function TallyCompaniesPage() {
         {
             title: "Synced Data",
             key: "synced_data",
-            width: 310,
-            render: (_, record) => (
-                <Space direction="vertical" size={4}>
-                    <Space wrap>
-                        <StatPill label="Ledgers" value={record.ledger_count} />
-                        <StatPill label="Outstanding" value={record.outstanding_count} />
-                    </Space>
-                    <Space wrap>
-                        <StatPill label="SO" value={record.sales_order_count} />
-                        <StatPill label="PO" value={record.purchase_order_count} />
-                    </Space>
-                </Space>
-            ),
+            width: 340,
+            render: (_, record) => {
+                const stats = [
+                    { label: "Ledgers", value: record.ledger_count || 0 },
+                    { label: "Outstanding", value: record.outstanding_count || 0 },
+                    { label: "SO", value: record.sales_order_count || 0 },
+                    { label: "PO", value: record.purchase_order_count || 0 },
+                ];
+
+                return (
+                    <div
+                        style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(2, minmax(118px, 1fr))",
+                            gap: 8,
+                            maxWidth: 285,
+                        }}
+                    >
+                        {stats.map((item) => (
+                            <div
+                                key={item.label}
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    gap: 8,
+                                    minHeight: 34,
+                                    padding: "6px 10px",
+                                    borderRadius: 10,
+                                    border: "1px solid var(--ant-color-border-secondary)",
+                                    background: "var(--ant-color-fill-quaternary)",
+                                }}
+                            >
+                                <span
+                                    style={{
+                                        fontSize: 12,
+                                        color: "var(--ant-color-text-secondary)",
+                                        whiteSpace: "nowrap",
+                                    }}
+                                >
+                                    {item.label}
+                                </span>
+
+                                <span
+                                    style={{
+                                        minWidth: 24,
+                                        height: 22,
+                                        padding: "0 7px",
+                                        borderRadius: 999,
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                        color: "var(--ant-color-text)",
+                                        background: "var(--ant-color-bg-container)",
+                                        border: "1px solid var(--ant-color-border)",
+                                    }}
+                                >
+                                    {item.value}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                );
+            },
         },
         {
             title: "Action",
@@ -321,7 +375,7 @@ export default function TallyCompaniesPage() {
     ];
 
     return (
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 6 }}>
             <Card
                 bordered={false}
                 style={{
@@ -377,7 +431,7 @@ export default function TallyCompaniesPage() {
                         loading={loading}
                         columns={columns}
                         dataSource={items}
-                        scroll={{ x: 1100 }}
+                        scroll={{ x: 900 }}
                         pagination={{
                             current: page,
                             pageSize: limit,
@@ -496,7 +550,7 @@ export default function TallyCompaniesPage() {
                                                                             </Space>
                                                                             <Text type="secondary" style={{ fontSize: 12 }}>
                                                                                 {item.parent_name || "No parent"}{" "}
-                                                                                {item.tally_guid ? `• ${item.tally_guid}` : ""}
+                                                                                {/* {item.tally_guid ? `• ${item.tally_guid}` : ""} */}
                                                                             </Text>
                                                                         </Space>
                                                                     </Checkbox>
@@ -536,7 +590,7 @@ export default function TallyCompaniesPage() {
                                                 style={{ width: "100%" }}
                                                 options={(users || []).map((user: TenantUser) => ({
                                                     value: user.id,
-                                                    label: `${user.name || user.email} (${user.role || "-"})`,
+                                                    label: `${toTitleCase(user.name) || user.email} (${user.role || "-"})`,
                                                 }))}
                                             />
 

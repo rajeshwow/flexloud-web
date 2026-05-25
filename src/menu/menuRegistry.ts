@@ -525,6 +525,13 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         requiresAny: ["rbac.view"],
       },
       {
+        key: "settings.appearance",
+        label: "Appearance",
+        path: "/settings/appearance",
+        icon: "SettingOutlined",
+        // requiresAny: ["settings.appearance"],
+      },
+      {
         key: "users.create",
         label: "Create User",
         path: "/users/create",

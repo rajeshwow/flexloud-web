@@ -42,3 +42,68 @@ body {
 .ant-select {
   color: var(--text);
 }
+
+:root {
+  --crm-primary: #1677ff;
+  --crm-primary-hover: #4096ff;
+  --crm-primary-active: #0958d9;
+
+  --crm-table-header-bg: #eaf3ff;
+  --crm-card-header-bg: #f3f8ff;
+  --crm-active-tab-bg: #e6f4ff;
+  --crm-active-tab-color: #0958d9;
+  --crm-soft-bg: #f3f8ff;
+}
+
+/* AntD table header theme */
+.ant-table-wrapper .ant-table-thead > tr > th {
+  background: var(--crm-table-header-bg) !important;
+}
+
+/* Card header theme */
+.ant-card .ant-card-head {
+  background: var(--crm-card-header-bg);
+}
+
+/* Active tabs theme */
+.ant-tabs .ant-tabs-tab.ant-tabs-tab-active {
+  background: var(--crm-active-tab-bg);
+  border-radius: 10px 10px 0 0;
+}
+
+.ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--crm-active-tab-color) !important;
+  font-weight: 600;
+}
+
+.ant-tabs .ant-tabs-ink-bar {
+  background: var(--crm-primary) !important;
+}
+
+/* Primary button/icon consistency */
+.ant-btn-primary {
+  background: var(--crm-primary) !important;
+  border-color: var(--crm-primary) !important;
+}
+
+.ant-btn-primary:hover {
+  background: var(--crm-primary-hover) !important;
+  border-color: var(--crm-primary-hover) !important;
+}
+
+/* Theme-friendly helper classes */
+.crm-themed-card-header {
+  background: var(--crm-card-header-bg);
+}
+
+.crm-themed-soft-bg {
+  background: var(--crm-soft-bg);
+}
+
+.crm-themed-text {
+  color: var(--crm-primary);
+}
+
+.crm-themed-border {
+  border-color: var(--crm-primary) !important;
+}

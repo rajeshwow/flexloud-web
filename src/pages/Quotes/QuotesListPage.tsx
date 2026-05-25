@@ -235,16 +235,17 @@ export default function QuotesListPage() {
 
 
 
-                        <Button type="primary" size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}`)}>
+                        <Button title="View Quote" type="primary" size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}`)}>
                             <EyeOutlined />
                         </Button>
 
-                        <Button type="primary" size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}/edit`)}>
+                        <Button title="Edit Quote" type="primary" size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}/edit`)}>
                             <EditFilled />
                         </Button>
 
                         {record?.sales_order_id && (
                             <Button
+                                title="View Sales Order"
                                 size="small"
                                 onClick={() => navigate(`/${slug}/sales-orders/${record.sales_order_id}`)}
                             >
@@ -253,6 +254,7 @@ export default function QuotesListPage() {
                         )}
                         {canCreateSalesOrder && (
                             <Button
+
                                 type="primary"
                                 size="small"
                                 icon={<ShoppingCartOutlined />}

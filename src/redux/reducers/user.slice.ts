@@ -39,6 +39,7 @@ export type CreateUserPayload = {
 };
 
 export type UserItem = {
+  target_amount: any;
   id: string;
   email: string;
   name: string;
@@ -167,6 +168,68 @@ export const getUsers = createAsyncThunk<
     );
   }
 });
+
+//Client.get(withTenant("/users/me/target-progress"));
+export const getTargetProgress = createAsyncThunk(
+  "users/getTargetProgress",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await Client.get(
+        withTenant("/users/me/target-progress"),
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.data?.message ||
+          error?.message ||
+          "Failed to fetch target progress",
+      );
+    }
+  },
+);
+
+export const updateUserStatus = createAsyncThunk(
+  "users/updateUserStatus",
+  async (payload: { id: string; is_active: boolean }, { rejectWithValue }) => {
+    try {
+      const response = await Client.patch(
+        withTenant(`/users/${payload.id}/status`),
+        {
+          is_active: payload.is_active,
+        },
+      );
+
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || "Failed to update user status",
+      );
+    }
+  },
+);
+
+export const setUserTarget = createAsyncThunk(
+  "users/setUserTarget",
+  async (
+    payload: { id: string; target_amount: number },
+    { rejectWithValue },
+  ) => {
+    try {
+      const response = await Client.patch(
+        withTenant(`/users/${payload.id}/target`),
+        {
+          target_amount: payload.target_amount,
+        },
+      );
+
+      return response.data?.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || "Failed to update user target",
+      );
+    }
+  },
+);
 
 const userSlice = createSlice({
   name: "users",

@@ -10,8 +10,11 @@ import { ThemeProvider } from "./theme/ThemeProvider";
 
 
 // keep initial theme attribute (prevents flash)
-const saved = localStorage.getItem("fl_theme") || "light";
-document.documentElement.setAttribute("data-theme", saved);
+const savedMode = localStorage.getItem("fl_theme") || "light";
+const savedAccent = localStorage.getItem("fl_accent_theme") || "blue";
+
+document.documentElement.setAttribute("data-theme", savedMode);
+document.documentElement.setAttribute("data-accent-theme", savedAccent);
 
 registerSW({
   immediate: true
