@@ -49,6 +49,12 @@ const { RangePicker } = DatePicker;
 const { Text, Title } = Typography;
 
 type ActiveTab = "sales-orders" | "purchase-orders";
+type WarehouseStatusStat = {
+    key: string;
+    label: string;
+    count: number;
+    color?: string;
+};
 
 
 
@@ -83,6 +89,8 @@ export default function WarehouseListingPage() {
         salesOrdersTotal,
         purchaseOrdersTotal,
         loading,
+        salesOrderStatusStats,
+        purchaseOrderStatusStats,
     } = useSelector((state: RootState) => state.warehouse);
 
     const [activeTab, setActiveTab] = useState<ActiveTab>("sales-orders");
@@ -150,6 +158,58 @@ export default function WarehouseListingPage() {
         });
 
         setReceiveModalOpen(true);
+    };
+
+    const getOptionText = (label: any) => {
+        if (typeof label === "string") return label;
+        if (typeof label === "number") return String(label);
+        return "";
+    };
+
+    const buildStatusStats = (
+        rows: any[],
+        total: number,
+        options: any[],
+        getColor: (status: string) => string,
+    ): WarehouseStatusStat[] => {
+        const statusMap = rows.reduce<Record<string, number>>((acc, item) => {
+            const status = String(item?.status || "unknown").toLowerCase();
+            acc[status] = (acc[status] || 0) + 1;
+            return acc;
+        }, {});
+
+        const optionStats = options
+            .map((option) => {
+                const statusKey = String(option?.value || "").toLowerCase();
+
+                return {
+                    key: statusKey,
+                    label: getOptionText(option?.label) || titleCaseStatus(statusKey),
+                    count: statusMap[statusKey] || 0,
+                    color: getColor(statusKey),
+                };
+            })
+            .filter((item) => item.key);
+
+        const unknownStats = Object.entries(statusMap)
+            .filter(([status]) => !optionStats.some((item) => item.key === status))
+            .map(([status, count]) => ({
+                key: status,
+                label: titleCaseStatus(status),
+                count,
+                color: "default",
+            }));
+
+        return [
+            // {
+            //     key: "all",
+            //     label: "Total",
+            //     count: total || rows.length || 0,
+            //     color: "blue",
+            // },
+            ...optionStats,
+            ...unknownStats,
+        ];
     };
 
     const openDispatchModal = (record: WarehouseSalesOrderItem) => {
@@ -476,7 +536,7 @@ export default function WarehouseListingPage() {
             {
                 title: "Sales Order",
                 dataIndex: "so_number",
-                width: 180,
+                width: 150,
                 render: (_: any, record: any) => (
                     <Space direction="vertical" size={1}>
                         <Text strong style={{ color: token.colorPrimary }}>
@@ -527,8 +587,8 @@ export default function WarehouseListingPage() {
                 ),
             },
             {
-                title: "Courier / Tracking",
-                width: 200,
+                title: "Tracking",
+                width: 100,
                 render: (_: any, record: any) => (
                     <Space direction="vertical" size={1}>
                         <Text>{record.courier_name || "-"}</Text>
@@ -538,17 +598,17 @@ export default function WarehouseListingPage() {
                     </Space>
                 ),
             },
-            {
-                title: "Expected",
-                dataIndex: "expected_delivery_date",
-                width: 130,
-                render: (value) =>
-                    value ? dayjs(value).format("DD MMM YYYY") : <Text type="secondary">-</Text>,
-            },
+            // {
+            //     title: "Expected",
+            //     dataIndex: "expected_delivery_date",
+            //     width: 130,
+            //     render: (value) =>
+            //         value ? dayjs(value).format("DD MMM YYYY") : <Text type="secondary">-</Text>,
+            // },
             {
                 title: "Amount",
                 dataIndex: "grand_total",
-                width: 140,
+                width: 100,
                 align: "right",
                 render: (value) => <Text strong>{formatCurrency(value)}</Text>,
             },
@@ -607,7 +667,7 @@ export default function WarehouseListingPage() {
         {
             title: "Purchase Order",
             dataIndex: "po_number",
-            width: 180,
+            width: 150,
             render: (_: any, record: any) => (
                 <Space direction="vertical" size={1}>
                     <Text strong style={{ color: token.colorPrimary }}>
@@ -622,7 +682,7 @@ export default function WarehouseListingPage() {
         {
             title: "Vendor",
             dataIndex: "vendor_name",
-            width: 220,
+            width: 180,
             render: (_: any, record: any) => (
                 <Space direction="vertical" size={1}>
                     <Text strong>{toTitleCase(record.vendor_name) || "-"}</Text>
@@ -635,7 +695,7 @@ export default function WarehouseListingPage() {
         {
             title: "Status",
             dataIndex: "status",
-            width: 120,
+            width: 100,
             render: (status: any) => (
                 <Tag color={getPurchaseOrderStatusColor(status)}>{titleCaseStatus(status)}</Tag>
             ),
@@ -657,8 +717,8 @@ export default function WarehouseListingPage() {
             ),
         },
         {
-            title: "Courier / Tracking",
-            width: 150,
+            title: "Tracking",
+            width: 120,
             render: (_: any, record: any) => (
                 <Space direction="vertical" size={1}>
                     <Text>{record.courier_name || "-"}</Text>
@@ -668,17 +728,17 @@ export default function WarehouseListingPage() {
                 </Space>
             ),
         },
-        {
-            title: "Expected",
-            dataIndex: "expected_delivery_date",
-            width: 130,
-            render: (value: any) =>
-                value ? dayjs(value).format("DD MMM YYYY") : <Text type="secondary">-</Text>,
-        },
+        // {
+        //     title: "Expected",
+        //     dataIndex: "expected_delivery_date",
+        //     width: 100,
+        //     render: (value: any) =>
+        //         value ? dayjs(value).format("DD MMM YYYY") : <Text type="secondary">-</Text>,
+        // },
         {
             title: "Amount",
             dataIndex: "grand_total",
-            width: 140,
+            width: 100,
             align: "right",
             render: (value: any) => <Text strong>{formatCurrency(value)}</Text>,
         },
@@ -761,6 +821,169 @@ export default function WarehouseListingPage() {
         0,
     );
 
+    const salesOrderStatsFromDb = useMemo(() => {
+        const countMap = new Map(
+            (salesOrderStatusStats || []).map((item: any) => [
+                item.status,
+                Number(item.count || 0),
+            ]),
+        );
+
+        return [
+            {
+                key: "all",
+                label: "Total",
+                count: salesOrdersTotal || 0,
+                color: "blue",
+            },
+            ...getSalesOrderStatusOptions()
+                .filter(
+                    (item: any) =>
+                        !["partially_dispatched",].includes(item.value),
+                )
+                .map((item: any) => ({
+                    key: item.value,
+                    label: item.label,
+                    count: countMap.get(item.value) || 0,
+                    color: getSalesOrderStatusColor(item.value),
+                })),
+        ];
+    }, [salesOrderStatusStats, salesOrdersTotal]);
+
+    const purchaseOrderStatsFromDb = useMemo(() => {
+        const countMap = new Map(
+            (purchaseOrderStatusStats || []).map((item: any) => [
+                item.status,
+                Number(item.count || 0),
+            ]),
+        );
+
+        return [
+            {
+                key: "all",
+                label: "Total",
+                count: purchaseOrdersTotal || 0,
+                color: "blue",
+            },
+            ...getPurchaseOrderStatusOptions().map((item: any) => ({
+                key: item.value,
+                label: item.label,
+                count: countMap.get(item.value) || 0,
+                color: getPurchaseOrderStatusColor(item.value),
+            })),
+        ];
+    }, [purchaseOrderStatusStats, purchaseOrdersTotal]);
+    const activeStatusStats =
+        activeTab === "sales-orders" ? salesOrderStatsFromDb : purchaseOrderStatsFromDb;
+
+    const getStatCardColors = (key: string) => {
+        const colorMap: Record<
+            string,
+            {
+                bg: string;
+                border: string;
+                number: string;
+                chipBg: string;
+                chipColor: string;
+            }
+        > = {
+            all: {
+                bg: "linear-gradient(135deg, rgba(22,119,255,0.12), rgba(22,119,255,0.04))",
+                border: "rgba(22,119,255,0.22)",
+                number: "#1677ff",
+                chipBg: "rgba(22,119,255,0.14)",
+                chipColor: "#1677ff",
+            },
+            draft: {
+                bg: "linear-gradient(135deg, rgba(250,173,20,0.14), rgba(250,173,20,0.05))",
+                border: "rgba(250,173,20,0.24)",
+                number: "#d48806",
+                chipBg: "rgba(250,173,20,0.16)",
+                chipColor: "#d48806",
+            },
+            confirmed: {
+                bg: "linear-gradient(135deg, rgba(82,196,26,0.18), rgba(82,196,26,0.06))",
+                border: "rgba(82,196,26,0.28)",
+                number: "#389e0d",
+                chipBg: "rgba(82,196,26,0.16)",
+                chipColor: "#389e0d",
+            },
+            ready_to_dispatch: {
+                bg: "linear-gradient(135deg, rgba(19,194,194,0.14), rgba(19,194,194,0.05))",
+                border: "rgba(19,194,194,0.24)",
+                number: "#08979c",
+                chipBg: "rgba(19,194,194,0.16)",
+                chipColor: "#08979c",
+            },
+            packed: {
+                bg: "linear-gradient(135deg, rgba(114,46,209,0.14), rgba(114,46,209,0.05))",
+                border: "rgba(114,46,209,0.24)",
+                number: "#531dab",
+                chipBg: "rgba(114,46,209,0.16)",
+                chipColor: "#531dab",
+            },
+            dispatched: {
+                bg: "linear-gradient(135deg, rgba(24,144,255,0.14), rgba(24,144,255,0.05))",
+                border: "rgba(24,144,255,0.24)",
+                number: "#0958d9",
+                chipBg: "rgba(24,144,255,0.16)",
+                chipColor: "#0958d9",
+            },
+            in_transit: {
+                bg: "linear-gradient(135deg, rgba(45,183,245,0.14), rgba(45,183,245,0.05))",
+                border: "rgba(45,183,245,0.24)",
+                number: "#1677ff",
+                chipBg: "rgba(45,183,245,0.16)",
+                chipColor: "#1677ff",
+            },
+            delivered: {
+                bg: "linear-gradient(135deg, rgba(82,196,26,0.14), rgba(82,196,26,0.05))",
+                border: "rgba(82,196,26,0.24)",
+                number: "#237804",
+                chipBg: "rgba(82,196,26,0.16)",
+                chipColor: "#237804",
+            },
+            pending_receive: {
+                bg: "linear-gradient(135deg, rgba(250,140,22,0.14), rgba(250,140,22,0.05))",
+                border: "rgba(250,140,22,0.24)",
+                number: "#d46b08",
+                chipBg: "rgba(250,140,22,0.16)",
+                chipColor: "#d46b08",
+            },
+            partially_received: {
+                bg: "linear-gradient(135deg, rgba(114,46,209,0.14), rgba(114,46,209,0.05))",
+                border: "rgba(114,46,209,0.24)",
+                number: "#531dab",
+                chipBg: "rgba(114,46,209,0.16)",
+                chipColor: "#531dab",
+            },
+            received: {
+                bg: "linear-gradient(135deg, rgba(82,196,26,0.14), rgba(82,196,26,0.05))",
+                border: "rgba(82,196,26,0.24)",
+                number: "#237804",
+                chipBg: "rgba(82,196,26,0.16)",
+                chipColor: "#237804",
+            },
+            cancelled: {
+                bg: "linear-gradient(135deg, rgba(255,77,79,0.14), rgba(255,77,79,0.05))",
+                border: "rgba(255,77,79,0.24)",
+                number: "#cf1322",
+                chipBg: "rgba(255,77,79,0.16)",
+                chipColor: "#cf1322",
+            },
+        };
+
+        return (
+            colorMap[key] || {
+                bg: token.colorBgContainer,
+                border: token.colorBorderSecondary,
+                number: token.colorTextHeading,
+                chipBg: token.colorFillSecondary,
+                chipColor: token.colorText,
+            }
+        );
+    };
+
     const selectedSoTotalAmount =
         dispatchItems.reduce((sum: number, item: any) => {
             const qty = Number(item.ordered_qty || item.quantity || 0);
@@ -771,14 +994,27 @@ export default function WarehouseListingPage() {
         }, 0) || Number((selectedSalesOrder as any)?.grand_total || 0);
 
     return (
-        <div
-            style={{
-                padding: 20,
-                background: token.colorBgLayout,
-                minHeight: "100%",
-            }}
-        >
-            <Card
+        <>
+            <style>
+                {`
+                    @keyframes warehouseHeartbeat {
+                        0% { transform: scale(1); }
+                        14% { transform: scale(1.08); }
+                        28% { transform: scale(1); }
+                        42% { transform: scale(1.1); }
+                        70% { transform: scale(1); }
+                        100% { transform: scale(1); }
+                    }
+                `}
+            </style>
+            <div
+                style={{
+                    padding: 20,
+                    background: token.colorBgLayout,
+                    minHeight: "100%",
+                }}
+            >
+                {/* <Card
                 bordered={false}
                 style={{
                     borderRadius: 18,
@@ -786,7 +1022,7 @@ export default function WarehouseListingPage() {
                     background: token.colorBgContainer,
                 }}
                 bodyStyle={{ padding: 18 }}
-            >
+            > */}
                 <div
                     style={{
                         display: "flex",
@@ -829,6 +1065,98 @@ export default function WarehouseListingPage() {
                         Refresh
                     </Button>
                 </div>
+
+                <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+                    {activeStatusStats.map((item) => {
+                        const cardColors = getStatCardColors(item.key);
+                        const isConfirmed = item.key === "confirmed";
+
+                        return (
+                            <Col xs={12} sm={8} md={6} lg={4} xl={4} key={item.key}>
+                                <Card
+                                    size="small"
+                                    bordered
+                                    style={{
+                                        background: cardColors.bg,
+                                        borderColor: cardColors.border,
+                                        borderRadius: token.borderRadiusLG,
+                                        overflow: "hidden",
+                                        position: "relative",
+                                        boxShadow: isConfirmed
+                                            ? "0 8px 20px rgba(82,196,26,0.18)"
+                                            : token.boxShadowSecondary,
+                                        animation: isConfirmed
+                                            ? "warehouseHeartbeat 1.6s ease-in-out infinite"
+                                            : undefined,
+                                        transformOrigin: "center",
+                                    }}
+                                    styles={{
+                                        body: {
+                                            padding: "12px 14px",
+                                        },
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            top: 0,
+                                            left: 0,
+                                            right: 0,
+                                            height: 4,
+                                            background:
+                                                item.key === "all"
+                                                    ? "#1677ff"
+                                                    : cardColors.number,
+                                        }}
+                                    />
+
+                                    <Space direction="vertical" size={4} style={{ width: "100%" }}>
+                                        <Flex justify="space-between" align="center" gap={8}>
+                                            <Text
+                                                style={{
+                                                    fontSize: 12,
+                                                    fontWeight: 500,
+                                                    color: token.colorTextSecondary,
+                                                }}
+                                            >
+                                                {item.label}
+                                            </Text>
+
+                                            <div
+                                                style={{
+                                                    minWidth: 34,
+                                                    height: 26,
+                                                    padding: "0 10px",
+                                                    borderRadius: 999,
+                                                    display: "inline-flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    background: cardColors.chipBg,
+                                                    color: cardColors.chipColor,
+                                                    fontWeight: 700,
+                                                    fontSize: 12,
+                                                }}
+                                            >
+                                                {item.count}
+                                            </div>
+                                        </Flex>
+
+                                        <Title
+                                            level={4}
+                                            style={{
+                                                margin: 0,
+                                                color: cardColors.number,
+                                                fontWeight: 700,
+                                            }}
+                                        >
+                                            {item.count}
+                                        </Title>
+                                    </Space>
+                                </Card>
+                            </Col>
+                        );
+                    })}
+                </Row>
 
                 <Tabs
                     activeKey={activeTab}
@@ -928,7 +1256,7 @@ export default function WarehouseListingPage() {
                         loading={loading}
                         columns={salesOrderColumns}
                         dataSource={salesOrders}
-                        scroll={{ x: 1250 }}
+                        scroll={{ x: 1000 }}
                         locale={{
                             emptyText: (
                                 <Empty description="No sales orders found for warehouse" />
@@ -955,7 +1283,7 @@ export default function WarehouseListingPage() {
                         loading={loading}
                         columns={purchaseOrderColumns}
                         dataSource={purchaseOrders}
-                        scroll={{ x: 1250 }}
+                        scroll={{ x: 1000 }}
                         locale={{
                             emptyText: (
                                 <Empty description="No purchase orders found for warehouse" />
@@ -977,69 +1305,69 @@ export default function WarehouseListingPage() {
                         }}
                     />
                 )}
-            </Card>
-            <Modal
-                open={receiveModalOpen}
-                title={null}
-                footer={null}
-                centered
-                width={900}
-                destroyOnClose
-                onCancel={() => {
-                    setReceiveModalOpen(false);
-                    setSelectedPurchaseOrder(null);
-                    receiveForm.resetFields();
-                    setReceiveItems([]);
-                }}
-
-            >
-                <div
-
-                >
-                    <Title level={5} style={{ margin: "4px 0 0" }}>
-                        RECEIVE MATERIAL
-                    </Title>
-
-                    <Title level={4} style={{ margin: "4px 0 0" }}>
-                        {selectedPurchaseOrder?.po_number || "-"} 📦
-                    </Title>
-
-                    <Text>
-                        From:  {toTitleCase(selectedPurchaseOrder?.vendor_name || "-")}
-                    </Text>
-                </div>
-
-                <Form
-                    form={receiveForm}
-                    layout="vertical"
-                    style={{
-                        // padding: 20,
-                        // background: token.colorBgContainer,
+                {/* </Card> */}
+                <Modal
+                    open={receiveModalOpen}
+                    title={null}
+                    footer={null}
+                    centered
+                    width={900}
+                    destroyOnClose
+                    onCancel={() => {
+                        setReceiveModalOpen(false);
+                        setSelectedPurchaseOrder(null);
+                        receiveForm.resetFields();
+                        setReceiveItems([]);
                     }}
+
                 >
-                    <Row gutter={16}>
-                        <Col span={8}>
-                            <Form.Item name="courier_name" label="Courier" rules={[{ required: true, message: "Please enter Courier" }]}>
-                                <Input placeholder="BlueDart, DTDC..." />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="awb_number" label="AWB / Tracking" rules={[{ required: true, message: "Please enter AWB / Tracking" }]}>
-                                <Input placeholder="AWB123" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                name="status"
-                                label="Status"
-                                rules={[{ required: true, message: "Please select status" }]}
-                            >
-                                <Select
-                                    options={getPurchaseOrderStatusOptions()}
-                                />
-                            </Form.Item>
-                        </Col>
-                        {/* <Col span={8}>
+                    <div
+
+                    >
+                        <Title level={5} style={{ margin: "4px 0 0" }}>
+                            RECEIVE MATERIAL
+                        </Title>
+
+                        <Title level={4} style={{ margin: "4px 0 0" }}>
+                            {selectedPurchaseOrder?.po_number || "-"} 📦
+                        </Title>
+
+                        <Text>
+                            From:  {toTitleCase(selectedPurchaseOrder?.vendor_name || "-")}
+                        </Text>
+                    </div>
+
+                    <Form
+                        form={receiveForm}
+                        layout="vertical"
+                        style={{
+                            // padding: 20,
+                            // background: token.colorBgContainer,
+                        }}
+                    >
+                        <Row gutter={16}>
+                            <Col span={8}>
+                                <Form.Item name="courier_name" label="Courier" rules={[{ required: true, message: "Please enter Courier" }]}>
+                                    <Input placeholder="BlueDart, DTDC..." />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item name="awb_number" label="AWB / Tracking" rules={[{ required: true, message: "Please enter AWB / Tracking" }]}>
+                                    <Input placeholder="AWB123" />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item
+                                    name="status"
+                                    label="Status"
+                                    rules={[{ required: true, message: "Please select status" }]}
+                                >
+                                    <Select
+                                        options={getPurchaseOrderStatusOptions()}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            {/* <Col span={8}>
                             <Form.Item
                                 name="received_qty"
                                 label="Received Qty"
@@ -1053,467 +1381,468 @@ export default function WarehouseListingPage() {
                                 <InputNumber min={0} style={{ width: "100%" }} />
                             </Form.Item>
                         </Col> */}
-                        <Col span={24}>
+                            <Col span={24}>
 
 
-                            <Form.Item name="remarks" label="Remarks">
-                                <Input.TextArea rows={3} placeholder="Any receiving note..." />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Card
-                        size="small"
-                        title="📦 Items"
-                        style={{ marginTop: 10 }}
-                    >
-                        <Table
+                                <Form.Item name="remarks" label="Remarks">
+                                    <Input.TextArea rows={3} placeholder="Any receiving note..." />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Card
                             size="small"
-                            rowKey={(record: any, index) =>
-                                record.id || record.purchase_order_item_id || String(index)
-                            }
-                            columns={[
-                                {
-                                    title: "Item",
-                                    dataIndex: "item_name",
-                                    width: 220,
-                                    render: (_: any, record: any) => (
-                                        <Space direction="vertical" size={0}>
-                                            <Text strong>
-                                                {record.item_name || record.product_name || "Item"}
-                                            </Text>
-
-                                            {(record.sku || record.item_code || record.unit) && (
-                                                <Text type="secondary" style={{ fontSize: 12 }}>
-                                                    {[record.sku || record.item_code, record.unit]
-                                                        .filter(Boolean)
-                                                        .join(" • ")}
+                            title="📦 Items"
+                            style={{ marginTop: 10 }}
+                        >
+                            <Table
+                                size="small"
+                                rowKey={(record: any, index) =>
+                                    record.id || record.purchase_order_item_id || String(index)
+                                }
+                                columns={[
+                                    {
+                                        title: "Item",
+                                        dataIndex: "item_name",
+                                        width: 220,
+                                        render: (_: any, record: any) => (
+                                            <Space direction="vertical" size={0}>
+                                                <Text strong>
+                                                    {record.item_name || record.product_name || "Item"}
                                                 </Text>
-                                            )}
-                                        </Space>
-                                    ),
-                                },
-                                {
-                                    title: "Ordered",
-                                    width: 90,
-                                    align: "right",
-                                    render: (_: any, record: any) => (
-                                        <Text>{Number(record.ordered_qty || record.quantity || 0)}</Text>
-                                    ),
-                                },
-                                {
-                                    title: "Already Received",
-                                    width: 130,
-                                    align: "right",
-                                    render: (_: any, record: any) => (
-                                        <Text>{Number(record.already_received_qty || 0)}</Text>
-                                    ),
-                                },
-                                {
-                                    title: "Already Damaged",
-                                    width: 130,
-                                    align: "right",
-                                    render: (_: any, record: any) => (
-                                        <Text type={Number(record.already_damaged_qty || 0) > 0 ? "danger" : undefined}>
-                                            {Number(record.already_damaged_qty || 0)}
-                                        </Text>
-                                    ),
-                                },
-                                {
-                                    title: "Pending",
-                                    width: 90,
-                                    align: "right",
-                                    render: (_: any, record: any) => (
-                                        <Text strong type={Number(record.pending_qty || 0) > 0 ? "danger" : "success"}>
-                                            {Number(record.pending_qty || 0)}
-                                        </Text>
-                                    ),
-                                },
-                                {
-                                    title: "Receive Now",
-                                    width: 130,
-                                    align: "right",
-                                    render: (_: any, record: any) => {
-                                        const itemId = record.purchase_order_item_id || record.id;
-                                        const pendingQty = Number(record.pending_qty || 0);
-                                        const damageQty = Number(record.damage_now_qty ?? record.damaged_qty ?? 0);
 
-                                        return (
-                                            <InputNumber
-                                                min={0}
-                                                max={Math.max(pendingQty - damageQty, 0)}
-                                                value={Number(record.receive_now_qty || 0)}
-                                                style={{ width: "100%" }}
-                                                disabled={pendingQty <= 0}
-                                                onChange={(value) =>
-                                                    updateReceiveItem(
-                                                        itemId,
-                                                        "receive_now_qty",
-                                                        Number(value || 0),
-                                                    )
-                                                }
-                                            />
-                                        );
+                                                {(record.sku || record.item_code || record.unit) && (
+                                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                                        {[record.sku || record.item_code, record.unit]
+                                                            .filter(Boolean)
+                                                            .join(" • ")}
+                                                    </Text>
+                                                )}
+                                            </Space>
+                                        ),
                                     },
-                                },
-                                {
-                                    title: "Damaged Now",
-                                    width: 130,
-                                    align: "right",
-                                    render: (_: any, record: any) => {
-                                        const itemId = record.purchase_order_item_id || record.id;
-                                        const pendingQty = Number(record.pending_qty || 0);
-                                        const receiveQty = Number(record.receive_now_qty || 0);
-
-
-                                        return (
-                                            <InputNumber
-                                                min={0}
-                                                max={Math.max(pendingQty - receiveQty, 0)}
-                                                value={Number(record.damage_now_qty || 0)}
-                                                style={{ width: "100%" }}
-                                                disabled={pendingQty <= 0}
-                                                onChange={(value) =>
-                                                    updateReceiveItem(
-                                                        itemId,
-                                                        "damage_now_qty",
-                                                        Number(value || 0),
-                                                    )
-                                                }
-                                            />
-                                        );
+                                    {
+                                        title: "Ordered",
+                                        width: 90,
+                                        align: "right",
+                                        render: (_: any, record: any) => (
+                                            <Text>{Number(record.ordered_qty || record.quantity || 0)}</Text>
+                                        ),
                                     },
-                                },
-                                {
-                                    title: "Amount",
-                                    width: 120,
-                                    align: "right",
-                                    render: (_: any, record: any) => {
-                                        const qty = Number(record.ordered_qty || record.quantity || 0);
-                                        const rate = Number(record.rate || record.price || 0);
-                                        const amount = Number(record.amount || qty * rate || 0);
-
-                                        return <Text strong>{formatCurrency(amount)}</Text>;
+                                    {
+                                        title: "Already Received",
+                                        width: 130,
+                                        align: "right",
+                                        render: (_: any, record: any) => (
+                                            <Text>{Number(record.already_received_qty || 0)}</Text>
+                                        ),
                                     },
-                                },
-                            ]}
-                            dataSource={receiveItems}
-                            pagination={false}
-                            scroll={{ x: 950 }}
-                            locale={{
-                                emptyText: <Empty description="No items found" />,
-                            }}
-                            summary={() => (
-                                <Table.Summary.Row>
-                                    <Table.Summary.Cell index={0}>
-                                        <Text strong>Total</Text>
-                                    </Table.Summary.Cell>
-
-                                    <Table.Summary.Cell index={1} align="right">
-                                        <Text strong>{selectedPoTotalQty}</Text>
-                                    </Table.Summary.Cell>
-
-                                    <Table.Summary.Cell index={2} align="right">
-                                        <Text strong>{selectedPoAlreadyReceivedQty}</Text>
-                                    </Table.Summary.Cell>
-
-                                    <Table.Summary.Cell index={3} align="right">
-                                        <Text strong type={selectedPoAlreadyDamagedQty > 0 ? "danger" : undefined}>
-                                            {selectedPoAlreadyDamagedQty}
-                                        </Text>
-                                    </Table.Summary.Cell>
-
-                                    <Table.Summary.Cell index={4} align="right">
-                                        <Text strong>{selectedPoPendingQty}</Text>
-                                    </Table.Summary.Cell>
-
-                                    <Table.Summary.Cell index={5} align="right">
-                                        <Text strong>{selectedPoReceiveNowQty}</Text>
-                                    </Table.Summary.Cell>
-
-                                    <Table.Summary.Cell index={6} align="right">
-                                        <Text strong>{selectedPoDamageNowQty}</Text>
-                                    </Table.Summary.Cell>
-
-                                    <Table.Summary.Cell index={7} align="right">
-                                        <Text strong>{formatCurrency(selectedPoTotalAmount)}</Text>
-                                    </Table.Summary.Cell>
-                                </Table.Summary.Row>
-                            )}
-                        />
-                    </Card>
-
-                    <Divider />
-
-                    <Flex justify="end" gap={12}>
-                        <Button
-                            size="large"
-                            onClick={() => {
-                                setReceiveModalOpen(false);
-                                setSelectedPurchaseOrder(null);
-                                receiveForm.resetFields();
-                                setReceiveItems([]);
-                            }}
-                        >
-                            Cancel
-                        </Button>
-
-                        <Button
-                            size="large"
-                            type="primary"
-                            loading={receiveSubmitting}
-                            onClick={handleReceiveSubmit}
-                        >
-                            ✅ Save Receipt
-                        </Button>
-                    </Flex>
-                </Form>
-            </Modal>
-
-            <Modal
-                open={dispatchModalOpen}
-                title={null}
-                footer={null}
-                centered
-                width={950}
-                destroyOnClose
-                onCancel={() => {
-                    setDispatchModalOpen(false);
-                    setSelectedSalesOrder(null);
-                    dispatchForm.resetFields();
-                    setDispatchItems([]);
-                }}
-            >
-                <div>
-                    <Title level={5} style={{ margin: "4px 0 0" }}>
-                        DISPATCH MATERIAL
-                    </Title>
-
-                    <Title level={4} style={{ margin: "4px 0 0" }}>
-                        {selectedSalesOrder?.so_number || "-"} 🚚
-                    </Title>
-
-                    <Text>
-                        Customer: {toTitleCase((selectedSalesOrder as any)?.customer_name || "-")}
-                    </Text>
-                </div>
-
-                <Form form={dispatchForm} layout="vertical">
-                    <Row gutter={16}>
-                        <Col span={8}>
-                            <Form.Item
-                                name="courier_name"
-                                label="Courier"
-                                rules={[{ required: true, message: "Please enter courier" }]}
-                            >
-                                <Input placeholder="BlueDart, DTDC..." />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={8}>
-                            <Form.Item
-                                name="awb_number"
-                                label="AWB / Tracking"
-                                rules={[{ required: true, message: "Please enter AWB / Tracking" }]}
-                            >
-                                <Input placeholder="AWB123" />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={8}>
-                            <Form.Item
-                                name="status"
-                                label="Status"
-                                rules={[{ required: true, message: "Please select status" }]}
-                            >
-                                <Select
-                                    options={getSalesOrderStatusOptions().filter((item: any) =>
-                                        [
-                                            "ready_to_dispatch",
-                                            "partially_dispatched",
-                                            "dispatched",
-                                            "delivered",
-                                        ].includes(item.value),
-                                    )}
-                                />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={12}>
-                            <Form.Item name="tracking_url" label="Tracking URL">
-                                <Input placeholder="https://tracking-url.com/awb" />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={12}>
-                            <Form.Item name="delivery_expected_at" label="Expected Delivery Date">
-                                <DatePicker disabledDate={(current) => current && current.isBefore(dayjs())} style={{ width: "100%" }} />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={24}>
-                            <Form.Item name="remarks" label="Remarks">
-                                <Input.TextArea rows={3} placeholder="Any dispatch note..." />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Card size="small" title="🚚 Dispatch Items" style={{ marginTop: 10 }}>
-                        <Table
-                            size="small"
-                            rowKey={(record: any, index) =>
-                                record.id || record.sales_order_item_id || String(index)
-                            }
-                            columns={[
-                                {
-                                    title: "Item",
-                                    dataIndex: "item_name",
-                                    width: 240,
-                                    render: (_: any, record: any) => (
-                                        <Space direction="vertical" size={0}>
-                                            <Text strong>
-                                                {record.item_name || record.product_name || "Item"}
+                                    {
+                                        title: "Already Damaged",
+                                        width: 130,
+                                        align: "right",
+                                        render: (_: any, record: any) => (
+                                            <Text type={Number(record.already_damaged_qty || 0) > 0 ? "danger" : undefined}>
+                                                {Number(record.already_damaged_qty || 0)}
                                             </Text>
+                                        ),
+                                    },
+                                    {
+                                        title: "Pending",
+                                        width: 90,
+                                        align: "right",
+                                        render: (_: any, record: any) => (
+                                            <Text strong type={Number(record.pending_qty || 0) > 0 ? "danger" : "success"}>
+                                                {Number(record.pending_qty || 0)}
+                                            </Text>
+                                        ),
+                                    },
+                                    {
+                                        title: "Receive Now",
+                                        width: 130,
+                                        align: "right",
+                                        render: (_: any, record: any) => {
+                                            const itemId = record.purchase_order_item_id || record.id;
+                                            const pendingQty = Number(record.pending_qty || 0);
+                                            const damageQty = Number(record.damage_now_qty ?? record.damaged_qty ?? 0);
 
-                                            {(record.sku || record.item_code || record.unit) && (
-                                                <Text type="secondary" style={{ fontSize: 12 }}>
-                                                    {[record.sku || record.item_code, record.unit]
-                                                        .filter(Boolean)
-                                                        .join(" • ")}
+                                            return (
+                                                <InputNumber
+                                                    min={0}
+                                                    max={Math.max(pendingQty - damageQty, 0)}
+                                                    value={Number(record.receive_now_qty || 0)}
+                                                    style={{ width: "100%" }}
+                                                    disabled={pendingQty <= 0}
+                                                    onChange={(value) =>
+                                                        updateReceiveItem(
+                                                            itemId,
+                                                            "receive_now_qty",
+                                                            Number(value || 0),
+                                                        )
+                                                    }
+                                                />
+                                            );
+                                        },
+                                    },
+                                    {
+                                        title: "Damaged Now",
+                                        width: 130,
+                                        align: "right",
+                                        render: (_: any, record: any) => {
+                                            const itemId = record.purchase_order_item_id || record.id;
+                                            const pendingQty = Number(record.pending_qty || 0);
+                                            const receiveQty = Number(record.receive_now_qty || 0);
+
+
+                                            return (
+                                                <InputNumber
+                                                    min={0}
+                                                    max={Math.max(pendingQty - receiveQty, 0)}
+                                                    value={Number(record.damage_now_qty || 0)}
+                                                    style={{ width: "100%" }}
+                                                    disabled={pendingQty <= 0}
+                                                    onChange={(value) =>
+                                                        updateReceiveItem(
+                                                            itemId,
+                                                            "damage_now_qty",
+                                                            Number(value || 0),
+                                                        )
+                                                    }
+                                                />
+                                            );
+                                        },
+                                    },
+                                    {
+                                        title: "Amount",
+                                        width: 120,
+                                        align: "right",
+                                        render: (_: any, record: any) => {
+                                            const qty = Number(record.ordered_qty || record.quantity || 0);
+                                            const rate = Number(record.rate || record.price || 0);
+                                            const amount = Number(record.amount || qty * rate || 0);
+
+                                            return <Text strong>{formatCurrency(amount)}</Text>;
+                                        },
+                                    },
+                                ]}
+                                dataSource={receiveItems}
+                                pagination={false}
+                                scroll={{ x: 950 }}
+                                locale={{
+                                    emptyText: <Empty description="No items found" />,
+                                }}
+                                summary={() => (
+                                    <Table.Summary.Row>
+                                        <Table.Summary.Cell index={0}>
+                                            <Text strong>Total</Text>
+                                        </Table.Summary.Cell>
+
+                                        <Table.Summary.Cell index={1} align="right">
+                                            <Text strong>{selectedPoTotalQty}</Text>
+                                        </Table.Summary.Cell>
+
+                                        <Table.Summary.Cell index={2} align="right">
+                                            <Text strong>{selectedPoAlreadyReceivedQty}</Text>
+                                        </Table.Summary.Cell>
+
+                                        <Table.Summary.Cell index={3} align="right">
+                                            <Text strong type={selectedPoAlreadyDamagedQty > 0 ? "danger" : undefined}>
+                                                {selectedPoAlreadyDamagedQty}
+                                            </Text>
+                                        </Table.Summary.Cell>
+
+                                        <Table.Summary.Cell index={4} align="right">
+                                            <Text strong>{selectedPoPendingQty}</Text>
+                                        </Table.Summary.Cell>
+
+                                        <Table.Summary.Cell index={5} align="right">
+                                            <Text strong>{selectedPoReceiveNowQty}</Text>
+                                        </Table.Summary.Cell>
+
+                                        <Table.Summary.Cell index={6} align="right">
+                                            <Text strong>{selectedPoDamageNowQty}</Text>
+                                        </Table.Summary.Cell>
+
+                                        <Table.Summary.Cell index={7} align="right">
+                                            <Text strong>{formatCurrency(selectedPoTotalAmount)}</Text>
+                                        </Table.Summary.Cell>
+                                    </Table.Summary.Row>
+                                )}
+                            />
+                        </Card>
+
+                        <Divider />
+
+                        <Flex justify="end" gap={12}>
+                            <Button
+                                size="large"
+                                onClick={() => {
+                                    setReceiveModalOpen(false);
+                                    setSelectedPurchaseOrder(null);
+                                    receiveForm.resetFields();
+                                    setReceiveItems([]);
+                                }}
+                            >
+                                Cancel
+                            </Button>
+
+                            <Button
+                                size="large"
+                                type="primary"
+                                loading={receiveSubmitting}
+                                onClick={handleReceiveSubmit}
+                            >
+                                ✅ Save Receipt
+                            </Button>
+                        </Flex>
+                    </Form>
+                </Modal>
+
+                <Modal
+                    open={dispatchModalOpen}
+                    title={null}
+                    footer={null}
+                    centered
+                    width={950}
+                    destroyOnClose
+                    onCancel={() => {
+                        setDispatchModalOpen(false);
+                        setSelectedSalesOrder(null);
+                        dispatchForm.resetFields();
+                        setDispatchItems([]);
+                    }}
+                >
+                    <div>
+                        <Title level={5} style={{ margin: "4px 0 0" }}>
+                            DISPATCH MATERIAL
+                        </Title>
+
+                        <Title level={4} style={{ margin: "4px 0 0" }}>
+                            {selectedSalesOrder?.so_number || "-"} 🚚
+                        </Title>
+
+                        <Text>
+                            Customer: {toTitleCase((selectedSalesOrder as any)?.customer_name || "-")}
+                        </Text>
+                    </div>
+
+                    <Form form={dispatchForm} layout="vertical">
+                        <Row gutter={16}>
+                            <Col span={8}>
+                                <Form.Item
+                                    name="courier_name"
+                                    label="Courier"
+                                    rules={[{ required: true, message: "Please enter courier" }]}
+                                >
+                                    <Input placeholder="BlueDart, DTDC..." />
+                                </Form.Item>
+                            </Col>
+
+                            <Col span={8}>
+                                <Form.Item
+                                    name="awb_number"
+                                    label="AWB / Tracking"
+                                    rules={[{ required: true, message: "Please enter AWB / Tracking" }]}
+                                >
+                                    <Input placeholder="AWB123" />
+                                </Form.Item>
+                            </Col>
+
+                            <Col span={8}>
+                                <Form.Item
+                                    name="status"
+                                    label="Status"
+                                    rules={[{ required: true, message: "Please select status" }]}
+                                >
+                                    <Select
+                                        options={getSalesOrderStatusOptions().filter((item: any) =>
+                                            [
+                                                "ready_to_dispatch",
+                                                "partially_dispatched",
+                                                "dispatched",
+                                                "delivered",
+                                            ].includes(item.value),
+                                        )}
+                                    />
+                                </Form.Item>
+                            </Col>
+
+                            <Col span={12}>
+                                <Form.Item name="tracking_url" label="Tracking URL">
+                                    <Input placeholder="https://tracking-url.com/awb" />
+                                </Form.Item>
+                            </Col>
+
+                            <Col span={12}>
+                                <Form.Item name="delivery_expected_at" label="Expected Delivery Date">
+                                    <DatePicker disabledDate={(current) => current && current.isBefore(dayjs())} style={{ width: "100%" }} />
+                                </Form.Item>
+                            </Col>
+
+                            <Col span={24}>
+                                <Form.Item name="remarks" label="Remarks">
+                                    <Input.TextArea rows={3} placeholder="Any dispatch note..." />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+
+                        <Card size="small" title="🚚 Dispatch Items" style={{ marginTop: 10 }}>
+                            <Table
+                                size="small"
+                                rowKey={(record: any, index) =>
+                                    record.id || record.sales_order_item_id || String(index)
+                                }
+                                columns={[
+                                    {
+                                        title: "Item",
+                                        dataIndex: "item_name",
+                                        width: 240,
+                                        render: (_: any, record: any) => (
+                                            <Space direction="vertical" size={0}>
+                                                <Text strong>
+                                                    {record.item_name || record.product_name || "Item"}
                                                 </Text>
-                                            )}
-                                        </Space>
-                                    ),
-                                },
-                                {
-                                    title: "Ordered",
-                                    width: 90,
-                                    align: "right",
-                                    render: (_: any, record: any) => (
-                                        <Text>{Number(record.ordered_qty || record.quantity || 0)}</Text>
-                                    ),
-                                },
-                                {
-                                    title: "Already Dispatched",
-                                    width: 150,
-                                    align: "right",
-                                    render: (_: any, record: any) => (
-                                        <Text>{Number(record.already_dispatched_qty || 0)}</Text>
-                                    ),
-                                },
-                                {
-                                    title: "Pending",
-                                    width: 100,
-                                    align: "right",
-                                    render: (_: any, record: any) => (
-                                        <Text
-                                            strong
-                                            type={Number(record.pending_qty || 0) > 0 ? "danger" : "success"}
-                                        >
-                                            {Number(record.pending_qty || 0)}
-                                        </Text>
-                                    ),
-                                },
-                                {
-                                    title: "Dispatch Now",
-                                    width: 140,
-                                    align: "right",
-                                    render: (_: any, record: any) => {
-                                        const itemId = record.sales_order_item_id || record.id;
-                                        const pendingQty = Number(record.pending_qty || 0);
 
-                                        return (
-                                            <InputNumber
-                                                min={0}
-                                                max={pendingQty}
-                                                value={Number(record.dispatch_now_qty || 0)}
-                                                style={{ width: "100%" }}
-                                                disabled={pendingQty <= 0}
-                                                onChange={(value) =>
-                                                    updateDispatchItem(
-                                                        itemId,
-                                                        "dispatch_now_qty",
-                                                        Number(value || 0),
-                                                    )
-                                                }
-                                            />
-                                        );
+                                                {(record.sku || record.item_code || record.unit) && (
+                                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                                        {[record.sku || record.item_code, record.unit]
+                                                            .filter(Boolean)
+                                                            .join(" • ")}
+                                                    </Text>
+                                                )}
+                                            </Space>
+                                        ),
                                     },
-                                },
-                                {
-                                    title: "Amount",
-                                    width: 130,
-                                    align: "right",
-                                    render: (_: any, record: any) => {
-                                        const qty = Number(record.ordered_qty || record.quantity || 0);
-                                        const rate = Number(record.rate || record.price || 0);
-                                        const amount = Number(record.amount || qty * rate || 0);
-
-                                        return <Text strong>{formatCurrency(amount)}</Text>;
+                                    {
+                                        title: "Ordered",
+                                        width: 90,
+                                        align: "right",
+                                        render: (_: any, record: any) => (
+                                            <Text>{Number(record.ordered_qty || record.quantity || 0)}</Text>
+                                        ),
                                     },
-                                },
-                            ]}
-                            dataSource={dispatchItems}
-                            pagination={false}
-                            scroll={{ x: 900 }}
-                            locale={{
-                                emptyText: <Empty description="No items found" />,
-                            }}
-                            summary={() => (
-                                <Table.Summary.Row>
-                                    <Table.Summary.Cell index={0}>
-                                        <Text strong>Total</Text>
-                                    </Table.Summary.Cell>
+                                    {
+                                        title: "Already Dispatched",
+                                        width: 150,
+                                        align: "right",
+                                        render: (_: any, record: any) => (
+                                            <Text>{Number(record.already_dispatched_qty || 0)}</Text>
+                                        ),
+                                    },
+                                    {
+                                        title: "Pending",
+                                        width: 100,
+                                        align: "right",
+                                        render: (_: any, record: any) => (
+                                            <Text
+                                                strong
+                                                type={Number(record.pending_qty || 0) > 0 ? "danger" : "success"}
+                                            >
+                                                {Number(record.pending_qty || 0)}
+                                            </Text>
+                                        ),
+                                    },
+                                    {
+                                        title: "Dispatch Now",
+                                        width: 140,
+                                        align: "right",
+                                        render: (_: any, record: any) => {
+                                            const itemId = record.sales_order_item_id || record.id;
+                                            const pendingQty = Number(record.pending_qty || 0);
 
-                                    <Table.Summary.Cell index={1} align="right">
-                                        <Text strong>{selectedSoTotalQty}</Text>
-                                    </Table.Summary.Cell>
+                                            return (
+                                                <InputNumber
+                                                    min={0}
+                                                    max={pendingQty}
+                                                    value={Number(record.dispatch_now_qty || 0)}
+                                                    style={{ width: "100%" }}
+                                                    disabled={pendingQty <= 0}
+                                                    onChange={(value) =>
+                                                        updateDispatchItem(
+                                                            itemId,
+                                                            "dispatch_now_qty",
+                                                            Number(value || 0),
+                                                        )
+                                                    }
+                                                />
+                                            );
+                                        },
+                                    },
+                                    {
+                                        title: "Amount",
+                                        width: 130,
+                                        align: "right",
+                                        render: (_: any, record: any) => {
+                                            const qty = Number(record.ordered_qty || record.quantity || 0);
+                                            const rate = Number(record.rate || record.price || 0);
+                                            const amount = Number(record.amount || qty * rate || 0);
 
-                                    <Table.Summary.Cell index={2} align="right">
-                                        <Text strong>{selectedSoAlreadyDispatchedQty}</Text>
-                                    </Table.Summary.Cell>
+                                            return <Text strong>{formatCurrency(amount)}</Text>;
+                                        },
+                                    },
+                                ]}
+                                dataSource={dispatchItems}
+                                pagination={false}
+                                scroll={{ x: 900 }}
+                                locale={{
+                                    emptyText: <Empty description="No items found" />,
+                                }}
+                                summary={() => (
+                                    <Table.Summary.Row>
+                                        <Table.Summary.Cell index={0}>
+                                            <Text strong>Total</Text>
+                                        </Table.Summary.Cell>
 
-                                    <Table.Summary.Cell index={3} align="right">
-                                        <Text strong>{selectedSoPendingQty}</Text>
-                                    </Table.Summary.Cell>
+                                        <Table.Summary.Cell index={1} align="right">
+                                            <Text strong>{selectedSoTotalQty}</Text>
+                                        </Table.Summary.Cell>
 
-                                    <Table.Summary.Cell index={4} align="right">
-                                        <Text strong>{selectedSoDispatchNowQty}</Text>
-                                    </Table.Summary.Cell>
+                                        <Table.Summary.Cell index={2} align="right">
+                                            <Text strong>{selectedSoAlreadyDispatchedQty}</Text>
+                                        </Table.Summary.Cell>
 
-                                    <Table.Summary.Cell index={5} align="right">
-                                        <Text strong>{formatCurrency(selectedSoTotalAmount)}</Text>
-                                    </Table.Summary.Cell>
-                                </Table.Summary.Row>
-                            )}
-                        />
-                    </Card>
+                                        <Table.Summary.Cell index={3} align="right">
+                                            <Text strong>{selectedSoPendingQty}</Text>
+                                        </Table.Summary.Cell>
 
-                    <Divider />
+                                        <Table.Summary.Cell index={4} align="right">
+                                            <Text strong>{selectedSoDispatchNowQty}</Text>
+                                        </Table.Summary.Cell>
 
-                    <Flex justify="end" gap={12}>
-                        <Button
-                            size="large"
-                            onClick={() => {
-                                setDispatchModalOpen(false);
-                                setSelectedSalesOrder(null);
-                                dispatchForm.resetFields();
-                                setDispatchItems([]);
-                            }}
-                        >
-                            Cancel
-                        </Button>
+                                        <Table.Summary.Cell index={5} align="right">
+                                            <Text strong>{formatCurrency(selectedSoTotalAmount)}</Text>
+                                        </Table.Summary.Cell>
+                                    </Table.Summary.Row>
+                                )}
+                            />
+                        </Card>
 
-                        <Button
-                            size="large"
-                            type="primary"
-                            loading={dispatchSubmitting}
-                            onClick={handleDispatchSubmit}
-                        >
-                            🚚 Save Dispatch
-                        </Button>
-                    </Flex>
-                </Form>
-            </Modal>
-        </div >
+                        <Divider />
+
+                        <Flex justify="end" gap={12}>
+                            <Button
+                                size="large"
+                                onClick={() => {
+                                    setDispatchModalOpen(false);
+                                    setSelectedSalesOrder(null);
+                                    dispatchForm.resetFields();
+                                    setDispatchItems([]);
+                                }}
+                            >
+                                Cancel
+                            </Button>
+
+                            <Button
+                                size="large"
+                                type="primary"
+                                loading={dispatchSubmitting}
+                                onClick={handleDispatchSubmit}
+                            >
+                                🚚 Save Dispatch
+                            </Button>
+                        </Flex>
+                    </Form>
+                </Modal>
+            </div >
+        </>
     );
 }

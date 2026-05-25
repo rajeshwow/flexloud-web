@@ -129,7 +129,15 @@ export default function PurchaseOrderListPage() {
                     {val}
                 </a>
             ),
-            width: 150,
+            width: 100,
+        },
+        {
+            title: "Status",
+            dataIndex: "status",
+            render: (val: string) => {
+                return <Tag color={getPurchaseOrderStatusColor(val)}>{toTitleCase(val) || "-"}</Tag>;
+            },
+            width: 100,
         },
         {
             title: "Vendor",
@@ -141,39 +149,33 @@ export default function PurchaseOrderListPage() {
             title: "Sales person",
             dataIndex: "assigned_to_name",
             render: (val: string) => toTitleCase(val) || "-",
-            width: 170,
+            width: 100,
         },
         {
-            title: "Expected Delivery Date",
+            title: "Exp. Delivery Date",
             dataIndex: "expected_delivery_date",
             render: (val: string) => (val ? dayjs(val).format("DD MMM YYYY") : "-"),
-            width: 190,
+            width: 120,
         },
         {
             title: "Order Date",
             dataIndex: "voucher_date",
             render: (val: string) => (val ? dayjs(val).format("DD MMM YYYY") : "-"),
-            width: 150,
+            width: 80,
         },
         {
             title: "Items Count",
             dataIndex: "items_count",
             render: (val: number) => val || 0,
-            width: 150,
+            width: 80,
         },
         {
             title: "Amount",
             dataIndex: "total_amount",
             render: (val: number) => `₹ ${Number(val || 0).toLocaleString("en-IN")}`,
-            width: 150,
+            width: 80,
         },
-        {
-            title: "Status",
-            dataIndex: "status",
-            render: (val: string) => {
-                return <Tag color={getPurchaseOrderStatusColor(val)}>{toTitleCase(val) || "-"}</Tag>;
-            },
-        },
+
         {
             title: "Actions",
             width: 120,
@@ -300,7 +302,7 @@ export default function PurchaseOrderListPage() {
                 dataSource={data}
                 pagination={pagination}
                 onChange={handleTableChange}
-                scroll={{ x: 1500 }}
+                scroll={{ x: 1100 }}
             />
         </div>
     );

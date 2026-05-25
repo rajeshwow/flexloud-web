@@ -90,7 +90,7 @@ export default function ProductListPage() {
             title: "Name",
             // dataIndex: "name",
             key: "name",
-            width: 260,
+            width: 100,
             render: (record: any) => <span>
                 {record?.name}
                 {/* i want to show here small stock_on_hand also */}
@@ -99,50 +99,54 @@ export default function ProductListPage() {
                 <Tag color={record?.stock_on_hand > 0 ? "green" : "red"}>
                     Stock on Hand: {record?.stock_on_hand}
                 </Tag>
+                {
+                    record?.tally_company_name && (
+                        <>
+                            <br />
+                            <Tag color={'blue'}>
+                                <small>Company: {record?.tally_company_name}</small>
+                            </Tag>
+                        </>
+                    )
+                }
 
             </span>,
-        },
-        {
-            title: "HSN Code",
-            dataIndex: "hsn_code",
-            key: "hsn_code",
-            width: 130,
         },
         {
             title: "Category",
             dataIndex: "category",
             key: "category",
-            width: 180,
+            width: 120,
         },
         {
             title: "Selling Price",
             dataIndex: "selling_price",
             key: "selling_price",
-            width: 140,
+            width: 100,
             render: (value: number) => `₹${Number(value || 0).toFixed(2)}`,
         },
-        {
-            title: "Source",
-            dataIndex: "source",
-            key: "source",
-            width: 120,
-            render: (source?: string) => (
-                <Tag color={source === "tally" ? "blue" : "default"}>
-                    {source === "tally" ? "Tally" : "System"}
-                </Tag>
-            ),
-        },
-        {
-            title: "Status",
-            dataIndex: "status",
-            key: "status",
-            width: 120,
-            render: (value: string) => (
-                <Tag color={String(value).toLowerCase() === "active" ? "blue" : "default"}>
-                    {value}
-                </Tag>
-            ),
-        },
+        // {
+        //     title: "Source",
+        //     dataIndex: "source",
+        //     key: "source",
+        //     width: 120,
+        //     render: (source?: string) => (
+        //         <Tag color={source === "tally" ? "blue" : "default"}>
+        //             {source === "tally" ? "Tally" : "System"}
+        //         </Tag>
+        //     ),
+        // },
+        // {
+        //     title: "Status",
+        //     dataIndex: "status",
+        //     key: "status",
+        //     width: 120,
+        //     render: (value: string) => (
+        //         <Tag color={String(value).toLowerCase() === "active" ? "blue" : "default"}>
+        //             {value}
+        //         </Tag>
+        //     ),
+        // },
         {
             title: "Date Created",
             dataIndex: "created_at",
@@ -214,7 +218,7 @@ export default function ProductListPage() {
                     showTotal: (total, range) =>
                         `${range[0]} - ${range[1]} of ${total}`,
                 }}
-                scroll={{ x: 1400 }}
+                scroll={{ x: 1000 }}
             />
         </div>
     );

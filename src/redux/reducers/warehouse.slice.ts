@@ -23,6 +23,8 @@ type WarehouseState = {
   saving: boolean;
   selected: any;
   error: string | null;
+  salesOrderStatusStats: WarehouseStatusStat[];
+  purchaseOrderStatusStats: WarehouseStatusStat[];
 };
 
 export type WarehouseSalesOrderItem = {
@@ -63,6 +65,13 @@ const initialState: WarehouseState = {
   saving: false,
   selected: null,
   error: null,
+  salesOrderStatusStats: [],
+  purchaseOrderStatusStats: [],
+};
+
+export type WarehouseStatusStat = {
+  status: string;
+  count: number;
 };
 
 export const fetchWarehouseSalesOrders = createAsyncThunk(
@@ -199,6 +208,7 @@ const warehouseSlice = createSlice({
         state.loading = false;
         state.salesOrders = action.payload?.data || [];
         state.salesOrdersTotal = action.payload?.total || 0;
+        state.salesOrderStatusStats = action.payload?.status_stats || [];
       })
       .addCase(fetchWarehouseSalesOrders.rejected, (state, action) => {
         state.loading = false;
@@ -212,6 +222,7 @@ const warehouseSlice = createSlice({
         state.loading = false;
         state.purchaseOrders = action.payload?.data || [];
         state.purchaseOrdersTotal = action.payload?.total || 0;
+        state.purchaseOrderStatusStats = action.payload?.status_stats || [];
       })
       .addCase(fetchWarehousePurchaseOrders.rejected, (state, action) => {
         state.loading = false;

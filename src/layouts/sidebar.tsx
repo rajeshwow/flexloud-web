@@ -847,13 +847,13 @@ export default function AppShell({ children, user }: Props) {
       radial-gradient(circle at 20% 10%, rgba(22,119,255,0.10), transparent 35%),
       radial-gradient(circle at 80% 0%, rgba(105,177,255,0.16), transparent 40%),
       var(--fl-content);
-    padding: 16px;
+    padding: 6px;
   }
 
   .fl-card{
     background: var(--fl-cardbg);
     border-radius: 18px;
-    padding: 16px;
+    padding: 6px;
     min-height: calc(100vh - 64px - 32px);
     box-shadow: var(--fl-shadow);
     border: 1px solid var(--fl-border);

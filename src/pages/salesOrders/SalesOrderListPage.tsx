@@ -63,41 +63,47 @@ export default function SalesOrderListPage() {
                         {v}
                     </Button>
                 ),
-            },
-            {
-                title: "Customer",
-                dataIndex: "customer_name",
-                render: (v: string) => toTitleCase(v) || "-",
-            },
-            {
-                title: "SO Date",
-                dataIndex: "so_date",
-                render: (v: string) => (v ? dayjs(v).format("DD MMM YYYY") : "-"),
-            },
-            {
-                title: "Delivery Date",
-                dataIndex: "expected_delivery_date",
-                render: (v: string) => (v ? dayjs(v).format("DD MMM YYYY") : "-"),
-            },
-            {
-                title: "Assigned To",
-                dataIndex: "assigned_to_name",
-                render: (v: string) => toTitleCase(v as string) || "-",
+                width: 100,
             },
             {
                 title: "Status",
                 dataIndex: "status",
                 render: (v: string) => {
-
-
                     return <Tag color={getSalesOrderStatusColor(v)}>{toTitleCase(v) || "draft"}</Tag>;
                 },
+                width: 100,
             },
+            {
+                title: "Customer",
+                dataIndex: "customer_name",
+                render: (v: string) => toTitleCase(v) || "-",
+                width: 150,
+            },
+            {
+                title: "SO Date",
+                dataIndex: "so_date",
+                render: (v: string) => (v ? dayjs(v).format("DD MMM YYYY") : "-"),
+                width: 100,
+            },
+            {
+                title: "Delivery Date",
+                dataIndex: "expected_delivery_date",
+                render: (v: string) => (v ? dayjs(v).format("DD MMM YYYY") : "-"),
+                width: 100,
+            },
+            {
+                title: "Assigned To",
+                dataIndex: "assigned_to_name",
+                render: (v: string) => toTitleCase(v as string) || "-",
+                width: 100,
+            },
+
             {
                 title: "Grand Total",
                 dataIndex: "grand_total",
                 align: "right" as const,
                 render: (v: number, r: any) => `${r.currency || "₹"} ${Number(v || 0).toFixed(2)}`,
+                width: 100,
             },
             {
                 title: "Action",
