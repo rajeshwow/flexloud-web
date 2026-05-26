@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useNavigate, useParams } from "react-router-dom";
 import type { WorkQueueItem } from "../../../redux/reducers/myDay.slice";
+import { toTitleCase } from "../../../shared/Utils/utils";
 
 dayjs.extend(relativeTime);
 
@@ -147,7 +148,23 @@ export default function WorkQueueItemCard({ item }: Props) {
 
                     <div style={{ marginBottom: 12 }}>
                         <Title level={4} style={{ margin: 0, marginBottom: 4 }}>
-                            {item.title || "--"}
+                            <Space>
+                                {toTitleCase(item.title) || "--"}
+                                <Tag
+                                    color={
+                                        item.section === "overdue"
+                                            ? "red"
+                                            : item.section === "today"
+                                                ? "gold"
+                                                : item.section === "upcoming"
+                                                    ? "blue"
+                                                    : "orange"
+                                    }
+                                    style={{ marginInlineEnd: 0 }}
+                                >
+                                    {getSectionLabel(item.section)}
+                                </Tag>
+                            </Space>
                         </Title>
 
                         {item.subtitle ? (
@@ -158,7 +175,7 @@ export default function WorkQueueItemCard({ item }: Props) {
                                     fontSize: 14,
                                 }}
                             >
-                                {item.subtitle}
+                                {toTitleCase(item.subtitle)}
                             </Text>
                         ) : null}
 
@@ -265,7 +282,7 @@ export default function WorkQueueItemCard({ item }: Props) {
                             gap: 12,
                         }}
                     >
-                        <div>
+                        {/* <div>
                             <Text
                                 type="secondary"
                                 style={{
@@ -293,9 +310,9 @@ export default function WorkQueueItemCard({ item }: Props) {
                                     {getSectionLabel(item.section)}
                                 </Tag>
                             </div>
-                        </div>
+                        </div> */}
 
-                        <div>
+                        {/* <div>
                             <Text type="secondary" style={{ fontSize: 12 }}>
                                 Route
                             </Text>
@@ -311,7 +328,7 @@ export default function WorkQueueItemCard({ item }: Props) {
                                     {item.route || "--"}
                                 </Text>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>

@@ -5,6 +5,8 @@ import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import { fetchMyPermissions } from "../redux/reducers/auth.slice";
 import type { AppDispatch, RootState } from "../redux/store";
 
+
+
 type Props = {
     children?: React.ReactNode;
     required?: string | string[];
@@ -48,6 +50,10 @@ export default function ProtectedRoute({
         (state: RootState) => state.auth?.permissionsLoaded || false
     );
 
+    const permissionsSlug = useSelector(
+        (state: RootState) => state.auth?.permissionsSlug || ""
+    );
+
     const requiredArr =
         typeof required === "string"
             ? [required]
@@ -61,10 +67,13 @@ export default function ProtectedRoute({
     useEffect(() => {
         if (!slug || !token) return;
 
-        if (!loadingPerms && !permissionsLoaded) {
+        const isLoadedForCurrentSlug =
+            permissionsLoaded && permissionsSlug === slug;
+
+        if (!loadingPerms && !isLoadedForCurrentSlug) {
             dispatch(fetchMyPermissions({ slug }));
         }
-    }, [dispatch, slug, token, loadingPerms, permissionsLoaded]);
+    }, [dispatch, slug, token, loadingPerms, permissionsLoaded, permissionsSlug]);
 
 
 
@@ -84,7 +93,10 @@ export default function ProtectedRoute({
 
 
 
-    if (needsPermissionCheck && (!permissionsLoaded || loadingPerms)) {
+    const isPermissionsReadyForCurrentSlug =
+        permissionsLoaded && permissionsSlug === slug;
+
+    if (needsPermissionCheck && (!isPermissionsReadyForCurrentSlug || loadingPerms)) {
         return <PermissionLoader />;
     }
 

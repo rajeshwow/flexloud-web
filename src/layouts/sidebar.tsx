@@ -68,7 +68,7 @@ import { buildMenuTree } from "../menu/buildMenu";
 import { MENU_REGISTRY } from "../menu/menuRegistry";
 import NotificationCenterDrawer from "../pages/my-day/components/NotificationCenterDrawer";
 import { clockInAttendance, clockOutAttendance, getTodayAttendance } from "../redux/reducers/attendance.slice";
-import { fetchMyDay, fetchMyDayCounts, setNotificationDrawerOpen } from "../redux/reducers/myDay.slice";
+import { fetchMyDayCounts, setNotificationDrawerOpen } from "../redux/reducers/myDay.slice";
 import { getTargetProgress } from "../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../redux/store";
 import GlobalQuickCreate from "./GlobalQuickCreate";
@@ -157,15 +157,39 @@ function TargetProgressMini({ dark }: { dark: boolean }) {
   useEffect(() => {
     let mounted = true;
 
+    const STORAGE_KEY = "fl_target_progress_cache";
+    const TIME_KEY = "fl_target_progress_last_fetch";
+    const MIN_GAP_MS = 60_000;
+
+    const cached = sessionStorage.getItem(STORAGE_KEY);
+    if (cached) {
+      try {
+        setProgress(JSON.parse(cached));
+      } catch {
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
     const loadTargetProgress = async () => {
+      const lastFetch = Number(sessionStorage.getItem(TIME_KEY) || 0);
+      const now = Date.now();
+
+      if (now - lastFetch < MIN_GAP_MS && cached) return;
+
       try {
         setLoading(true);
+        sessionStorage.setItem(TIME_KEY, String(now));
 
-        const response = await dispatch(getTargetProgress()).unwrap()
+        const response = await dispatch(getTargetProgress()).unwrap();
 
         if (!mounted) return;
 
-        setProgress(response.data || null);
+        const nextProgress = response?.data || null;
+        setProgress(nextProgress);
+
+        if (nextProgress) {
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(nextProgress));
+        }
       } catch {
         if (!mounted) return;
         setProgress(null);
@@ -181,7 +205,7 @@ function TargetProgressMini({ dark }: { dark: boolean }) {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [dispatch]);
 
   const targetAmount = Number(progress?.target_amount || 0);
   const achievedAmount = Number(progress?.achieved_amount || 0);
@@ -196,7 +220,17 @@ function TargetProgressMini({ dark }: { dark: boolean }) {
     <Tooltip
       title={
         targetAmount > 0
-          ? `Achieved ₹${achievedAmount.toLocaleString("en-IN")} / Target ₹${targetAmount.toLocaleString("en-IN")} • ₹${remainingAmount.toLocaleString("en-IN")} left`
+          ? <>
+            <span style={{ display: "flex", flexDirection: "column" }}>
+              Achieved - ₹{achievedAmount.toLocaleString("en-IN")}
+            </span>
+            <span style={{ display: "flex", flexDirection: "column" }}>
+              Target - ₹{targetAmount.toLocaleString("en-IN")}
+            </span>
+            <span style={{ display: "flex", flexDirection: "column" }}>
+              left - ₹{remainingAmount.toLocaleString("en-IN")}
+            </span>
+          </>
           : "Target progress"
       }
     >
@@ -649,14 +683,24 @@ export default function AppShell({ children, user }: Props) {
 
 
   useEffect(() => {
-    dispatch(fetchMyDayCounts({ assigned: "me" }));
-    dispatch(fetchMyDay({ assigned: "me", view: "all" }));
+    const STORAGE_KEY = "fl_my_day_counts_last_fetch";
+    const MIN_GAP_MS = 60_000;
 
-    const timer = setInterval(() => {
+    const fetchCountsSafely = () => {
+      const lastFetch = Number(sessionStorage.getItem(STORAGE_KEY) || 0);
+      const now = Date.now();
+
+      if (now - lastFetch < MIN_GAP_MS) return;
+
+      sessionStorage.setItem(STORAGE_KEY, String(now));
       dispatch(fetchMyDayCounts({ assigned: "me" }));
-    }, 60000);
+    };
 
-    return () => clearInterval(timer);
+    fetchCountsSafely();
+
+    const timer = window.setInterval(fetchCountsSafely, MIN_GAP_MS);
+
+    return () => window.clearInterval(timer);
   }, [dispatch]);
 
 

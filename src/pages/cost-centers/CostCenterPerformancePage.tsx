@@ -12,6 +12,7 @@ import {
     Empty,
     Form,
     Input,
+    Popover,
     Row,
     Select,
     Space,
@@ -20,7 +21,7 @@ import {
     Table,
     Tag,
     Typography,
-    message,
+    message
 } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
@@ -179,13 +180,19 @@ export default function CostCenterPerformancePage() {
 
     const ledgerColumns = [
         {
-            title: "Ledger",
+            title: "Party / Ledger",
             dataIndex: "ledger_name",
             key: "ledger_name",
             render: (value: string) => <b>{value || "-"}</b>,
         },
         {
-            title: "Sales Business",
+            title: "Bills",
+            dataIndex: "bill_count",
+            key: "bill_count",
+            align: "center" as const,
+        },
+        {
+            title: "Business Done",
             dataIndex: "total_business",
             key: "total_business",
             align: "right" as const,
@@ -198,24 +205,26 @@ export default function CostCenterPerformancePage() {
             align: "right" as const,
             render: money,
         },
+
         {
-            title: "Receivable",
+            title: "Collection Pending",
             dataIndex: "receivable",
             key: "receivable",
             align: "right" as const,
-            render: (value: any) => <Tag color="green">{money(value)}</Tag>,
+            render: (value: any) => <Tag color="red">{money(value)}</Tag>,
         },
         {
-            title: "Payable",
+            title: "Vendor Payable",
             dataIndex: "payable",
             key: "payable",
             align: "right" as const,
             render: (value: any) => <Tag color="blue">{money(value)}</Tag>,
         },
+
         {
-            title: "Net",
-            dataIndex: "net_business",
-            key: "net_business",
+            title: "Net Outstanding",
+            dataIndex: "net_outstanding",
+            key: "net_outstanding",
             align: "right" as const,
             render: (value: any) => (
                 <Tag color={Number(value) >= 0 ? "green" : "red"}>
@@ -223,12 +232,7 @@ export default function CostCenterPerformancePage() {
                 </Tag>
             ),
         },
-        {
-            title: "Bills",
-            dataIndex: "bill_count",
-            key: "bill_count",
-            align: "center" as const,
-        },
+
     ];
 
     return (
@@ -261,7 +265,7 @@ export default function CostCenterPerformancePage() {
                             </Form.Item>
                         </Col>
 
-                        <Col xs={24} md={8} lg={3}>
+                        {/* <Col xs={24} md={8} lg={3}>
                             <Form.Item label="Min Amount" name="min_amount">
                                 <Input placeholder="Min" />
                             </Form.Item>
@@ -271,9 +275,9 @@ export default function CostCenterPerformancePage() {
                             <Form.Item label="Max Amount" name="max_amount">
                                 <Input placeholder="Max" />
                             </Form.Item>
-                        </Col>
+                        </Col> */}
 
-                        <Col xs={24}>
+                        <Col xs={6} style={{ display: "flex", }}>
                             <Space>
                                 <Button
                                     type="primary"
@@ -299,6 +303,53 @@ export default function CostCenterPerformancePage() {
                     </Row>
                 </Form>
             </Card>
+
+            <div style={{ marginBottom: 12, display: "flex", justifyContent: "flex-end" }}>
+                <Popover
+                    placement="leftTop"
+                    trigger="hover"
+                    title="Calculation Logic"
+                    content={
+                        <Space direction="vertical" size={6} style={{ maxWidth: 420 }}>
+                            <Text>
+                                <strong>Business Done</strong> = Total sales/business amount mapped with this cost center.
+                            </Text>
+
+                            <Text>
+                                <strong>Purchase / Cost</strong> = Total purchase or cost amount mapped with this cost center.
+                            </Text>
+
+                            <Text>
+                                <strong>Collection Pending</strong> = Amount receivable from customers.
+                            </Text>
+
+                            <Text>
+                                <strong>Vendor Payable</strong> = Amount payable to vendors.
+                            </Text>
+
+                            <Text>
+                                <strong>Net Outstanding</strong> = Collection Pending - Vendor Payable.
+                            </Text>
+
+                            <Text>
+                                <strong>Net Business</strong> = Business Done - Purchase / Cost.
+                            </Text>
+                        </Space>
+                    }
+                >
+                    <Text
+                        type="secondary"
+                        style={{
+                            cursor: "help",
+                            fontSize: 13,
+                            textDecoration: "underline",
+                            textUnderlineOffset: 3,
+                        }}
+                    >
+                        How are these numbers calculated?
+                    </Text>
+                </Popover>
+            </div>
 
             <Spin spinning={loading}>
                 {!rows.length ? (
@@ -348,23 +399,49 @@ export default function CostCenterPerformancePage() {
 
                                     <Space size="large" wrap>
                                         <Statistic
-                                            title="Sales Business"
+                                            title={
+                                                <>
+                                                    Business Done
+                                                    <br />
+                                                    (A)
+                                                </>
+                                            }
                                             value={Number(item.total_business || 0)}
                                             prefix="₹"
                                             precision={0}
                                             valueStyle={{ fontSize: 16 }}
                                         />
-
+                                        {/* purchse / cost */}
                                         <Statistic
-                                            title="Total Activity"
-                                            value={Number(item.total_activity || 0)}
+                                            title={
+                                                <>
+                                                    Purchase / Cost
+                                                    <br />
+                                                    (B)
+                                                </>
+                                            }
+                                            value={Number(item.total_purchase || 0)}
                                             prefix="₹"
                                             precision={0}
                                             valueStyle={{ fontSize: 16 }}
                                         />
 
+                                        {/* <Statistic
+                                            title="Total Activity"
+                                            value={Number(item.total_activity || 0)}
+                                            prefix="₹"
+                                            precision={0}
+                                            valueStyle={{ fontSize: 16 }}
+                                        /> */}
+
                                         <Statistic
-                                            title="Receivable"
+                                            title={
+                                                <>
+                                                    Collection Pending
+                                                    <br />
+                                                    (C)
+                                                </>
+                                            }
                                             value={Number(item.receivable || 0)}
                                             prefix="₹"
                                             precision={0}
@@ -372,12 +449,32 @@ export default function CostCenterPerformancePage() {
                                         />
 
                                         <Statistic
-                                            title="Payable"
+                                            title={
+                                                <>
+                                                    Vendor Payable
+                                                    <br />
+                                                    (D)
+                                                </>
+                                            }
                                             value={Number(item.payable || 0)}
                                             prefix="₹"
                                             precision={0}
                                             valueStyle={{ fontSize: 16 }}
                                         />
+                                        <Statistic
+                                            title={
+                                                <>
+                                                    Net Outstanding
+                                                    <br />
+                                                    (C - D)
+                                                </>
+                                            }
+                                            value={Number(item.net_outstanding || 0)}
+                                            prefix="₹"
+                                            precision={0}
+                                            valueStyle={{ fontSize: 16 }}
+                                        />
+
 
                                         <Tag
                                             color={
@@ -386,7 +483,8 @@ export default function CostCenterPerformancePage() {
                                                     : "red"
                                             }
                                         >
-                                            Net: {money(item.net_business)}
+                                            Net Business <br /> (A - B) <br />
+                                            <Tag color="green">{money(item.net_business)}</Tag>
                                         </Tag>
                                     </Space>
                                 </div>
