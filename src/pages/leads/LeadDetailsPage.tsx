@@ -93,8 +93,8 @@ export default function LeadDetailsPage() {
     const assignedUserOptions = useMemo(() => {
         return (users || []).map((user: any) => ({
             label:
-                user?.name ||
-                `${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
+                toTitleCase(user?.name) ||
+                `${toTitleCase(user?.first_name || "")} ${toTitleCase(user?.last_name || "")}`.trim() ||
                 user?.email ||
                 user?.id,
             value: user?.id,
