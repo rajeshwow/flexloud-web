@@ -1,3 +1,5 @@
+
+
 import {
     Alert,
     Col,
@@ -12,7 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMasterValues } from "../../redux/reducers/masters.slice";
 import { fetchRoles } from "../../redux/reducers/rbac.slice";
-import { createUser } from "../../redux/reducers/user.slice";
+import { createUser, updateUser, type UserItem } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { toTitleCase } from "../../shared/Utils/utils";
 
@@ -20,13 +22,16 @@ type Props = {
     open: boolean;
     onClose: () => void;
     onSuccess: () => void;
+    mode?: "create" | "edit";
+    initialData?: UserItem | null;
 };
 
 const { Option } = Select;
 
-export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
+export default function UserCreateModal({ open, onClose, onSuccess, mode = "create", initialData }: Props) {
     const [form] = Form.useForm();
     const dispatch = useDispatch<AppDispatch>();
+    const isEditMode = mode === "edit";
     const [generatedPassword, setGeneratedPassword] = useState("");
     const { masterValues, masterValuesLoading } = useSelector(
         (state: RootState) => state.masters
@@ -105,31 +110,89 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
             form.resetFields();
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setGeneratedPassword("");
+            return;
         }
-    }, [open, form]);
+
+        if (isEditMode && initialData) {
+            form.setFieldsValue({
+                name: toTitleCase(initialData.name) || "",
+                email: initialData.email || "",
+                role: (initialData as any).role_id || (initialData as any).role || undefined,
+
+                phone_country_code: initialData.phone_country_code || "",
+                phone: initialData.phone || "",
+
+                city: initialData.city || undefined,
+                district: initialData.district || "",
+                state: initialData.state || undefined,
+                country: initialData.country || undefined,
+                postal_code: initialData.postal_code || "",
+
+                designation: toTitleCase(initialData.designation as any) || "",
+                department: toTitleCase(initialData.department as any) || "",
+                employee_code: initialData.employee_code || "",
+            });
+            return;
+        }
+
+        form.resetFields();
+    }, [open, isEditMode, initialData, form]);
 
     const onFinish = async (values: any) => {
         try {
+            if (isEditMode) {
+                if (!initialData?.id) {
+                    message.error("User id missing");
+                    return;
+                }
+
+                await dispatch(
+                    updateUser({
+                        id: initialData.id,
+                        email: values.email || "",
+                        name: values.name,
+                        role_id: values.role,
+
+                        phone_country_code: values.phone_country_code || "",
+                        phone: values.phone || "",
+
+                        city: values.city || "",
+                        district: values.district || "",
+                        state: values.state || "",
+                        country: values.country || "",
+                        postal_code: values.postal_code || "",
+
+                        designation: values.designation || "",
+                        department: values.department || "",
+                        employee_code: values.employee_code || "",
+                    })
+                ).unwrap();
+
+                message.success("User updated successfully");
+                onSuccess();
+                return;
+            }
+
             const res = await dispatch(
                 createUser({
                     email: values.email,
                     name: values.name,
                     role_id: values.role,
 
-                    phone_country_code: values.phone_country_code || '',
-                    phone: values.phone || '',
+                    phone_country_code: values.phone_country_code || "",
+                    phone: values.phone || "",
 
-                    city: values.city || '',
-                    district: values.district || '',
-                    state: values.state || '',
-                    country: values.country || '',
-                    postal_code: values.postal_code || '',
+                    city: values.city || "",
+                    district: values.district || "",
+                    state: values.state || "",
+                    country: values.country || "",
+                    postal_code: values.postal_code || "",
 
-                    designation: values.designation || '',
-                    department: values.department || '',
-                    employee_code: values.employee_code || '',
+                    designation: values.designation || "",
+                    department: values.department || "",
+                    employee_code: values.employee_code || "",
 
-                    tempPassword: values.tempPassword || '',
+                    tempPassword: values.tempPassword || "",
                 })
             ).unwrap();
 
@@ -140,17 +203,17 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
             message.success("User created successfully");
             onSuccess();
         } catch (error: any) {
-            message.error(error || "Failed to create user");
+            message.error(error || `Failed to ${isEditMode ? "update" : "create"} user`);
         }
     };
 
     return (
         <Modal
-            title="Create User"
+            title={isEditMode ? "Edit User" : "Create User"}
             open={open}
             onCancel={onClose}
             onOk={() => form.submit()}
-            okText="Create"
+            okText={isEditMode ? "Update" : "Create"}
             destroyOnHidden
             width={900}
         >
@@ -235,11 +298,22 @@ export default function UserCreateModal({ open, onClose, onSuccess }: Props) {
                         </Form.Item>
                     </Col>
 
-                    <Col span={8}>
-                        <Form.Item label="Temporary Password" name="tempPassword" rules={[{ required: true, message: "Temporary Password is required and must be at least 6 characters long" }]}>
-                            <Input.Password placeholder="Leave empty to auto-generate" />
-                        </Form.Item>
-                    </Col>
+                    {!isEditMode ? (
+                        <Col span={8}>
+                            <Form.Item
+                                label="Temporary Password"
+                                name="tempPassword"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Temporary Password is required and must be at least 6 characters long",
+                                    },
+                                ]}
+                            >
+                                <Input.Password placeholder="Leave empty to auto-generate" />
+                            </Form.Item>
+                        </Col>
+                    ) : null}
 
                     <Col span={8}>
                         <Form.Item label="Department" name="department" >

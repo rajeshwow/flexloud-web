@@ -169,6 +169,41 @@ export const getUsers = createAsyncThunk<
   }
 });
 
+export const updateUser = createAsyncThunk(
+  "users/updateUser",
+  async (
+    payload: {
+      id: string;
+      email?: string;
+      name?: string;
+      role_id?: string;
+      phone_country_code?: string;
+      phone?: string;
+      city?: string;
+      district?: string;
+      state?: string;
+      country?: string;
+      postal_code?: string;
+      designation?: string;
+      department?: string;
+      employee_code?: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { id, ...body } = payload;
+
+      const res = await Client.patch(withTenant(`/users/${id}`), body);
+
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || "Failed to update user",
+      );
+    }
+  },
+);
+
 //Client.get(withTenant("/users/me/target-progress"));
 export const getTargetProgress = createAsyncThunk(
   "users/getTargetProgress",

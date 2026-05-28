@@ -49,6 +49,8 @@ export default function UserGet() {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [openCreate, setOpenCreate] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [editingUser, setEditingUser] = useState<UserItem | null>(null);
 
     const [targetModalOpen, setTargetModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
@@ -89,6 +91,16 @@ export default function UserGet() {
         } finally {
             setStatusUpdatingId(null);
         }
+    };
+
+    const openEditModal = (record: UserItem) => {
+        setEditingUser(record);
+        setOpenEdit(true);
+    };
+
+    const closeEditModal = () => {
+        setOpenEdit(false);
+        setEditingUser(null);
     };
 
     useEffect(() => {
@@ -268,7 +280,7 @@ export default function UserGet() {
             {
                 title: "Action",
                 key: "action",
-                width: 220,
+                width: 250,
                 fixed: "right",
                 render: (_, record) => {
                     const hasTarget = !!record.target_amount;
@@ -282,6 +294,13 @@ export default function UserGet() {
                                 loading={statusUpdatingId === record.id}
                                 onChange={(checked) => handleStatusChange(record, checked)}
                             />
+                            <Button
+                                size="small"
+                                icon={<EditOutlined />}
+                                onClick={() => openEditModal(record)}
+                            >
+
+                            </Button>
                             <Button
                                 size="small"
                                 type={hasTarget ? "default" : "primary"}
@@ -395,6 +414,16 @@ export default function UserGet() {
                 onClose={() => setOpenCreate(false)}
                 onSuccess={() => {
                     setOpenCreate(false);
+                    fetchUsers();
+                }}
+            />
+            <UserCreateModal
+                open={openEdit}
+                mode="edit"
+                initialData={editingUser}
+                onClose={closeEditModal}
+                onSuccess={() => {
+                    closeEditModal();
                     fetchUsers();
                 }}
             />

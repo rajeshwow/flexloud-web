@@ -107,3 +107,75 @@ body {
 .crm-themed-border {
   border-color: var(--crm-primary) !important;
 }
+/* ===== FIX: Fixed column header background in dark/light theme ===== */
+
+/* Fixed columns (left & right) header cells */
+.ant-table-wrapper .ant-table-thead > tr > th.ant-table-cell-fix-left,
+.ant-table-wrapper .ant-table-thead > tr > th.ant-table-cell-fix-right {
+  background: var(--crm-table-header-bg) !important;
+}
+
+/* Fixed columns body cells — light theme */
+.ant-table-wrapper .ant-table-tbody > tr > td.ant-table-cell-fix-left,
+.ant-table-wrapper .ant-table-tbody > tr > td.ant-table-cell-fix-right {
+  background: var(--bg) !important;
+}
+
+/* Fix the "shadow" overlay that shows on scroll for fixed columns */
+.ant-table-wrapper .ant-table-cell-fix-right-first::after,
+.ant-table-wrapper .ant-table-cell-fix-left-last::after {
+  box-shadow: none !important;
+}
+
+/* ===== DARK THEME overrides ===== */
+[data-theme="dark"] .ant-table-wrapper .ant-table-thead > tr > th,
+[data-theme="dark"]
+  .ant-table-wrapper
+  .ant-table-thead
+  > tr
+  > th.ant-table-cell-fix-left,
+[data-theme="dark"]
+  .ant-table-wrapper
+  .ant-table-thead
+  > tr
+  > th.ant-table-cell-fix-right {
+  background: #131d2e !important; /* dark header bg */
+  color: var(--text) !important;
+  border-bottom-color: #1f2f45 !important;
+}
+
+[data-theme="dark"]
+  .ant-table-wrapper
+  .ant-table-tbody
+  > tr
+  > td.ant-table-cell-fix-left,
+[data-theme="dark"]
+  .ant-table-wrapper
+  .ant-table-tbody
+  > tr
+  > td.ant-table-cell-fix-right {
+  background: #0b1220 !important; /* matches your --bg dark */
+}
+
+/* Hover row — fixed cells must also update */
+[data-theme="dark"]
+  .ant-table-wrapper
+  .ant-table-tbody
+  > tr:hover
+  > td.ant-table-cell-fix-left,
+[data-theme="dark"]
+  .ant-table-wrapper
+  .ant-table-tbody
+  > tr:hover
+  > td.ant-table-cell-fix-right {
+  background: #1a2740 !important;
+}
+
+/* Fix ghost white strip from AntD's internal scroll shadow */
+[data-theme="dark"] .ant-table-wrapper .ant-table-cell-fix-right-first::after {
+  box-shadow: inset -10px 0 8px -8px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .ant-table-wrapper .ant-table-cell-fix-left-last::after {
+  box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.6) !important;
+}
