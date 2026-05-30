@@ -74,6 +74,7 @@ body {
 .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
   color: var(--crm-active-tab-color) !important;
   font-weight: 600;
+  padding: 0 10px !important;
 }
 
 .ant-tabs .ant-tabs-ink-bar {

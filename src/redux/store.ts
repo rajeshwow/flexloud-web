@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import activityReducer from "./reducers/activity.slice";
+import adminTenantsReducer from "./reducers/adminTenants.slice";
 import aiAssistantReducer from "./reducers/aiAssistant.slice";
 import aiInsightsReducer from "./reducers/aiInsights.slice";
 import attendanceReducer from "./reducers/attendance.slice";
@@ -24,6 +25,7 @@ import purchaseOrdersReducer from "./reducers/purchaseOrders.slice";
 import quotesReducer from "./reducers/quotes.slice";
 import rbacReducer from "./reducers/rbac.slice";
 import salesOrdersReducer from "./reducers/salesOrders.slice";
+import tallyAnalyticsReportsReducer from "./reducers/tallyAnalyticsReports.slice";
 import tallyCompaniesReducer from "./reducers/tallyCompanies.slice";
 import tallyEmployeesReducer from "./reducers/tallyEmployees.slice";
 import tallyPerformanceReducer from "./reducers/tallyPerformance.slice";
@@ -70,6 +72,8 @@ export const store = configureStore({
     costCenterPerformance: costCenterPerformanceReducer,
     tallySync: tallySyncReducer,
     tallyCompanies: tallyCompaniesReducer,
+    tallyAnalyticsReports: tallyAnalyticsReportsReducer,
+    adminTenants: adminTenantsReducer,
   },
 });
 

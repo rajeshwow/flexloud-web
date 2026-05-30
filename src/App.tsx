@@ -4,6 +4,7 @@ import CrmRoutes from "./routes/CrmRoutes";
 function App() {
   return (
     <BrowserRouter>
+
       <CrmRoutes />
     </BrowserRouter>
   );

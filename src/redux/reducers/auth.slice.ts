@@ -24,6 +24,16 @@ export const login = createAsyncThunk(
   },
 );
 
+export const adminLogin = createAsyncThunk(
+  `${config.name}/adminLogin`,
+  async (payload: { email: string; password: string }) => {
+    return await Client.post(`/v1/admin/auth/login`, {
+      email: payload.email,
+      password: payload.password,
+    });
+  },
+);
+
 // ✅ NEW: get my permissions (tenant scoped)
 export const fetchMyPermissions = createAsyncThunk<
   any,
@@ -142,6 +152,38 @@ export const auth = createSlice({
         state.loading = false;
         state.error = (action as any)?.error?.message || "Login failed";
       })
+      // admin login cases
+      .addCase(adminLogin.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+      .addCase(adminLogin.fulfilled, (state, action) => {
+        state.loading = false;
+
+        const payload =
+          action.payload?.data?.data || action.payload?.data || action.payload;
+
+        state.token = payload?.accessToken || payload?.token || "";
+        state.user = payload?.user || null;
+
+        if (state.token) {
+          // IMPORTANT:
+          // Client reads token only from localStorage.getItem("token")
+          localStorage.setItem("token", state.token);
+
+          // optional admin-specific backup
+          localStorage.setItem("admin_access_token", state.token);
+        }
+
+        if (state.user) {
+          localStorage.setItem("admin_user", JSON.stringify(state.user));
+        }
+      })
+      .addCase(adminLogin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action as any)?.error?.message || "Login failed";
+      })
+
       // ✅ Permissions
       .addCase(fetchMyPermissions.pending, (state, action) => {
         state.permissionsLoading = true;

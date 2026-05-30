@@ -1,7 +1,13 @@
 import { Spin } from "antd";
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import AdminLoginPage from "../pages/admin/AdminLoginPage";
+import BootstrapTenantPage from "../pages/admin/BootstrapTenantPage";
+import TenantDetailPage from "../pages/admin/TenantDetailPage";
+import TenantListPage from "../pages/admin/TenantListPage";
+import TallyAnalyticsPage from "../pages/reports/TallyAnalyticsPage";
 import AppearanceSettingsPage from "../pages/settings/AppearanceSettingsPage";
+import SuperAdminRoute from "./SuperAdminRoute";
 const TallySyncPage = lazy(() => import("../pages/Tally/TallySyncPage"));
 const TallyCompaniesPage = lazy(() => import("../pages/tally-companies/TallyCompaniesPage"));
 const CostCenterPerformancePage = lazy(() => import("../pages/cost-centers/CostCenterPerformancePage"));
@@ -77,6 +83,16 @@ export default function CrmRoutes() {
     <Routes>
       <Route path="/:slug/login" element={<LoginPage3 />} />
       <Route path="/" element={<AccountSlugRequiredPage2 />} />
+
+      {/* SUPER ADMIN LOGIN */}
+      <Route
+        path="/admin/login"
+        element={
+          <PageLoader>
+            <AdminLoginPage />
+          </PageLoader>
+        }
+      />
 
       {/* Auth protected */}
       <Route path="/:slug" element={<ProtectedRoute />}>
@@ -712,7 +728,48 @@ export default function CrmRoutes() {
 
           {/* ------------------------------------------------------------------------ */}
 
+          <Route
+            path="tally-analytics"
+            element={
+              <ProtectedRoute required="reports.tally_analytics.view">
+                <PageLoader><TallyAnalyticsPage /></PageLoader>
+              </ProtectedRoute>
+            }
+          />
+
         </Route>
+      </Route>
+
+      {/* SUPER ADMIN ROUTES - tenant slug ke bahar */}
+      <Route path="/admin" element={<PageLoader><SuperAdminRoute /></PageLoader>}>
+        <Route index element={<Navigate to="tenants" replace />} />
+
+        <Route
+          path="tenants"
+          element={
+            <PageLoader>
+              <TenantListPage />
+            </PageLoader>
+          }
+        />
+
+        <Route
+          path="tenants/:tenantId"
+          element={
+            <PageLoader>
+              <TenantDetailPage />
+            </PageLoader>
+          }
+        />
+
+        <Route
+          path="tenants/:tenantId/bootstrap"
+          element={
+            <PageLoader>
+              <BootstrapTenantPage />
+            </PageLoader>
+          }
+        />
       </Route>
 
       <Route path="*" element={<div>404</div>} />
