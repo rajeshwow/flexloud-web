@@ -832,9 +832,9 @@ export default function TallyAnalyticsPage() {
                     <Col xs={24} lg={10}>
                         <Row gutter={12}>
                             <Col span={12}>
-                                <Card size="small">
+                                {/* <Card size="small">
                                     <Statistic title="Rows" value={totalRows} />
-                                </Card>
+                                </Card> */}
                             </Col>
                             <Col span={12}>
                                 <Card size="small">
