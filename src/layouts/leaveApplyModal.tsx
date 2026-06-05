@@ -3,6 +3,7 @@ import { Button, DatePicker, Form, Input, Modal, Select, Space, Typography, mess
 import dayjs from "dayjs";
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { applyLeave, getMyLeaves } from "../redux/reducers/leave.slice";
 import type { AppDispatch, RootState } from "../redux/store";
 
@@ -54,6 +55,8 @@ const LEAVE_RULES = {
 export default function LeaveApplyModal({ open, onClose }: Props) {
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
+    const { slug = "" } = useParams();
+    const navigate = useNavigate()
 
     const selectedLeaveType = Form.useWatch("leave_type", form);
     const selectedDateRange = Form.useWatch("date_range", form);
@@ -116,14 +119,47 @@ export default function LeaveApplyModal({ open, onClose }: Props) {
                 reason: values.reason?.trim() || undefined,
             };
 
-            await dispatch(applyLeave(payload)).unwrap();
-            message.success("Leave applied successfully");
-            form.resetFields();
-            onClose();
-            dispatch(getMyLeaves({ page: 1, limit: 10 }));
+            const res = await dispatch(applyLeave(payload)).unwrap();
+
+            if (res?.statusCode === 209) {
+                const firstTask = res?.data?.tasks?.[0];
+                const taskId = firstTask?.id || res?.data?.task_id;
+
+                Modal.warning({
+                    title: "Leave cannot be applied",
+                    content: (
+                        <div>
+                            <div style={{ marginBottom: 12 }}>
+                                {res?.message || "Task conflict found."}
+                            </div>
+
+                            {taskId && (
+                                <div>
+                                    Assigned Task:{" "}
+                                    <a
+                                        href={`${window.location.origin}/${slug}/tasks/${taskId}`}
+                                        target="_blank"
+                                        rel="noopener"
+                                    >
+                                        {firstTask?.task_number || taskId}
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    ),
+                });
+
+                return;
+            }
+            else {
+                message.success("Leave applied successfully");
+                form.resetFields();
+                onClose();
+                dispatch(getMyLeaves({ page: 1, limit: 10 }));
+            }
         } catch (error: any) {
             if (error?.errorFields) return;
-            message.error(error || "Failed to apply leave");
+            // message.error(error || "Failed to apply leave");
         }
     };
 
