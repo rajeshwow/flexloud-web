@@ -56,7 +56,7 @@ import {
   TruckOutlined,
   UserOutlined
 } from "@ant-design/icons";
-import { Avatar, Badge, Button, Divider, Grid, Layout, Menu, message, Popover, Progress, Space, Switch, Tooltip, Typography } from "antd";
+import { Avatar, Badge, Button, Divider, Grid, Layout, Menu, message, Popover, Progress, Space, Switch, theme, Tooltip, Typography } from "antd";
 import { startTransition, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAppTheme } from "../theme/ThemeProvider";
@@ -151,18 +151,21 @@ type HeaderTargetProgress = {
 };
 
 function TargetProgressMini({ dark }: { dark: boolean }) {
+  const { token } = theme.useToken();
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<HeaderTargetProgress | null>(null);
   const dispatch = useDispatch<AppDispatch>();
+  const { slug } = useParams();
 
   useEffect(() => {
     let mounted = true;
 
-    const STORAGE_KEY = "fl_target_progress_cache";
-    const TIME_KEY = "fl_target_progress_last_fetch";
+    const STORAGE_KEY = `fl_target_progress_cache_${slug || "default"}`;
+    const TIME_KEY = `fl_target_progress_last_fetch_${slug || "default"}`;
     const MIN_GAP_MS = 60_000;
 
     const cached = sessionStorage.getItem(STORAGE_KEY);
+
     if (cached) {
       try {
         setProgress(JSON.parse(cached));
@@ -170,6 +173,22 @@ function TargetProgressMini({ dark }: { dark: boolean }) {
         sessionStorage.removeItem(STORAGE_KEY);
       }
     }
+
+    const normalizeProgressResponse = (response: any): HeaderTargetProgress | null => {
+      const payload =
+        response?.data?.data ||
+        response?.data ||
+        response;
+
+      if (!payload) return null;
+
+      return {
+        target_amount: Number(payload.target_amount || 0),
+        achieved_amount: Number(payload.achieved_amount || 0),
+        remaining_amount: Number(payload.remaining_amount || 0),
+        progress_percent: Number(payload.progress_percent || 0),
+      };
+    };
 
     const loadTargetProgress = async () => {
       const lastFetch = Number(sessionStorage.getItem(TIME_KEY) || 0);
@@ -185,15 +204,18 @@ function TargetProgressMini({ dark }: { dark: boolean }) {
 
         if (!mounted) return;
 
-        const nextProgress = response?.data || null;
+        const nextProgress = normalizeProgressResponse(response);
         setProgress(nextProgress);
 
         if (nextProgress) {
           sessionStorage.setItem(STORAGE_KEY, JSON.stringify(nextProgress));
+        } else {
+          sessionStorage.removeItem(STORAGE_KEY);
         }
       } catch {
         if (!mounted) return;
         setProgress(null);
+        sessionStorage.removeItem(STORAGE_KEY);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -206,49 +228,40 @@ function TargetProgressMini({ dark }: { dark: boolean }) {
     return () => {
       mounted = false;
     };
-  }, [dispatch]);
+  }, [dispatch, slug]);
 
   const targetAmount = Number(progress?.target_amount || 0);
   const achievedAmount = Number(progress?.achieved_amount || 0);
   const remainingAmount = Number(progress?.remaining_amount || 0);
-  const percent = Number(progress?.progress_percent || 0);
+  const percent = Math.min(Number(progress?.progress_percent || 0), 100);
 
-  if (!loading && targetAmount <= 0) {
-    return null;
-  }
+  const hasTarget = targetAmount > 0;
 
   return (
     <Tooltip
       title={
-        targetAmount > 0
-          ? <>
-            <span style={{ display: "flex", flexDirection: "column" }}>
-              Achieved - ₹{achievedAmount.toLocaleString("en-IN")}
-            </span>
-            <span style={{ display: "flex", flexDirection: "column" }}>
-              Target - ₹{targetAmount.toLocaleString("en-IN")}
-            </span>
-            <span style={{ display: "flex", flexDirection: "column" }}>
-              left - ₹{remainingAmount.toLocaleString("en-IN")}
-            </span>
-          </>
-          : "Target progress"
+        hasTarget ? (
+          <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <span>Achieved - ₹{achievedAmount.toLocaleString("en-IN")}</span>
+            <span>Target - ₹{targetAmount.toLocaleString("en-IN")}</span>
+            <span>Left - ₹{remainingAmount.toLocaleString("en-IN")}</span>
+          </span>
+        ) : (
+          "No target set"
+        )
       }
     >
       <div
         style={{
-          width: 260,
-          height: 40,
-          padding: "6px 12px",
-          borderRadius: 12,
-          border: dark
-            ? "1px solid rgba(255,255,255,0.12)"
-            : "1px solid rgba(15,23,42,0.08)",
-          background: dark ? "rgba(255,255,255,0.04)" : "#ffffff",
+          width: 240,
+          height: 38,
+          padding: "6px 10px",
+          borderRadius: token.borderRadiusLG,
+          border: `1px solid ${token.colorBorderSecondary}`,
+          background: token.colorBgContainer,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          boxShadow: dark ? "none" : "0 4px 12px rgba(15, 23, 42, 0.04)",
           overflow: "hidden",
         }}
       >
@@ -257,13 +270,18 @@ function TargetProgressMini({ dark }: { dark: boolean }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: 10,
+            gap: 8,
             lineHeight: 1,
             marginBottom: 4,
           }}
         >
           <Space size={5}>
-            <TrophyOutlined style={{ color: "#faad14", fontSize: 12 }} />
+            <TrophyOutlined
+              style={{
+                color: hasTarget ? token.colorWarning : token.colorTextTertiary,
+                fontSize: 12,
+              }}
+            />
             <Text style={{ fontSize: 11, lineHeight: 1 }} type="secondary">
               ₹{achievedAmount.toLocaleString("en-IN")}
             </Text>
@@ -273,17 +291,25 @@ function TargetProgressMini({ dark }: { dark: boolean }) {
             style={{
               fontSize: 11,
               lineHeight: 1,
-              color: percent >= 100 ? "#52c41a" : "#1677ff",
+              color: hasTarget
+                ? percent >= 100
+                  ? token.colorSuccess
+                  : token.colorPrimary
+                : token.colorTextTertiary,
               fontWeight: 700,
             }}
           >
-            {percent}%
+            {loading ? "..." : `${percent}%`}
           </Text>
 
           <Space size={5}>
             <RiseOutlined
               style={{
-                color: percent >= 100 ? "#52c41a" : "#1677ff",
+                color: hasTarget
+                  ? percent >= 100
+                    ? token.colorSuccess
+                    : token.colorPrimary
+                  : token.colorTextTertiary,
                 fontSize: 12,
               }}
             />
