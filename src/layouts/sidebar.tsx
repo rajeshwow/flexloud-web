@@ -41,6 +41,7 @@ import {
   MailOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  MoonOutlined,
   PartitionOutlined,
   PhoneOutlined,
   PlusOutlined,
@@ -1195,9 +1196,9 @@ export default function AppShell({ children, user }: Props) {
             <Divider type="vertical" />
             <HeaderThemeSwitcher />
             <Divider type="vertical" />
-            <BulbOutlined style={{ color: "var(--fl-text2)" }} />
-            {/* <Divider type="vertical" /> */}
-            <Switch checked={dark} onChange={setDark} />
+
+            {/* here i want half moon icon */}
+            <MoonOutlined onClick={() => setDark(!dark)} style={{ color: "var(--fl-text2)" }} />
             <Divider type="vertical" />
             <Button
               type="text"
