@@ -11,6 +11,7 @@ import costCentersReducer from "./reducers/costCenters.slice";
 import dashboardReducer from "./reducers/dashboard.slice";
 import deliveryChallanReducer from "./reducers/deliveryChallans/deliveryChallanSlice";
 import geoVisitsReducer from "./reducers/geoVisits.slice";
+import globalSearchReducer from "./reducers/global-search.slice";
 import importsReducer from "./reducers/imports.slice";
 import interactionsReducer from "./reducers/interactions.slice";
 import leadsReducer from "./reducers/leads.slice";
@@ -74,6 +75,7 @@ export const store = configureStore({
     tallyCompanies: tallyCompaniesReducer,
     tallyAnalyticsReports: tallyAnalyticsReportsReducer,
     adminTenants: adminTenantsReducer,
+    globalSearch: globalSearchReducer,
   },
 });
 

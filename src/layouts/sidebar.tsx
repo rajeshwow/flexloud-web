@@ -66,6 +66,7 @@ import { useAppTheme } from "../theme/ThemeProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { buildMenuTree } from "../menu/buildMenu";
 import { MENU_REGISTRY } from "../menu/menuRegistry";
+import GlobalHeaderSearch from "../pages/global-search/GlobalHeaderSearch";
 import NotificationCenterDrawer from "../pages/my-day/components/NotificationCenterDrawer";
 import { clockInAttendance, clockOutAttendance, getTodayAttendance } from "../redux/reducers/attendance.slice";
 import { fetchMyDayCounts, setNotificationDrawerOpen } from "../redux/reducers/myDay.slice";
@@ -1160,6 +1161,8 @@ export default function AppShell({ children, user }: Props) {
           <div style={{ marginLeft: "auto" }} />
 
           <Space size={12}>
+            <GlobalHeaderSearch />
+            <Divider type="vertical" />
             <TargetProgressMini dark={dark} />
             <Divider type="vertical" />
             <AttendanceWatch dark={dark} />

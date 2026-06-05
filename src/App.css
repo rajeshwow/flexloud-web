@@ -93,3 +93,40 @@
 .fl-sider .ant-menu-submenu-title {
   user-select: none;
 }
+
+.global-header-search {
+  width: 260px;
+}
+
+.global-header-search .ant-select-selector {
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 8px !important;
+  border-radius: 8px !important;
+  display: flex;
+  align-items: center;
+}
+
+.global-header-search .ant-select-selection-search-input {
+  height: 28px !important;
+  font-size: 12px !important;
+}
+
+.global-header-search .ant-input-affix-wrapper {
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 8px !important;
+  border-radius: 8px !important;
+}
+
+.global-header-search .ant-input {
+  font-size: 12px !important;
+}
+
+.global-header-search .ant-input-prefix {
+  margin-inline-end: 6px;
+}
+
+.global-header-search .ant-input-clear-icon {
+  font-size: 11px;
+}
