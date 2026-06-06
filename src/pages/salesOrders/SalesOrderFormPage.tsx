@@ -32,6 +32,7 @@ import {
     resetSalesOrderDetail,
     updateSalesOrder,
 } from "../../redux/reducers/salesOrders.slice";
+import { createTask } from "../../redux/reducers/tasks.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch } from "../../redux/store";
 import { getSalesOrderStatusOptions, toTitleCase } from "../../shared/Utils/utils";
@@ -40,6 +41,56 @@ import OrganizationForm from "../Organization/components/OrganizationForm";
 const { Title, Text } = Typography;
 
 const toNumber = (value: any) => Number(value || 0);
+
+const getCustomerAddress = (customer?: any) => {
+    if (!customer) return "Address not available";
+
+    const headOffice =
+        (customer.branches || []).find((branch: any) => branch?.is_head_office) ||
+        customer.branches?.[0];
+
+    const addressParts = [
+        headOffice?.shipping_street ||
+        headOffice?.billing_street ||
+        customer.registered_street ||
+        customer.registered_address?.street,
+        headOffice?.shipping_area ||
+        headOffice?.billing_area ||
+        customer.registered_area ||
+        customer.registered_address?.area,
+        headOffice?.shipping_city_name ||
+        headOffice?.billing_city_name ||
+        customer.registered_city_name,
+        headOffice?.shipping_state_name ||
+        headOffice?.billing_state_name ||
+        customer.registered_state_name,
+        headOffice?.shipping_postal_code ||
+        headOffice?.billing_postal_code ||
+        customer.registered_postal_code ||
+        customer.registered_address?.postal_code,
+        headOffice?.shipping_country_name ||
+        headOffice?.billing_country_name ||
+        customer.registered_country_name,
+    ].filter(Boolean);
+
+    return addressParts.length ? addressParts.join(", ") : "Address not available";
+};
+
+const getInstallationTaskDates = (expectedDeliveryDate?: any) => {
+    const startDate = dayjs();
+    const requestedEndDate = expectedDeliveryDate
+        ? dayjs(expectedDeliveryDate).hour(18).minute(0).second(0)
+        : startDate.add(1, "day");
+    const endDate = requestedEndDate.isAfter(startDate)
+        ? requestedEndDate
+        : startDate.add(1, "hour");
+
+    return {
+        startDate,
+        endDate,
+        durationMinutes: endDate.diff(startDate, "minute"),
+    };
+};
 
 const calculateItem = (item: any) => {
     const quantity = toNumber(item?.quantity);
@@ -248,6 +299,19 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
         value: x.id,
     }));
 
+    const technicalUserOptions = users.map((x: any) => {
+        const userName = toTitleCase(x.name || x.full_name || x.email);
+        const roleContext = [x.department, x.designation]
+            .filter(Boolean)
+            .map((value: string) => toTitleCase(value))
+            .join(" / ");
+
+        return {
+            label: roleContext ? `${userName} (${roleContext})` : userName,
+            value: x.id,
+        };
+    });
+
     const totals = useMemo(() => {
         const subtotal = items.reduce(
             (sum: number, item: any) => sum + calculateItem(item).grossAmount,
@@ -286,6 +350,10 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
     }, [items, shippingWatch]);
 
     const onFinish = async (values: any) => {
+        const {
+            technical_assignee_id: technicalAssigneeId,
+            ...salesOrderValues
+        } = values;
         const normalizedItems = (values.items || []).map((item: any) => {
             const normalizedItem = {
                 ...item,
@@ -310,7 +378,7 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
         });
 
         const payload = {
-            ...values,
+            ...salesOrderValues,
             items: normalizedItems,
             so_date: values.so_date ? dayjs(values.so_date).format("YYYY-MM-DD") : undefined,
             expected_delivery_date: values.expected_delivery_date
@@ -334,7 +402,56 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                 message.success("Sales order updated successfully");
             } else {
                 await dispatch(createSalesOrder(payload)).unwrap();
-                message.success("Sales order created successfully");
+
+                if (technicalAssigneeId) {
+                    const customer = customers.find(
+                        (item: any) => item.id === values.customer_id,
+                    );
+                    const productNames = normalizedItems
+                        .map((item: any) => item.product_name)
+                        .filter(Boolean);
+                    const taskDates = getInstallationTaskDates(
+                        values.expected_delivery_date,
+                    );
+                    const taskDescription = [
+                        `Client: ${customer?.name || "Customer"}`,
+                        `Installation address: ${getCustomerAddress(customer)}`,
+                        "",
+                        "Products to set up:",
+                        ...productNames.map((name: string) => `- ${name}`),
+                    ].join("\n");
+
+                    try {
+                        await dispatch(
+                            createTask({
+                                subject: `Product setup - ${customer?.name || "Customer"}`,
+                                status: "not_started",
+                                start_date: taskDates.startDate.toISOString(),
+                                end_date: taskDates.endDate.toISOString(),
+                                related_to_type: "organization",
+                                related_to_id: values.customer_id,
+                                priority_id: null,
+                                description: taskDescription,
+                                assigned_to: technicalAssigneeId,
+                                repeat_task: "none",
+                                repeat_task_end: null,
+                                task_duration: `${taskDates.durationMinutes}m`,
+                                task_duration_minutes: taskDates.durationMinutes,
+                            }),
+                        ).unwrap();
+
+                        message.success(
+                            "Sales order created and technical task assigned successfully",
+                        );
+                    } catch (taskError: any) {
+                        message.warning(
+                            taskError?.message ||
+                            "Sales order created, but technical task could not be created",
+                        );
+                    }
+                } else {
+                    message.success("Sales order created successfully");
+                }
             }
 
             navigate(`/${slug}/sales-orders`);
@@ -440,6 +557,25 @@ export default function SalesOrderFormPage({ isEdit = false }: Props) {
                                 />
                             </Form.Item>
                         </Col>
+
+                        {!isEdit ? (
+                            <Col span={8}>
+                                <Form.Item
+                                    name="technical_assignee_id"
+                                    label="Assign to Technical Person"
+                                    extra="Optional. A product setup task will be created automatically."
+                                >
+                                    <Select
+                                        allowClear
+                                        showSearch
+                                        loading={loadingOptions}
+                                        placeholder="Select technical person"
+                                        optionFilterProp="label"
+                                        options={technicalUserOptions}
+                                    />
+                                </Form.Item>
+                            </Col>
+                        ) : null}
 
                         <Col span={8}>
                             <Form.Item

@@ -132,11 +132,34 @@ export default function TasksPage() {
     }, [taskList, search]);
 
     const columns: ColumnsType<TaskItem> = [
+        //Task Number
+        {
+            title: "Task Number",
+            dataIndex: "task_number",
+            key: "task_number",
+            width: 150,
+            render: (_, record) => (
+                <Button
+                    type="link"
+                    style={{
+                        padding: 0,
+                        height: "auto",
+                        textAlign: "left",
+                        whiteSpace: "normal",
+                        // color: token.colorError,
+                        fontWeight: 600,
+                    }}
+                    onClick={() => navigate(`/${slug}/tasks/${record.id}`)}
+                >
+                    {toTitleCase(record.task_number)}
+                </Button>
+            ),
+        },
         {
             title: "Subject",
             dataIndex: "subject",
             key: "subject",
-            width: 240,
+            width: 150,
             render: (_, record) => (
                 <Button
                     type="link"
@@ -154,48 +177,42 @@ export default function TasksPage() {
                 </Button>
             ),
         },
-        {
-            title: "Start Date",
-            dataIndex: "start_date",
-            key: "start_date",
-            width: 180,
-            render: (value) => formatDateTime(value),
-        },
-        {
-            title: "End Date",
-            dataIndex: "end_date",
-            key: "end_date",
-            width: 180,
-            render: (value) => formatDateTime(value),
-        },
-        {
-            title: "Task Duration",
-            dataIndex: "task_duration_minutes",
-            key: "task_duration_minutes",
-            width: 180,
-            render: (value) => formatDuration(value),
-        },
+        // {
+        //     title: "Start Date",
+        //     dataIndex: "start_date",
+        //     key: "start_date",
+        //     width: 180,
+        //     render: (value) => formatDateTime(value),
+        // },
+        // {
+        //     title: "End Date",
+        //     dataIndex: "end_date",
+        //     key: "end_date",
+        //     width: 180,
+        //     render: (value) => formatDateTime(value),
+        // },
+        // {
+        //     title: "Task Duration",
+        //     dataIndex: "task_duration_minutes",
+        //     key: "task_duration_minutes",
+        //     width: 180,
+        //     render: (value) => formatDuration(value),
+        // },
         {
             title: "Status",
             dataIndex: "status",
             key: "status",
-            width: 140,
+            width: 100,
             render: (value: TaskItem["status"]) => (
                 <Tag color={getStatusTagColor(value)}>{getStatusLabel(value)}</Tag>
             ),
         },
-        {
-            title: "Latest Remark",
-            dataIndex: "latest_remark",
-            key: "latest_remark",
-            width: 180,
-            render: (value) => value || "-",
-        },
+
         {
             title: "Assigned User",
             dataIndex: "assigned_to_name",
             key: "assigned_to_name",
-            width: 180,
+            width: 120,
             render: (value) => (
                 <Text
                     style={{
@@ -207,6 +224,13 @@ export default function TasksPage() {
                 </Text>
             ),
         },
+        // {
+        //     title: "Latest Remark",
+        //     dataIndex: "latest_remark",
+        //     key: "latest_remark",
+        //     width: 120,
+        //     render: (value) => value || "-",
+        // },
         {
             title: "Date Created",
             dataIndex: "created_at",
@@ -315,7 +339,7 @@ export default function TasksPage() {
                         pageSizeOptions: [10, 20, 50, 100],
                         showTotal: (total, range) => `${range[0]} - ${range[1]} of ${total}`,
                     }}
-                    scroll={{ x: 1400 }}
+                    scroll={{ x: 1000 }}
                     size="middle"
                 />
             </Card>
