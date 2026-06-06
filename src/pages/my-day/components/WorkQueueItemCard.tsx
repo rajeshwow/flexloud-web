@@ -261,76 +261,7 @@ export default function WorkQueueItemCard({ item }: Props) {
                     </Space>
                 </div>
 
-                <div
-                    style={{
-                        minWidth: 180,
-                        flexShrink: 0,
-                        display: "flex",
-                        alignItems: "stretch",
-                    }}
-                >
-                    <div
-                        style={{
-                            width: "100%",
-                            borderRadius: Number(token.borderRadiusLG),
-                            padding: 14,
-                            background: token.colorFillQuaternary,
-                            border: `1px solid ${token.colorBorderSecondary}`,
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            gap: 12,
-                        }}
-                    >
-                        {/* <div>
-                            <Text
-                                type="secondary"
-                                style={{
-                                    fontSize: 12,
-                                    textTransform: "uppercase",
-                                    letterSpacing: 0.6,
-                                }}
-                            >
-                                Queue Status
-                            </Text>
 
-                            <div style={{ marginTop: 8 }}>
-                                <Tag
-                                    color={
-                                        item.section === "overdue"
-                                            ? "red"
-                                            : item.section === "today"
-                                                ? "gold"
-                                                : item.section === "upcoming"
-                                                    ? "blue"
-                                                    : "orange"
-                                    }
-                                    style={{ marginInlineEnd: 0 }}
-                                >
-                                    {getSectionLabel(item.section)}
-                                </Tag>
-                            </div>
-                        </div> */}
-
-                        {/* <div>
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                                Route
-                            </Text>
-
-                            <div style={{ marginTop: 6 }}>
-                                <Text
-                                    style={{
-                                        fontSize: 12,
-                                        wordBreak: "break-all",
-                                        color: token.colorTextSecondary,
-                                    }}
-                                >
-                                    {item.route || "--"}
-                                </Text>
-                            </div>
-                        </div> */}
-                    </div>
-                </div>
             </div>
         </Card>
     );
