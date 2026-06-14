@@ -127,6 +127,13 @@ export default function TenantListPage() {
                 width: 120,
             },
             {
+                title: "Permissions",
+                dataIndex: "allowed_permission_count",
+                key: "allowed_permission_count",
+                width: 140,
+                render: (value: number) => <Tag>{value || 0}</Tag>,
+            },
+            {
                 title: "Status",
                 dataIndex: "status",
                 key: "status",

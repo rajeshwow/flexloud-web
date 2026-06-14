@@ -12,6 +12,23 @@ export type AdminTenant = {
   bootstrapped_at?: string | null;
   created_at: string;
   updated_at?: string;
+  allowed_permission_count?: number;
+};
+
+export type AdminPermissionItem = {
+  code: string;
+  description?: string | null;
+  module_key?: string | null;
+  action_key?: string | null;
+  is_active?: boolean;
+  is_allowed?: boolean;
+};
+
+export type AdminPermissionGroup = {
+  moduleKey?: string;
+  module_key?: string;
+  module_label?: string;
+  permissions: AdminPermissionItem[];
 };
 
 export type GetAdminTenantsParams = {
@@ -38,13 +55,29 @@ export type UpdateTenantStatusPayload = {
   status: TenantStatus;
 };
 
+export type UpdateTenantPermissionsPayload = {
+  tenantId: string;
+  permissionCodes: string[];
+};
+
 type AdminTenantsState = {
   items: AdminTenant[];
   selectedTenant: AdminTenant | null;
   bootstrapLogs: any[];
+
+  permissionCatalog: AdminPermissionItem[];
+  permissionCatalogGroups: AdminPermissionGroup[];
+
+  tenantPermissionItems: AdminPermissionItem[];
+  tenantPermissionGroups: AdminPermissionGroup[];
+  allowedPermissionCodes: string[];
+
   loading: boolean;
   detailLoading: boolean;
   actionLoading: boolean;
+  permissionsLoading: boolean;
+  permissionsSaving: boolean;
+
   error: string | null;
   pagination: {
     page: number;
@@ -57,9 +90,20 @@ const initialState: AdminTenantsState = {
   items: [],
   selectedTenant: null,
   bootstrapLogs: [],
+
+  permissionCatalog: [],
+  permissionCatalogGroups: [],
+
+  tenantPermissionItems: [],
+  tenantPermissionGroups: [],
+  allowedPermissionCodes: [],
+
   loading: false,
   detailLoading: false,
   actionLoading: false,
+  permissionsLoading: false,
+  permissionsSaving: false,
+
   error: null,
   pagination: {
     page: 1,
@@ -83,13 +127,22 @@ const getAdminAuthHeaders = (): Record<string, string> => {
 };
 
 const getErrorMessage = (error: any, fallback: string) => {
-  return (
+  const message =
     error?.response?.data?.message ||
     error?.response?.data?.error ||
     error?.message ||
-    fallback
-  );
+    fallback;
+
+  const invalidCodes = error?.response?.data?.details?.invalidPermissionCodes;
+
+  if (Array.isArray(invalidCodes) && invalidCodes.length) {
+    return `${message}: ${invalidCodes.join(", ")}`;
+  }
+
+  return message;
 };
+
+const getPayloadData = (payload: any) => payload?.data || payload || {};
 
 export const fetchAdminTenants = createAsyncThunk(
   "adminTenants/fetchAdminTenants",
@@ -203,6 +256,66 @@ export const fetchTenantBootstrapLogs = createAsyncThunk(
   },
 );
 
+export const fetchAdminPermissionCatalog = createAsyncThunk(
+  "adminTenants/fetchAdminPermissionCatalog",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await Client.get(`/v1/admin/tenants/permissions/catalog`, {
+        headers: getAdminAuthHeaders(),
+      });
+
+      return res.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        getErrorMessage(error, "Failed to fetch permission catalog"),
+      );
+    }
+  },
+);
+
+export const fetchAdminTenantPermissions = createAsyncThunk(
+  "adminTenants/fetchAdminTenantPermissions",
+  async (tenantId: string, { rejectWithValue }) => {
+    try {
+      const res = await Client.get(
+        `/v1/admin/tenants/${tenantId}/permissions`,
+        {
+          headers: getAdminAuthHeaders(),
+        },
+      );
+
+      return res.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        getErrorMessage(error, "Failed to fetch tenant permissions"),
+      );
+    }
+  },
+);
+
+export const updateAdminTenantPermissions = createAsyncThunk(
+  "adminTenants/updateAdminTenantPermissions",
+  async (payload: UpdateTenantPermissionsPayload, { rejectWithValue }) => {
+    try {
+      const res = await Client.put(
+        `/v1/admin/tenants/${payload.tenantId}/permissions`,
+        {
+          permissionCodes: payload.permissionCodes || [],
+        },
+        {
+          headers: getAdminAuthHeaders(),
+        },
+      );
+
+      return res.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        getErrorMessage(error, "Failed to update tenant permissions"),
+      );
+    }
+  },
+);
+
 const adminTenantsSlice = createSlice({
   name: "adminTenants",
   initialState,
@@ -211,6 +324,9 @@ const adminTenantsSlice = createSlice({
     resetSelectedTenant: (state) => {
       state.selectedTenant = null;
       state.bootstrapLogs = [];
+      state.tenantPermissionItems = [];
+      state.tenantPermissionGroups = [];
+      state.allowedPermissionCodes = [];
     },
   },
   extraReducers: (builder) => {
@@ -316,6 +432,79 @@ const adminTenantsSlice = createSlice({
       })
       .addCase(fetchTenantBootstrapLogs.rejected, (state, action) => {
         state.detailLoading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(fetchAdminPermissionCatalog.pending, (state) => {
+        state.permissionsLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAdminPermissionCatalog.fulfilled, (state, action) => {
+        state.permissionsLoading = false;
+
+        const payload = getPayloadData(action.payload);
+
+        state.permissionCatalog = payload?.items || [];
+        state.permissionCatalogGroups = payload?.grouped || [];
+      })
+      .addCase(fetchAdminPermissionCatalog.rejected, (state, action) => {
+        state.permissionsLoading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(fetchAdminTenantPermissions.pending, (state) => {
+        state.permissionsLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAdminTenantPermissions.fulfilled, (state, action) => {
+        state.permissionsLoading = false;
+
+        const payload = getPayloadData(action.payload);
+
+        state.tenantPermissionItems = payload?.items || [];
+        state.tenantPermissionGroups = payload?.grouped || [];
+        state.allowedPermissionCodes = payload?.allowedPermissionCodes || [];
+
+        if (
+          state.selectedTenant &&
+          payload?.allowedPermissionCount !== undefined
+        ) {
+          state.selectedTenant.allowed_permission_count =
+            payload.allowedPermissionCount;
+        }
+      })
+      .addCase(fetchAdminTenantPermissions.rejected, (state, action) => {
+        state.permissionsLoading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(updateAdminTenantPermissions.pending, (state) => {
+        state.permissionsSaving = true;
+        state.error = null;
+      })
+      .addCase(updateAdminTenantPermissions.fulfilled, (state, action) => {
+        state.permissionsSaving = false;
+
+        const payload = getPayloadData(action.payload);
+
+        state.allowedPermissionCodes = payload?.allowedPermissionCodes || [];
+
+        if (state.selectedTenant) {
+          state.selectedTenant.allowed_permission_count =
+            payload?.allowedPermissionCount || 0;
+        }
+
+        state.items = state.items.map((tenant) =>
+          tenant.id === payload?.tenant?.id
+            ? {
+                ...tenant,
+                allowed_permission_count: payload?.allowedPermissionCount || 0,
+              }
+            : tenant,
+        );
+      })
+      .addCase(updateAdminTenantPermissions.rejected, (state, action) => {
+        state.permissionsSaving = false;
         state.error = action.payload as string;
       });
   },
