@@ -7,6 +7,7 @@ import TenantDetailPage from "../pages/admin/TenantDetailPage";
 import TenantListPage from "../pages/admin/TenantListPage";
 import TallyAnalyticsPage from "../pages/reports/TallyAnalyticsPage";
 import AppearanceSettingsPage from "../pages/settings/AppearanceSettingsPage";
+import AuthFlashMessage from "../shared/Components/AuthFlashMessage";
 import SuperAdminRoute from "./SuperAdminRoute";
 const TallySyncPage = lazy(() => import("../pages/Tally/TallySyncPage"));
 const TallyCompaniesPage = lazy(() => import("../pages/tally-companies/TallyCompaniesPage"));
@@ -80,699 +81,701 @@ const PageLoader = ({ children }: { children: React.ReactNode }) => (
 
 export default function CrmRoutes() {
   return (
-    <Routes>
-      <Route path="/:slug/login" element={<LoginPage3 />} />
-      <Route path="/" element={<AccountSlugRequiredPage2 />} />
-
-      {/* SUPER ADMIN LOGIN */}
-      <Route
-        path="/admin/login"
-        element={
-          <PageLoader>
-            <AdminLoginPage />
-          </PageLoader>
-        }
-      />
-
-      {/* Auth protected */}
-      <Route path="/:slug" element={<ProtectedRoute />}>
-        {/* 👇 COMMON LAYOUT */}
-        <Route element={<AppShell children={<Outlet />} />}>
-
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="home" element={<DashboardPage />} />
-
-          {/* --------------------------------------------------------------------------------------------------- */}
-
-          <Route
-            path="users"
-            element={
-              <ProtectedRoute required="users.view">
-                <PageLoader><UserGet /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="users/create"
-            element={
-              <ProtectedRoute required="users.create">
-                <PageLoader><UserCreatePage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-
-
-          {/* ----------------------------------------------------------------------------- */}
-
-
-
-          <Route
-            path="organization/view"
-            element={
-              <ProtectedRoute required="org.view">
-                <PageLoader><OrganizationGet /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="organization/view/:id"
-            element={
-              <ProtectedRoute required="org.view">
-                <PageLoader><OrgDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="organization/create"
-            element={
-              <ProtectedRoute required="org.create">
-                <PageLoader><CreateOrganizationPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ----------------------------------------------------------------------------------------- */}
-
-          {/* /:slug/contacts */}
-          <Route
-            path="contacts"
-            element={
-              <ProtectedRoute required="contacts.view">
-                <PageLoader><ContactsList /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="contacts/create"
-            element={
-              <ProtectedRoute required="contacts.create">
-                <PageLoader><ContactForm /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-          {/* /:slug/contacts/:id */}
-          <Route
-            path="contacts/:id"
-            element={
-              <ProtectedRoute required="contacts.view">
-                <PageLoader><ContactDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* /:slug/contacts/:id/edit */}
-          <Route
-            path="contacts/:id/edit"
-            element={
-              <ProtectedRoute required="contacts.edit">
-                <PageLoader><ContactEditPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-          {/* --------------------------------------------------------------------------------------------------- */}
-
-          <Route
-            path="opportunities"
-            element={
-              <ProtectedRoute required="opportunities.view">
-                <PageLoader><OpportunitiesPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-          {/* create opportunies */}
-          <Route
-            path="opportunities/create"
-            element={
-              <ProtectedRoute required="opportunities.create">
-                <PageLoader><CreateOpportunityPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="opportunities/:id"
-            element={
-              <ProtectedRoute required="opportunities.view">
-                <PageLoader><OpportunityDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="opportunities/:id/edit"
-            element={
-              <ProtectedRoute required="opportunities.edit">
-                <PageLoader><EditOpportunityPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-
-          {/* --------------------------------------------------------------------------------------------------- */}
-
-          <Route
-            path="leads/create"
-            element={
-              <ProtectedRoute required="leads.create">
-                <PageLoader><CreateLeadForm /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="leads/view"
-            element={
-              <ProtectedRoute required="leads.view">
-                <PageLoader><LeadsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="leads/:id"
-            element={
-              <ProtectedRoute required="leads.view">
-                <PageLoader><LeadDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="leads/:id/edit"
-            element={
-              <ProtectedRoute required="leads.view">
-                <PageLoader><LeadDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* --------------------------------------------------------------------------------------------------- */}
-
-          <Route
-            path="products"
-            element={
-              <ProtectedRoute required="products.view">
-                <PageLoader><ProductListPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="products/create"
-            element={
-              <ProtectedRoute required="products.create">
-                <PageLoader><CreateProductPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ----------------------------------------------------------------------------------- */}
-
-          <Route
-            path="delivery-challans"
-            element={
-              <ProtectedRoute required="delivery_challans.view">
-                <PageLoader><DeliveryChallanListPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="delivery-challans/create"
-            element={
-              <ProtectedRoute required="delivery_challans.create">
-                <PageLoader><CreateDeliveryChallanPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="delivery-challans/:id"
-            element={
-              <ProtectedRoute required="delivery_challans.view">
-                <PageLoader><DeliveryChallanDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="delivery-challans/:id/edit"
-            element={
-              <ProtectedRoute required="delivery_challans.update">
-                <PageLoader><EditDeliveryChallanPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* --------------------------------------------------------------------------------------------------- */}
-
-          <Route
-            path="tasks"
-            element={
-              <ProtectedRoute required="tasks.view">
-                <PageLoader><TasksPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="tasks/create"
-            element={
-              <ProtectedRoute required="tasks.create">
-                <PageLoader><CreateTask /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="tasks/:id/edit"
-            element={
-              <ProtectedRoute required="tasks.edit">
-                <PageLoader><EditTask /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="tasks/:id"
-            element={
-              <ProtectedRoute required="tasks.view">
-                <PageLoader><TaskDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* --------------------------------------------------------------------------------------------------- */}
-
-          <Route
-            path="attendance"
-            element={
-              <ProtectedRoute required="attendance.view">
-                <PageLoader><AttendanceView /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="leaves"
-            element={
-              <ProtectedRoute required="leaves.view">
-                <PageLoader><LeaveListPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="imports"
-            element={
-              <ProtectedRoute required="imports.view">
-                <PageLoader><ImportDataPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* --------------------------------------------------------------------------------------------------- */}
-
-          <Route
-            path="visits"
-            element={
-              <ProtectedRoute required="visits.view">
-                <PageLoader><VisitListPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="visits/create"
-            element={
-              <ProtectedRoute required="visits.create">
-                <PageLoader><VisitFormPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="visits/:id/edit"
-            element={
-              <ProtectedRoute required="visits.edit">
-                <PageLoader><VisitFormPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="visits/:id"
-            element={
-              <ProtectedRoute required="visits.view">
-                <PageLoader><VisitDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-          {/* ------------------------------------------------------------------------ */}
-
-          {/* //quotes  */}
-          <Route
-            path="quotes"
-            element={
-              <ProtectedRoute required="quotes.view">
-                <PageLoader><QuotesListPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="quotes/create"
-            element={
-              <ProtectedRoute required="quotes.create">
-                <PageLoader><CreateQuotePage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="quotes/:id/edit"
-            element={
-              <ProtectedRoute required="quotes.edit">
-                <PageLoader><QuoteDetailsView /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="quotes/:id"
-            element={
-              <ProtectedRoute required="quotes.view">
-                <PageLoader><QuoteDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ----------------------------------------------------------------------------- */}
-
-          {/* tally operations */}
-
-          <Route
-            path="tally-performance"
-            element={
-              <ProtectedRoute required="tally-performance.view">
-                <PageLoader><TallyPerformancePage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="tally-employees"
-            element={
-              <ProtectedRoute required="tally-employees.view">
-                <PageLoader><TallyEmployeesPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="purchase-orders"
-            element={
-              <ProtectedRoute required="purchase-orders.view">
-                <PageLoader><PurchaseOrderListPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="purchase-orders/create"
-            element={
-              <ProtectedRoute required="purchase-orders.create">
-                <PageLoader><CreatePurchaseOrder /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="purchase-orders/:id/edit"
-            element={
-              <ProtectedRoute required="purchase-orders.edit">
-                <PageLoader><CreatePurchaseOrder isEdit /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="purchase-orders/:id"
-            element={
-              <ProtectedRoute required="purchase-orders.view">
-                <PageLoader><PurchaseOrderDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ------------------------------------------------------------------------ */}
-
-            //sales order routes
-
-          <Route
-            path="sales-orders"
-            element={
-              <ProtectedRoute required="sales-orders.view">
-                <PageLoader><SalesOrderListPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="sales-orders/create"
-            element={
-              <ProtectedRoute required="sales-orders.create">
-                <PageLoader><SalesOrderFormPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="sales-orders/:id/edit"
-            element={
-              <ProtectedRoute required="sales-orders.edit">
-                <PageLoader><SalesOrderFormPage isEdit /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="sales-orders/:id"
-            element={
-              <ProtectedRoute required="sales-orders.view">
-                <PageLoader><SalesOrderDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* --------------------------------------------------------------------------------- */}
-
-          {/* //interactions  */}
-          <Route
-            path="events"
-            element={
-              <ProtectedRoute required="interactions.view">
-                <PageLoader><InteractionsListPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="events/create"
-            element={
-              <ProtectedRoute required="interactions.create">
-                <PageLoader><CreateInteractionPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="events/:id/edit"
-            element={
-              <ProtectedRoute required="interactions.edit">
-                <PageLoader><EditInteractionPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="events/:id"
-            element={
-              <ProtectedRoute required="interactions.view">
-                <PageLoader><InteractionDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ------------------------------------------------------------------------ */}
-
-          {/* //rbac  */}
-          <Route
-            path="rbac"
-            element={
-              <ProtectedRoute required="rbac.view">
-                <PageLoader><RolesListPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="rbac/create"
-            element={
-              <ProtectedRoute required="rbac.create">
-                <PageLoader><CreateRolePage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="rbac/:id"
-            element={
-              <ProtectedRoute required="rbac.view">
-                <PageLoader><RoleDetailsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ------------------------------------------------------------------------ */}
-
-          {/* //my-day  */}
-          <Route
-            path="my-day"
-            element={
-              <ProtectedRoute required="my-day.view">
-                <PageLoader><MyDayPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="settings/appearance"
-            element={
-              <ProtectedRoute >
-                {/* /required="settings.view"/ */}
-                <PageLoader><AppearanceSettingsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ------------------------------------------------------------------------ */}
-
-          {/* //warehouse  */}
-          <Route
-            path="warehouse"
-            element={
-              <ProtectedRoute required="warehouse.view">
-                <PageLoader><WarehouseListingPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ----------------------------------------------------------------------------------- */}
-
-          <Route
-            path="cost-centers"
-            element={
-              <ProtectedRoute required="cost-centers.view">
-                <PageLoader><CostCenterAnalyticsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ----------------------------------------------------------------------------------- */}
-
-          <Route
-            path="outstandings"
-            element={
-              <ProtectedRoute required="outstandings.view">
-                <PageLoader><OutstandingListingPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* --------------------------------------------------------- */}
-
-          <Route
-            path="cost-center-performance"
-            element={
-              <ProtectedRoute required="cost-center-performance.view">
-                <PageLoader><CostCenterPerformancePage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* --------------------------------------------------------- */}
-
-          <Route
-            path="tally-sync"
-            element={
-              <ProtectedRoute required="tally.view">
-                <PageLoader><TallySyncPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ------------------------------------------------------------------------ */}
-
-          <Route
-            path="tally-companies"
-            element={
-              <ProtectedRoute required="tally-companies.view">
-                <PageLoader><TallyCompaniesPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ------------------------------------------------------------------------ */}
-
-          <Route
-            path="tally-analytics"
-            element={
-              <ProtectedRoute required="reports.tally_analytics.view">
-                <PageLoader><TallyAnalyticsPage /></PageLoader>
-              </ProtectedRoute>
-            }
-          />
-
+    <>
+      <AuthFlashMessage />
+      <Routes>
+        <Route path="/:slug/login" element={<LoginPage3 />} />
+        <Route path="/" element={<AccountSlugRequiredPage2 />} />
+
+        {/* SUPER ADMIN LOGIN */}
+        <Route
+          path="/admin/login"
+          element={
+            <PageLoader>
+              <AdminLoginPage />
+            </PageLoader>
+          }
+        />
+
+        {/* Auth protected */}
+        <Route path="/:slug" element={<ProtectedRoute />}>
+          {/* 👇 COMMON LAYOUT */}
+          <Route element={<AppShell children={<Outlet />} />}>
+
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="home" element={<DashboardPage />} />
+
+            {/* --------------------------------------------------------------------------------------------------- */}
+
+            <Route
+              path="users"
+              element={
+                <ProtectedRoute required="users.view">
+                  <PageLoader><UserGet /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="users/create"
+              element={
+                <ProtectedRoute required="users.create">
+                  <PageLoader><UserCreatePage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+
+
+            {/* ----------------------------------------------------------------------------- */}
+
+
+
+            <Route
+              path="organization/view"
+              element={
+                <ProtectedRoute required="org.view">
+                  <PageLoader><OrganizationGet /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="organization/view/:id"
+              element={
+                <ProtectedRoute required="org.view">
+                  <PageLoader><OrgDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="organization/create"
+              element={
+                <ProtectedRoute required="org.create">
+                  <PageLoader><CreateOrganizationPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ----------------------------------------------------------------------------------------- */}
+
+            {/* /:slug/contacts */}
+            <Route
+              path="contacts"
+              element={
+                <ProtectedRoute required="contacts.view">
+                  <PageLoader><ContactsList /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="contacts/create"
+              element={
+                <ProtectedRoute required="contacts.create">
+                  <PageLoader><ContactForm /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+            {/* /:slug/contacts/:id */}
+            <Route
+              path="contacts/:id"
+              element={
+                <ProtectedRoute required="contacts.view">
+                  <PageLoader><ContactDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* /:slug/contacts/:id/edit */}
+            <Route
+              path="contacts/:id/edit"
+              element={
+                <ProtectedRoute required="contacts.edit">
+                  <PageLoader><ContactEditPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+            {/* --------------------------------------------------------------------------------------------------- */}
+
+            <Route
+              path="opportunities"
+              element={
+                <ProtectedRoute required="opportunities.view">
+                  <PageLoader><OpportunitiesPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+            {/* create opportunies */}
+            <Route
+              path="opportunities/create"
+              element={
+                <ProtectedRoute required="opportunities.create">
+                  <PageLoader><CreateOpportunityPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="opportunities/:id"
+              element={
+                <ProtectedRoute required="opportunities.view">
+                  <PageLoader><OpportunityDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="opportunities/:id/edit"
+              element={
+                <ProtectedRoute required="opportunities.edit">
+                  <PageLoader><EditOpportunityPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+
+            {/* --------------------------------------------------------------------------------------------------- */}
+
+            <Route
+              path="leads/create"
+              element={
+                <ProtectedRoute required="leads.create">
+                  <PageLoader><CreateLeadForm /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="leads/view"
+              element={
+                <ProtectedRoute required="leads.view">
+                  <PageLoader><LeadsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="leads/:id"
+              element={
+                <ProtectedRoute required="leads.view">
+                  <PageLoader><LeadDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="leads/:id/edit"
+              element={
+                <ProtectedRoute required="leads.view">
+                  <PageLoader><LeadDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* --------------------------------------------------------------------------------------------------- */}
+
+            <Route
+              path="products"
+              element={
+                <ProtectedRoute required="products.view">
+                  <PageLoader><ProductListPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="products/create"
+              element={
+                <ProtectedRoute required="products.create">
+                  <PageLoader><CreateProductPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ----------------------------------------------------------------------------------- */}
+
+            <Route
+              path="delivery-challans"
+              element={
+                <ProtectedRoute required="delivery_challans.view">
+                  <PageLoader><DeliveryChallanListPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="delivery-challans/create"
+              element={
+                <ProtectedRoute required="delivery_challans.create">
+                  <PageLoader><CreateDeliveryChallanPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="delivery-challans/:id"
+              element={
+                <ProtectedRoute required="delivery_challans.view">
+                  <PageLoader><DeliveryChallanDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="delivery-challans/:id/edit"
+              element={
+                <ProtectedRoute required="delivery_challans.update">
+                  <PageLoader><EditDeliveryChallanPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* --------------------------------------------------------------------------------------------------- */}
+
+            <Route
+              path="tasks"
+              element={
+                <ProtectedRoute required="tasks.view">
+                  <PageLoader><TasksPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="tasks/create"
+              element={
+                <ProtectedRoute required="tasks.create">
+                  <PageLoader><CreateTask /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="tasks/:id/edit"
+              element={
+                <ProtectedRoute required="tasks.edit">
+                  <PageLoader><EditTask /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="tasks/:id"
+              element={
+                <ProtectedRoute required="tasks.view">
+                  <PageLoader><TaskDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* --------------------------------------------------------------------------------------------------- */}
+
+            <Route
+              path="attendance"
+              element={
+                <ProtectedRoute required="attendance.view">
+                  <PageLoader><AttendanceView /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="leaves"
+              element={
+                <ProtectedRoute required="leaves.view">
+                  <PageLoader><LeaveListPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="imports"
+              element={
+                <ProtectedRoute required="imports.view">
+                  <PageLoader><ImportDataPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* --------------------------------------------------------------------------------------------------- */}
+
+            <Route
+              path="visits"
+              element={
+                <ProtectedRoute required="visits.view">
+                  <PageLoader><VisitListPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="visits/create"
+              element={
+                <ProtectedRoute required="visits.create">
+                  <PageLoader><VisitFormPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="visits/:id/edit"
+              element={
+                <ProtectedRoute required="visits.edit">
+                  <PageLoader><VisitFormPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="visits/:id"
+              element={
+                <ProtectedRoute required="visits.view">
+                  <PageLoader><VisitDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+            {/* ------------------------------------------------------------------------ */}
+
+            {/* //quotes  */}
+            <Route
+              path="quotes"
+              element={
+                <ProtectedRoute required="quotes.view">
+                  <PageLoader><QuotesListPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="quotes/create"
+              element={
+                <ProtectedRoute required="quotes.create">
+                  <PageLoader><CreateQuotePage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="quotes/:id/edit"
+              element={
+                <ProtectedRoute required="quotes.edit">
+                  <PageLoader><QuoteDetailsView /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="quotes/:id"
+              element={
+                <ProtectedRoute required="quotes.view">
+                  <PageLoader><QuoteDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ----------------------------------------------------------------------------- */}
+
+            {/* tally operations */}
+
+            <Route
+              path="tally-performance"
+              element={
+                <ProtectedRoute required="tally-performance.view">
+                  <PageLoader><TallyPerformancePage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="tally-employees"
+              element={
+                <ProtectedRoute required="tally-employees.view">
+                  <PageLoader><TallyEmployeesPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="purchase-orders"
+              element={
+                <ProtectedRoute required="purchase-orders.view">
+                  <PageLoader><PurchaseOrderListPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="purchase-orders/create"
+              element={
+                <ProtectedRoute required="purchase-orders.create">
+                  <PageLoader><CreatePurchaseOrder /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="purchase-orders/:id/edit"
+              element={
+                <ProtectedRoute required="purchase-orders.edit">
+                  <PageLoader><CreatePurchaseOrder isEdit /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="purchase-orders/:id"
+              element={
+                <ProtectedRoute required="purchase-orders.view">
+                  <PageLoader><PurchaseOrderDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ------------------------------------------------------------------------ */}
+
+
+            <Route
+              path="sales-orders"
+              element={
+                <ProtectedRoute required="sales-orders.view">
+                  <PageLoader><SalesOrderListPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="sales-orders/create"
+              element={
+                <ProtectedRoute required="sales-orders.create">
+                  <PageLoader><SalesOrderFormPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="sales-orders/:id/edit"
+              element={
+                <ProtectedRoute required="sales-orders.edit">
+                  <PageLoader><SalesOrderFormPage isEdit /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="sales-orders/:id"
+              element={
+                <ProtectedRoute required="sales-orders.view">
+                  <PageLoader><SalesOrderDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* --------------------------------------------------------------------------------- */}
+
+            {/* //interactions  */}
+            <Route
+              path="events"
+              element={
+                <ProtectedRoute required="interactions.view">
+                  <PageLoader><InteractionsListPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="events/create"
+              element={
+                <ProtectedRoute required="interactions.create">
+                  <PageLoader><CreateInteractionPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="events/:id/edit"
+              element={
+                <ProtectedRoute required="interactions.edit">
+                  <PageLoader><EditInteractionPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="events/:id"
+              element={
+                <ProtectedRoute required="interactions.view">
+                  <PageLoader><InteractionDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ------------------------------------------------------------------------ */}
+
+            {/* //rbac  */}
+            <Route
+              path="rbac"
+              element={
+                <ProtectedRoute required="rbac.view">
+                  <PageLoader><RolesListPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="rbac/create"
+              element={
+                <ProtectedRoute required="rbac.create">
+                  <PageLoader><CreateRolePage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="rbac/:id"
+              element={
+                <ProtectedRoute required="rbac.view">
+                  <PageLoader><RoleDetailsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ------------------------------------------------------------------------ */}
+
+            {/* //my-day  */}
+            <Route
+              path="my-day"
+              element={
+                <ProtectedRoute required="my-day.view">
+                  <PageLoader><MyDayPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="settings/appearance"
+              element={
+                <ProtectedRoute >
+                  {/* /required="settings.view"/ */}
+                  <PageLoader><AppearanceSettingsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ------------------------------------------------------------------------ */}
+
+            {/* //warehouse  */}
+            <Route
+              path="warehouse"
+              element={
+                <ProtectedRoute required="warehouse.view">
+                  <PageLoader><WarehouseListingPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ----------------------------------------------------------------------------------- */}
+
+            <Route
+              path="cost-centers"
+              element={
+                <ProtectedRoute required="cost-centers.view">
+                  <PageLoader><CostCenterAnalyticsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ----------------------------------------------------------------------------------- */}
+
+            <Route
+              path="outstandings"
+              element={
+                <ProtectedRoute required="outstandings.view">
+                  <PageLoader><OutstandingListingPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* --------------------------------------------------------- */}
+
+            <Route
+              path="cost-center-performance"
+              element={
+                <ProtectedRoute required="cost-center-performance.view">
+                  <PageLoader><CostCenterPerformancePage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* --------------------------------------------------------- */}
+
+            <Route
+              path="tally-sync"
+              element={
+                <ProtectedRoute required="tally.view">
+                  <PageLoader><TallySyncPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ------------------------------------------------------------------------ */}
+
+            <Route
+              path="tally-companies"
+              element={
+                <ProtectedRoute required="tally-companies.view">
+                  <PageLoader><TallyCompaniesPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ------------------------------------------------------------------------ */}
+
+            <Route
+              path="tally-analytics"
+              element={
+                <ProtectedRoute required="reports.tally_analytics.view">
+                  <PageLoader><TallyAnalyticsPage /></PageLoader>
+                </ProtectedRoute>
+              }
+            />
+
+          </Route>
         </Route>
-      </Route>
 
-      {/* SUPER ADMIN ROUTES - tenant slug ke bahar */}
-      <Route path="/admin" element={<PageLoader><SuperAdminRoute /></PageLoader>}>
-        <Route index element={<Navigate to="tenants" replace />} />
+        {/* SUPER ADMIN ROUTES - tenant slug ke bahar */}
+        <Route path="/admin" element={<PageLoader><SuperAdminRoute /></PageLoader>}>
+          <Route index element={<Navigate to="tenants" replace />} />
 
-        <Route
-          path="tenants"
-          element={
-            <PageLoader>
-              <TenantListPage />
-            </PageLoader>
-          }
-        />
+          <Route
+            path="tenants"
+            element={
+              <PageLoader>
+                <TenantListPage />
+              </PageLoader>
+            }
+          />
 
-        <Route
-          path="tenants/:tenantId"
-          element={
-            <PageLoader>
-              <TenantDetailPage />
-            </PageLoader>
-          }
-        />
+          <Route
+            path="tenants/:tenantId"
+            element={
+              <PageLoader>
+                <TenantDetailPage />
+              </PageLoader>
+            }
+          />
 
-        <Route
-          path="tenants/:tenantId/bootstrap"
-          element={
-            <PageLoader>
-              <BootstrapTenantPage />
-            </PageLoader>
-          }
-        />
-      </Route>
+          <Route
+            path="tenants/:tenantId/bootstrap"
+            element={
+              <PageLoader>
+                <BootstrapTenantPage />
+              </PageLoader>
+            }
+          />
+        </Route>
 
-      <Route path="*" element={<div>404</div>} />
-    </Routes>
+        <Route path="*" element={<div>404</div>} />
+      </Routes>
+    </>
   );
 }

@@ -111,8 +111,16 @@ export const auth = createSlice({
       state.permissionsLoading = false;
       state.permissionsLoaded = false;
       state.permissionsSlug = "";
-      sessionStorage.clear();
-      // localStorage.removeItem("token");
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("admin_access_token");
+      localStorage.removeItem("admin_user");
+
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.startsWith("fl_permissions_loaded_")) {
+          sessionStorage.removeItem(key);
+        }
+      });
     },
     setToken: (state, action) => {
       state.token = action.payload;

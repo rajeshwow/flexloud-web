@@ -8,24 +8,65 @@ type RequestConfig = {
   headers?: Record<string, string>;
   baseUrl?: string;
   shouldHideError?: boolean;
-  isFormData?: boolean; // if true, body is FormData
+  isFormData?: boolean;
   responseType?: "json" | "blob" | "arraybuffer" | "text";
 };
 
 function buildQuery(params?: Record<string, any>) {
   if (!params) return "";
+
   const usp = new URLSearchParams();
+
   Object.entries(params).forEach(([k, v]) => {
     if (v === undefined || v === null || v === "") return;
-    if (Array.isArray(v)) v.forEach((x) => usp.append(k, String(x)));
-    else usp.append(k, String(v));
+
+    if (Array.isArray(v)) {
+      v.forEach((x) => usp.append(k, String(x)));
+    } else {
+      usp.append(k, String(v));
+    }
   });
+
   const qs = usp.toString();
   return qs ? `?${qs}` : "";
 }
 
 function showErr(msg: string, hide?: boolean) {
-  if (!hide) notification.error({ message: msg });
+  if (!hide) {
+    notification.error({ message: msg });
+  }
+}
+
+function getTenantSlugFromUrl() {
+  return window.location.pathname.split("/").filter(Boolean)[0] || "";
+}
+
+function isLoginRequest(endpoint: string) {
+  return (
+    endpoint.includes("/auth/login") ||
+    endpoint.includes("/admin/auth/login") ||
+    endpoint.includes("/admin/login")
+  );
+}
+
+function getApiErrorCode(data: any) {
+  return data?.data?.code || data?.code || data?.response?.code || "";
+}
+
+function getApiErrorMessage(data: any) {
+  return data?.message || data?.error || "";
+}
+
+function clearAuthStorage() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("admin_access_token");
+  localStorage.removeItem("admin_user");
+
+  Object.keys(sessionStorage).forEach((key) => {
+    if (key.startsWith("fl_permissions_loaded_")) {
+      sessionStorage.removeItem(key);
+    }
+  });
 }
 
 let isRedirectingToLogin = false;
@@ -35,13 +76,20 @@ function redirectToLoginOn401(msg: string) {
 
   isRedirectingToLogin = true;
 
-  const slug = window.location.pathname.split("/").filter(Boolean)[0];
+  const firstPath = getTenantSlugFromUrl();
 
-  localStorage.clear();
+  clearAuthStorage();
 
-  notification.error({ message: msg });
+  sessionStorage.setItem("auth_flash_error", msg);
 
-  window.location.replace(slug ? `/${slug}/login` : "/login");
+  const loginUrl =
+    firstPath === "admin"
+      ? "/admin/login"
+      : firstPath
+        ? `/${firstPath}/login`
+        : "/login";
+
+  window.location.replace(loginUrl);
 }
 
 async function request(
@@ -51,11 +99,13 @@ async function request(
   config: RequestConfig = {},
 ) {
   const baseUrl = config.baseUrl || BASE_URL;
-  if (!baseUrl) throw new Error("BASE_URL missing");
+
+  if (!baseUrl) {
+    throw new Error("BASE_URL missing");
+  }
 
   const token = localStorage.getItem("token");
 
-  // current tenant slug from url
   const pathname = window.location.pathname;
   const slug = pathname.split("/")[1] || "";
   const tenantId = localStorage.getItem("tenantId");
@@ -64,13 +114,21 @@ async function request(
     ...(config.headers || {}),
   };
 
-  if (token) headers.Authorization = `Bearer ${token}`;
-  if (slug) headers["x-tenant-slug"] = slug;
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
 
-  if (tenantId) headers["x-tenant-id"] = tenantId;
+  if (slug && slug !== "admin") {
+    headers["x-tenant-slug"] = slug;
+  }
 
-  // JSON default unless FormData
-  if (!config.isFormData) headers["Content-Type"] = "application/json";
+  if (tenantId) {
+    headers["x-tenant-id"] = tenantId;
+  }
+
+  if (!config.isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
 
   const url = baseUrl + endpoint + buildQuery(config.params);
 
@@ -85,7 +143,6 @@ async function request(
           : JSON.stringify(body),
   });
 
-  // 204
   if (res.status === 204) {
     return { status: 204, data: null, headers: res.headers, url: res.url };
   }
@@ -97,20 +154,25 @@ async function request(
       case "blob":
         data = await res.blob();
         break;
+
       case "arraybuffer":
         data = await res.arrayBuffer();
         break;
+
       case "text":
         data = await res.text();
         break;
+
       case "json":
       default: {
         const contentType = res.headers.get("content-type") || "";
+
         if (contentType.includes("application/json")) {
           data = await res.json();
         } else {
           data = await res.text();
         }
+
         break;
       }
     }
@@ -118,39 +180,49 @@ async function request(
     data = null;
   }
 
-  // auth/permission handling
-  if (res.status === 401) {
-    const hasToken = Boolean(localStorage.getItem("token"));
+  if (res.status === 401 && !isLoginRequest(endpoint)) {
+    const apiCode = getApiErrorCode(data);
 
-    const msg = hasToken
-      ? "Session expired. Please login again."
+    const msg = token
+      ? "Token expired. Login again."
       : "Please login to continue.";
 
     console.error("401 API =>", url, data);
 
     redirectToLoginOn401(msg);
 
-    throw Object.assign(new Error(msg), { status: 401, data });
+    const err: any = new Error(msg);
+    err.status = 401;
+    err.data = data;
+    err.code = apiCode || (token ? "TOKEN_EXPIRED" : "AUTH_REQUIRED");
+
+    throw err;
   }
 
   if (res.status === 403) {
-    showErr(data?.message || "Forbidden", config.shouldHideError);
-    throw new Error(data?.message || "Forbidden");
+    const msg = getApiErrorMessage(data) || "Forbidden";
+
+    showErr(msg, config.shouldHideError);
+
+    const err: any = new Error(msg);
+    err.status = 403;
+    err.data = data;
+
+    throw err;
   }
 
   if (!res.ok) {
-    const msg =
-      data?.message || data?.error || res.statusText || "Request failed";
+    const msg = getApiErrorMessage(data) || res.statusText || "Request failed";
 
     const err: any = new Error(msg);
     err.status = res.status;
     err.data = data;
 
     showErr(msg, config.shouldHideError);
+
     throw err;
   }
 
-  // axios-like
   return { status: res.status, data, headers: res.headers, url: res.url };
 }
 
