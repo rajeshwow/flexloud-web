@@ -959,6 +959,7 @@ export default function QuoteForm({
                                                         allowClear
                                                         // loading={loadingOptions}
                                                         placeholder="Select customer"
+                                                        onChange={handleOrganizationChange}
                                                         optionFilterProp="label"
                                                         options={organizationOptions}
                                                         dropdownRender={(menu) => (
