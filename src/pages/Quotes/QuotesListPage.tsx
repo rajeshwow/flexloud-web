@@ -1,5 +1,5 @@
 import { EditFilled, EllipsisOutlined, EyeOutlined, MailOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Input, message, Modal, Select, Space, Table, Tag, Typography, type MenuProps } from "antd";
+import { Button, Dropdown, Input, message, Modal, Select, Space, Spin, Table, Tag, Typography, type MenuProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
@@ -346,6 +346,22 @@ export default function QuotesListPage() {
                 pagination={{ pageSize: 10 }}
                 scroll={{ x: 1200 }}
             />
+
+            <Modal
+                open={!!previewLoadingId}
+                footer={null}
+                closable={false}
+                centered
+                maskClosable={false}
+                destroyOnHidden
+            >
+                <div style={{ textAlign: "center", padding: "28px 12px" }}>
+                    <Spin size="large" />
+                    <div style={{ marginTop: 16, fontWeight: 500 }}>
+                        PDF is generating, please wait...
+                    </div>
+                </div>
+            </Modal>
 
             <Modal
                 open={previewOpen}

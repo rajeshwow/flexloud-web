@@ -152,6 +152,9 @@ export default function QuoteForm({
 }: Props) {
     const dispatch = useDispatch<AppDispatch>();
 
+    const loggedInUser = useSelector((state: RootState) => state.auth.user);
+    const currentUserId = loggedInUser?.id || loggedInUser?.user_id;
+
     const [organizationOptions, setOrganizationOptions] = useState([] as any[]);
     const [userOptions, setUserOptions] = useState<OptionItem[]>([]);
 
@@ -192,6 +195,17 @@ export default function QuoteForm({
     const shippingState = Form.useWatch("shipping_state", form);
 
     const relatedToType = Form.useWatch("related_to_type", form);
+
+    useEffect(() => {
+        if (isEdit || initialValues?.assigned_to) return;
+        if (!currentUserId) return;
+
+        const existingAssignedTo = form.getFieldValue("assigned_to");
+
+        if (!existingAssignedTo) {
+            form.setFieldValue("assigned_to", currentUserId);
+        }
+    }, [currentUserId, form, initialValues?.assigned_to, isEdit]);
 
     useEffect(() => {
         dispatch(getProducts({ page: 1, limit: 10000 }));
@@ -518,56 +532,145 @@ export default function QuoteForm({
         return found?.value || value || label || undefined;
     };
 
-    const fillAddressFromBranch = (branch: any) => {
-        if (!branch) return;
+    const hasAnyValue = (...values: any[]) =>
+        values.some(
+            (value) =>
+                value !== undefined &&
+                value !== null &&
+                String(value).trim() !== ""
+        );
+
+    const getRegisteredAddressFromOrg = (org: any) => ({
+        street: org?.registered_street || "",
+        area: org?.registered_area || "",
+        postal_code: org?.registered_postal_code || "",
+
+        country_id: org?.registered_country_id || null,
+        country_name: org?.registered_country_name || null,
+        country: org?.registered_country || null,
+
+        state_id: org?.registered_state_id || null,
+        state_name: org?.registered_state_name || null,
+        state: org?.registered_state || null,
+
+        city_id: org?.registered_city_id || null,
+        city_name: org?.registered_city_name || null,
+        city: org?.registered_city || null,
+    });
+
+    const fillAddressFromBranch = (branch: any, org?: any) => {
+        const registeredAddress = getRegisteredAddressFromOrg(org);
+
+        const branchHasBillingAddress = hasAnyValue(
+            branch?.billing_street,
+            branch?.billing_area,
+            branch?.billing_postal_code,
+            branch?.billing_country_id,
+            branch?.billing_state_id,
+            branch?.billing_city_id
+        );
+
+        const branchHasShippingAddress = hasAnyValue(
+            branch?.shipping_street,
+            branch?.shipping_area,
+            branch?.shipping_postal_code,
+            branch?.shipping_country_id,
+            branch?.shipping_state_id,
+            branch?.shipping_city_id
+        );
+
+        const billingAddress = branchHasBillingAddress
+            ? {
+                street: branch?.billing_street || "",
+                area: branch?.billing_area || "",
+                postal_code: branch?.billing_postal_code || "",
+
+                country_id: branch?.billing_country_id,
+                country_name: branch?.billing_country_name,
+                country: branch?.billing_country,
+
+                state_id: branch?.billing_state_id,
+                state_name: branch?.billing_state_name,
+                state: branch?.billing_state,
+
+                city_id: branch?.billing_city_id,
+                city_name: branch?.billing_city_name,
+                city: branch?.billing_city,
+            }
+            : registeredAddress;
+
+        const shippingAddress =
+            branch?.is_shipping_same_as_billing || !branchHasShippingAddress
+                ? billingAddress
+                : {
+                    street: branch?.shipping_street || "",
+                    area: branch?.shipping_area || "",
+                    postal_code: branch?.shipping_postal_code || "",
+
+                    country_id: branch?.shipping_country_id,
+                    country_name: branch?.shipping_country_name,
+                    country: branch?.shipping_country,
+
+                    state_id: branch?.shipping_state_id,
+                    state_name: branch?.shipping_state_name,
+                    state: branch?.shipping_state,
+
+                    city_id: branch?.shipping_city_id,
+                    city_name: branch?.shipping_city_name,
+                    city: branch?.shipping_city,
+                };
 
         form.setFieldsValue({
-            organization_branch_id: branch.id,
+            organization_branch_id: branch?.id || undefined,
 
-            gstin: branch.gst_number || form.getFieldValue("gstin") || "",
+            gstin:
+                branch?.gst_number ||
+                org?.gst_number ||
+                org?.gstin ||
+                "",
 
-            billing_street: branch.billing_street || "",
-            billing_area: branch.billing_area || "",
-            billing_postal_code: branch.billing_postal_code || "",
+            billing_street: billingAddress.street || "",
+            billing_area: billingAddress.area || "",
+            billing_postal_code: billingAddress.postal_code || "",
             billing_country: resolveMasterValue(
                 countryOptions.map((item) => item.raw),
-                branch.billing_country_id,
-                branch.billing_country_name,
-                branch.billing_country
+                billingAddress.country_id,
+                billingAddress.country_name,
+                billingAddress.country
             ),
             billing_state: resolveMasterValue(
                 allStates,
-                branch.billing_state_id,
-                branch.billing_state_name,
-                branch.billing_state
+                billingAddress.state_id,
+                billingAddress.state_name,
+                billingAddress.state
             ),
             billing_city: resolveMasterValue(
                 allCities,
-                branch.billing_city_id,
-                branch.billing_city_name,
-                branch.billing_city
+                billingAddress.city_id,
+                billingAddress.city_name,
+                billingAddress.city
             ),
 
-            shipping_street: branch.shipping_street || "",
-            shipping_area: branch.shipping_area || "",
-            shipping_postal_code: branch.shipping_postal_code || "",
+            shipping_street: shippingAddress.street || "",
+            shipping_area: shippingAddress.area || "",
+            shipping_postal_code: shippingAddress.postal_code || "",
             shipping_country: resolveMasterValue(
                 countryOptions.map((item) => item.raw),
-                branch.shipping_country_id,
-                branch.shipping_country_name,
-                branch.shipping_country
+                shippingAddress.country_id,
+                shippingAddress.country_name,
+                shippingAddress.country
             ),
             shipping_state: resolveMasterValue(
                 allStates,
-                branch.shipping_state_id,
-                branch.shipping_state_name,
-                branch.shipping_state
+                shippingAddress.state_id,
+                shippingAddress.state_name,
+                shippingAddress.state
             ),
             shipping_city: resolveMasterValue(
                 allCities,
-                branch.shipping_city_id,
-                branch.shipping_city_name,
-                branch.shipping_city
+                shippingAddress.city_id,
+                shippingAddress.city_name,
+                shippingAddress.city
             ),
         });
     };
@@ -588,15 +691,9 @@ export default function QuoteForm({
         const defaultBranch = getDefaultBranch(org);
 
         if (defaultBranch) {
-            form.setFieldsValue({
-                organization_branch_id: defaultBranch.id,
-            });
-
-            fillAddressFromBranch(defaultBranch);
+            fillAddressFromBranch(defaultBranch, org);
         } else {
-            form.setFieldsValue({
-                organization_branch_id: undefined,
-            });
+            fillAddressFromBranch(null, org);
         }
     };
 
@@ -630,16 +727,18 @@ export default function QuoteForm({
     };
 
     const handleBranchChange = (branchId?: string) => {
+        const selectedOrg = getSelectedOrganization(form.getFieldValue("organization_id"));
+
         if (!branchId) {
-            form.setFieldsValue({
-                organization_branch_id: undefined,
-            });
+            fillAddressFromBranch(null, selectedOrg);
             return;
         }
 
-        const selectedBranch = branchOptions.find((branch) => branch.value === branchId)?.raw;
+        const selectedBranch = branchOptions.find(
+            (branch) => branch.value === branchId
+        )?.raw;
 
-        fillAddressFromBranch(selectedBranch);
+        fillAddressFromBranch(selectedBranch, selectedOrg);
     };
 
     const updateValidUntilFromPeriod = (days?: number | null) => {
@@ -767,6 +866,7 @@ export default function QuoteForm({
 
         const payload = {
             ...values,
+            assigned_to: values.assigned_to || currentUserId,
             quotation_date: values.quotation_date?.format?.("YYYY-MM-DD"),
             valid_until: values.valid_until?.format?.("YYYY-MM-DD"),
             line_items: mappedLineItems,

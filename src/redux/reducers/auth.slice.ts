@@ -12,6 +12,14 @@ const config = {
   name: "auth",
 };
 
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    return null;
+  }
+};
+
 export const login = createAsyncThunk(
   `${config.name}/login`,
   async (payload: { slug: string; email: string; password: string }) => {
@@ -93,7 +101,7 @@ export const auth = createSlice({
   initialState: {
     loading: false,
     token: (localStorage.getItem("token") as string) || "",
-    user: null as any,
+    user: getStoredUser() as any,
     error: "" as string,
     // ✅ NEW
     permissions: [] as string[],
@@ -113,6 +121,7 @@ export const auth = createSlice({
       state.permissionsSlug = "";
 
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       localStorage.removeItem("admin_access_token");
       localStorage.removeItem("admin_user");
 
@@ -155,6 +164,10 @@ export const auth = createSlice({
           action?.payload?.data?.data?.user ||
           action?.payload?.data?.user ||
           null;
+
+        if (state.user) {
+          localStorage.setItem("user", JSON.stringify(state.user));
+        }
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

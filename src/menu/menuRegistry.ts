@@ -123,20 +123,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "ContactsOutlined",
         requiresAny: ["contacts.view"],
       },
-      {
-        key: "contacts.import",
-        label: "Import Contacts",
-        path: "/contacts/import",
-        icon: "ImportOutlined",
-        requiresAny: ["contacts.import"],
-      },
-      {
-        key: "contacts.recent",
-        label: "Recently Viewed",
-        path: "/contacts/recent",
-        icon: "HistoryOutlined",
-        requiresAny: ["contacts.recent"],
-      },
+
       {
         key: "leads.createFromCard",
         label: "Create Lead From Card",
@@ -151,20 +138,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "FireOutlined",
         requiresAny: ["leads.view"],
       },
-      {
-        key: "leads.import",
-        label: "Import Leads",
-        path: "/leads/import",
-        icon: "ImportOutlined",
-        requiresAny: ["leads.import"],
-      },
-      {
-        key: "leads.recent",
-        label: "Recently Viewed",
-        path: "/leads/recent",
-        icon: "HistoryOutlined",
-        requiresAny: ["leads.recent"],
-      },
+
       {
         key: "opportunities.view",
         label: " Opportunities",
@@ -315,13 +289,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "PlusOutlined",
         requiresAny: ["emails.compose"],
       },
-      {
-        key: "emails.view",
-        label: "View Email",
-        path: "/emails",
-        icon: "EyeOutlined",
-        requiresAny: ["emails.view"],
-      },
+
       {
         key: "calls.log",
         label: "Log Call",
@@ -538,13 +506,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "SettingOutlined",
         // requiresAny: ["settings.appearance"],
       },
-      {
-        key: "users.create",
-        label: "Create User",
-        path: "/users/create",
-        icon: "PlusOutlined",
-        requiresAny: ["users.create"],
-      },
+
       {
         key: "users.view",
         label: " Users",
@@ -566,13 +528,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "PlusOutlined",
         requiresAny: ["imports.create"],
       },
-      {
-        key: "imports.view",
-        label: "View Imports",
-        path: "/imports",
-        icon: "CloudUploadOutlined",
-        requiresAny: ["imports.view"],
-      },
+
       {
         key: "imports.import",
         label: "Import",
@@ -580,20 +536,7 @@ export const MENU_REGISTRY: MenuItemConfig[] = [
         icon: "ImportOutlined",
         requiresAny: ["imports.import"],
       },
-      {
-        key: "roles.create",
-        label: "Create Role",
-        path: "/roles/create",
-        icon: "PlusOutlined",
-        requiresAny: ["roles.create"],
-      },
-      {
-        key: "roles.view",
-        label: "View Roles",
-        path: "/roles",
-        icon: "EyeOutlined",
-        requiresAny: ["roles.view"],
-      },
+
       {
         key: "roles.import",
         label: "Import",
