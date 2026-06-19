@@ -135,7 +135,7 @@ export default function MyDayPage() {
                     <MyDaySummaryCards summary={summary} />
 
                     <WorkQueueSection
-                        title="Overdue"
+                        title="Overdue" // show here count also
                         subtitle="Items that need immediate attention"
                         items={sections.overdue}
                         accent="error"

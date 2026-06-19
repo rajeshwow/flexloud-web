@@ -112,6 +112,7 @@ export default function WorkQueueItemCard({ item }: Props) {
         <Card
             bordered={false}
             style={{
+                height: "100%",
                 borderRadius: Number(token.borderRadiusLG) + 6,
                 background: token.colorBgContainer,
                 border: `1px solid ${token.colorBorderSecondary}`,

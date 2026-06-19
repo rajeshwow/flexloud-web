@@ -115,19 +115,22 @@ export default function LeadsPage() {
         () => [
             {
                 title: "Lead Number",
-                dataIndex: "lead_display_id",
+                // dataIndex: "lead_display_id",
                 key: "lead_display_id",
-                width: 170,
+                width: 100,
                 render: (value: string, record) => (
-                    <Link onClick={() => navigate(`/${slug}/leads/${record.id}`)}>
-                        {value || "-"}
-                    </Link>
+                    <>
+                        <Link onClick={() => navigate(`/${slug}/leads/${record.id}`)}>
+                            {record?.lead_display_id || "-"}
+                        </Link>
+                        <Text type="secondary" style={{ display: "block" }}>{record?.mobile}</Text>
+                    </>
                 ),
             },
             {
                 title: "Name",
                 key: "name",
-                width: 220,
+                width: 150,
                 render: (_: unknown, record) => {
                     const fullName = [record.first_name, record.last_name]
                         .filter(Boolean)
@@ -135,18 +138,18 @@ export default function LeadsPage() {
                     return <Text strong>{toTitleCase(fullName) || "-"}</Text>;
                 },
             },
-            {
-                title: "Mobile",
-                dataIndex: "mobile",
-                key: "mobile",
-                width: 150,
-                render: (value?: string) => value || "-",
-            },
+            // {
+            //     title: "Mobile",
+            //     dataIndex: "mobile",
+            //     key: "mobile",
+            //     width: 150,
+            //     render: (value?: string) => value || "-",
+            // },
             {
                 title: "Status",
                 dataIndex: "status_label",
                 key: "status",
-                width: 140,
+                width: 100,
                 render: (value?: string) => (
                     <Tag color={getLeadStatusColor(value)}>{value || "-"}</Tag>
                 ),
@@ -155,7 +158,7 @@ export default function LeadsPage() {
                 title: "Lead Nature",
                 dataIndex: "lead_temperature",
                 key: "lead_temperature",
-                width: 130,
+                width: 100,
                 render: (value?: string) => (
                     <Tag color={getLeadTemperatureColor(value)}>{value || "-"}</Tag>
                 ),
@@ -164,7 +167,7 @@ export default function LeadsPage() {
                 title: "Score",
                 dataIndex: "lead_score",
                 key: "lead_score",
-                width: 100,
+                width: 50,
                 render: (value?: number) => (
                     <Tag color={getLeadScoreColor(value)}>
                         {typeof value === "number" ? value : "-"}
@@ -175,53 +178,53 @@ export default function LeadsPage() {
                 title: "Priority",
                 dataIndex: "priority_label",
                 key: "priority_label",
-                width: 130,
+                width: 80,
                 render: (value?: string) => toTitleCase(value as string) || "-",
             },
-            {
-                title: "Organization Name",
-                dataIndex: "organization_name",
-                key: "organization_name",
-                width: 220,
-                render: (value?: string) => toTitleCase(value as string) || "-",
-            },
-            {
-                title: "Email",
-                key: "email",
-                width: 240,
-                render: (_: unknown, record) => {
-                    const primaryEmail =
-                        record.emails?.find((item: any) => item?.primary)?.email ||
-                        record.emails?.[0]?.email;
-                    return primaryEmail || "-";
-                },
-            },
+            // {
+            //     title: "Organization Name",
+            //     dataIndex: "organization_name",
+            //     key: "organization_name",
+            //     width: 220,
+            //     render: (value?: string) => toTitleCase(value as string) || "-",
+            // },
+            // {
+            //     title: "Email",
+            //     key: "email",
+            //     width: 240,
+            //     render: (_: unknown, record) => {
+            //         const primaryEmail =
+            //             record.emails?.find((item: any) => item?.primary)?.email ||
+            //             record.emails?.[0]?.email;
+            //         return primaryEmail || "-";
+            //     },
+            // },
             {
                 title: "Assigned To",
                 dataIndex: "assigned_to_name",
                 key: "assigned_to_name",
-                width: 180,
+                width: 100,
                 render: (value?: string) => toTitleCase(value as string) || "-",
             },
-            {
-                title: "Lead Source",
-                dataIndex: "source_label",
-                key: "source_label",
-                width: 160,
-                render: (value?: string) => value || "-",
-            },
-            {
-                title: "Next Followup",
-                dataIndex: "next_followup",
-                key: "next_followup",
-                width: 190,
-                render: (value?: string) => value ? dayjs(value).format("DD MMM YYYY hh:mm A") : "-",
-            },
+            // {
+            //     title: "Lead Source",
+            //     dataIndex: "source_label",
+            //     key: "source_label",
+            //     width: 160,
+            //     render: (value?: string) => value || "-",
+            // },
+            // {
+            //     title: "Next Followup",
+            //     dataIndex: "next_followup",
+            //     key: "next_followup",
+            //     width: 190,
+            //     render: (value?: string) => value ? dayjs(value).format("DD MMM YYYY hh:mm A") : "-",
+            // },
             {
                 title: "Date Created",
                 dataIndex: "created_at",
                 key: "created_at",
-                width: 180,
+                width: 100,
                 render: (value?: string) => value ? dayjs(value).format("DD MMM YYYY") : "-",
             },
             {
@@ -340,7 +343,7 @@ export default function LeadsPage() {
                         setPageSize(nextPageSize);
                     },
                 }}
-                scroll={{ x: 1500 }}
+                scroll={{ x: 1100 }}
                 bordered={false}
                 size="middle"
                 rowClassName={() => "fl-table-row"}

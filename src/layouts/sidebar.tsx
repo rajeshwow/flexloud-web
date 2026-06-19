@@ -58,7 +58,7 @@ import {
   UserOutlined
 } from "@ant-design/icons";
 import { Avatar, Badge, Button, Divider, Grid, Layout, Menu, message, Popover, Progress, Space, Switch, theme, Tooltip, Typography } from "antd";
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAppTheme } from "../theme/ThemeProvider";
 
@@ -70,9 +70,11 @@ import { MENU_REGISTRY } from "../menu/menuRegistry";
 import GlobalHeaderSearch from "../pages/global-search/GlobalHeaderSearch";
 import NotificationCenterDrawer from "../pages/my-day/components/NotificationCenterDrawer";
 import { clockInAttendance, clockOutAttendance, getTodayAttendance } from "../redux/reducers/attendance.slice";
-import { fetchMyDayCounts, setNotificationDrawerOpen } from "../redux/reducers/myDay.slice";
+import { fetchMyDay, fetchMyDayCounts, setNotificationDrawerOpen } from "../redux/reducers/myDay.slice";
 import { getTargetProgress } from "../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../redux/store";
+import { showRealtimeNotification } from "../shared/Utils/realtimeNotification";
+import { disconnectRealtimeSocket, getRealtimeSocket } from "../shared/Utils/socket";
 import GlobalQuickCreate from "./GlobalQuickCreate";
 import HeaderThemeSwitcher from "./HeaderThemeSwitcher";
 
@@ -710,26 +712,68 @@ export default function AppShell({ children, user }: Props) {
 
 
 
-  useEffect(() => {
-    const STORAGE_KEY = "fl_my_day_counts_last_fetch";
-    const MIN_GAP_MS = 60_000;
+  const myDayCountsInFlightRef = useRef(false);
 
-    const fetchCountsSafely = () => {
+  useEffect(() => {
+    if (!slug) return;
+
+    const STORAGE_KEY = `fl_my_day_counts_last_fetch_${slug}`;
+    const MIN_GAP_MS = 5 * 60_000;
+
+    const fetchCountsSafely = async (force = false) => {
+      if (document.visibilityState !== "visible") return;
+      if (myDayCountsInFlightRef.current) return;
+
       const lastFetch = Number(sessionStorage.getItem(STORAGE_KEY) || 0);
       const now = Date.now();
 
-      if (now - lastFetch < MIN_GAP_MS) return;
+      if (!force && now - lastFetch < MIN_GAP_MS) return;
 
-      sessionStorage.setItem(STORAGE_KEY, String(now));
-      dispatch(fetchMyDayCounts({ assigned: "me" }));
+      try {
+        myDayCountsInFlightRef.current = true;
+        sessionStorage.setItem(STORAGE_KEY, String(now));
+
+        await dispatch(fetchMyDayCounts({ assigned: "me" })).unwrap();
+      } finally {
+        myDayCountsInFlightRef.current = false;
+      }
     };
 
-    fetchCountsSafely();
+    fetchCountsSafely(true);
 
-    const timer = window.setInterval(fetchCountsSafely, MIN_GAP_MS);
+    const socket = getRealtimeSocket(slug);
 
-    return () => window.clearInterval(timer);
-  }, [dispatch]);
+    const handleMyDayRefresh = (payload: any) => {
+      showRealtimeNotification(payload, {
+        slug,
+        navigate,
+        fallbackOnClick: () => {
+          dispatch(setNotificationDrawerOpen(true));
+        },
+      });
+
+      fetchCountsSafely(true);
+    };
+
+
+    socket?.on("my-day:refresh", handleMyDayRefresh);
+
+    const timer = window.setInterval(() => {
+      fetchCountsSafely();
+    }, MIN_GAP_MS);
+
+    const handleVisibilityChange = () => {
+      fetchCountsSafely();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      socket?.off("my-day:refresh", handleMyDayRefresh);
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [dispatch, slug]);
 
 
   const findTopLevelKey = (items: any[], targetKey?: string): string | null => {
@@ -766,6 +810,7 @@ export default function AppShell({ children, user }: Props) {
   const onLogout = () => {
     // Clear tokens
     localStorage.clear();
+    disconnectRealtimeSocket();
 
     // Redirect to login
     navigate(`/${slug}/login`); // slug ke saath
@@ -824,7 +869,7 @@ export default function AppShell({ children, user }: Props) {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     setOpenKeys((prev) => {
       // route change pe selected menu ka parent open karo
       // but user manually submenu open kar raha hai to usko baar-baar reset mat karo
@@ -1060,7 +1105,7 @@ export default function AppShell({ children, user }: Props) {
   .fl-card{
     background: var(--fl-cardbg);
     border-radius: 18px;
-    padding: 6px;
+    padding: 16px;
     min-height: calc(100vh - 64px - 32px);
     box-shadow: var(--fl-shadow);
     border: 1px solid var(--fl-border);
@@ -1202,7 +1247,10 @@ export default function AppShell({ children, user }: Props) {
             <Divider type="vertical" />
             <Button
               type="text"
-              onClick={() => dispatch(setNotificationDrawerOpen(true))}
+              onClick={() => {
+                dispatch(setNotificationDrawerOpen(true));
+                dispatch(fetchMyDay({ assigned: "me" }));
+              }}
               style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
             >
               <Badge count={counts.total} size="small">

@@ -1,7 +1,7 @@
 import { Col, Form, Row, Space, Spin, message } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 
 import { useMasters } from "../../hooks/useMasters";
@@ -45,13 +45,15 @@ export default function LeadDetailsPage() {
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     const { slug, id } = useParams<RouteParams>();
+    const location = useLocation();
+    const isEditRoute = location.pathname.endsWith("/edit");
 
     const leadStatus = useMasters("lead_status" as any);
     const priority = useMasters("priority" as any);
     const source = useMasters("source" as any);
 
 
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(isEditRoute);
     const [timelineData, setTimelineData] = useState<any[]>([]);
     const [timelineLoading, setTimelineLoading] = useState(false);
 

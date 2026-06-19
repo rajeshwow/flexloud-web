@@ -1,4 +1,4 @@
-import { Empty, Space, Typography, theme } from "antd";
+import { Col, Empty, Row, Tag, Typography, theme } from "antd";
 import type { WorkQueueItem } from "../../../redux/reducers/myDay.slice";
 import WorkQueueItemCard from "./WorkQueueItemCard";
 
@@ -56,7 +56,7 @@ export default function WorkQueueSection({
             >
                 <div>
                     <Title level={3} style={{ margin: 0, marginBottom: 4 }}>
-                        {title}
+                        {title} <Tag color="error">{items.length}</Tag>
                     </Title>
 
                     {subtitle ? (
@@ -80,11 +80,13 @@ export default function WorkQueueSection({
             </div>
 
             {items.length ? (
-                <Space direction="vertical" size={14} style={{ width: "100%" }}>
+                <Row gutter={[16, 16]}>
                     {items.map((item) => (
-                        <WorkQueueItemCard key={item.id} item={item} />
+                        <Col key={item.id} xs={24} sm={24} md={12} xl={8}>
+                            <WorkQueueItemCard item={item} />
+                        </Col>
                     ))}
-                </Space>
+                </Row>
             ) : (
                 <div
                     style={{
