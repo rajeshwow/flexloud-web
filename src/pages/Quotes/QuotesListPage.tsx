@@ -80,10 +80,10 @@ export default function QuotesListPage() {
 
         const blob = res.data;
 
-        console.log("PDF blob check:", {
-            type: blob?.type,
-            size: blob?.size,
-        });
+        // console.log("PDF blob check:", {
+        //     type: blob?.type,
+        //     size: blob?.size,
+        // });
 
         if (!(blob instanceof Blob) || blob.size === 0) {
             throw new Error("Invalid PDF response");
