@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import TableExportButton from "../../layouts/TableExportButton";
 import { getVisits, type VisitItem } from "../../redux/reducers/visits.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { toTitleCase } from "../../shared/Utils/utils";
@@ -43,6 +44,9 @@ export default function VisitListPage() {
     );
 
     const [search, setSearch] = useState("");
+    const [filters, setFilters] = useState({
+
+    } as any);
     const [status, setStatus] = useState<string | undefined>();
     const [regarding, setRegarding] = useState<string | undefined>();
     const [page, setPage] = useState(1);
@@ -207,6 +211,17 @@ export default function VisitListPage() {
                 <Button type="primary" onClick={handleSearch}>
                     Search
                 </Button>
+                <TableExportButton
+                    moduleKey="visits"
+                    params={{
+                        q: search,
+                        status: filters.status,
+                        customer_id: filters.customer_id,
+                        organization_id: filters.organization_id,
+                        from_date: filters.from_date,
+                        to_date: filters.to_date,
+                    }}
+                />
             </Space>
 
             <Table

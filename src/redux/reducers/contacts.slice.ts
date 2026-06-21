@@ -37,6 +37,12 @@ export type GetContactsParams = {
   page?: number;
   limit?: number;
   search?: string;
+  filters?: {
+    organization_id: string | null;
+    assigned_to: string | null;
+    from_date: string | null;
+    to_date: string | null;
+  };
 };
 
 type PaginationState = {

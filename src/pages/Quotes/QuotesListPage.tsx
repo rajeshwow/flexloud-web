@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import TableExportButton from "../../layouts/TableExportButton";
 import { fetchQuotes, type QuoteItem } from "../../redux/reducers/quotes.slice";
 import { getUsers } from "../../redux/reducers/user.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
@@ -19,13 +20,27 @@ export default function QuotesListPage() {
     const navigate = useNavigate();
     const { slug } = useParams();
 
-    const { list, listLoading } = useSelector((state: RootState) => state.quotes);
-    const [search, setSearch] = useState("");
+    // const { list, listLoading } = useSelector((state: RootState) => state.quotes);
+    const { list, listLoading, total } = useSelector(
+        (state: RootState) => state.quotes,
+    );
+    const defaultFilters = {
+        search: "",
+        stage: undefined as string | undefined,
+        assigned_to: undefined as string | undefined,
+        so_status: undefined as string | undefined,
+        customer_id: undefined as string | undefined,
+        organization_id: undefined as string | undefined,
+        from_date: undefined as string | undefined,
+        to_date: undefined as string | undefined,
+    };
 
-    const [stage, setStage] = useState<string | undefined>();
-    const [assignedTo, setAssignedTo] = useState<string | undefined>();
-    const [soStatus, setSoStatus] = useState<string | undefined>();
+    const [filters, setFilters] = useState(defaultFilters);
+
+
     const [users, setUsers] = useState<any[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     const [selectedQuote, setSelectedQuote] = useState<any>(null);
     const [emailModalOpen, setEmailModalOpen] = useState(false);
@@ -40,6 +55,11 @@ export default function QuotesListPage() {
         value: user.id,
     }));
 
+    const handleFiltersChange = (newFilters: Partial<typeof defaultFilters>) => {
+        setFilters((prev) => ({ ...prev, ...newFilters }));
+        setCurrentPage(1);
+        setPageSize(10);
+    };
     useEffect(() => {
         dispatch(getUsers({ limit: 1000 }))
             .unwrap()
@@ -121,15 +141,26 @@ export default function QuotesListPage() {
     };
 
     useEffect(() => {
-        dispatch(
-            fetchQuotes({
-                search,
-                stage,
-                assigned_to: assignedTo,
-                so_status: soStatus,
-            } as any)
-        );
-    }, [dispatch, search, stage, assignedTo, soStatus]);
+        const timer = window.setTimeout(() => {
+            dispatch(
+                fetchQuotes({
+                    search: filters.search.trim(),
+                    stage: filters.stage,
+                    assigned_to: filters.assigned_to,
+                    so_status: filters.so_status,
+                    customer_id: filters.customer_id,
+                    organization_id: filters.organization_id,
+                    from_date: filters.from_date,
+                    to_date: filters.to_date,
+                    page: currentPage,
+                    limit: pageSize,
+                    offset: (currentPage - 1) * pageSize,
+                } as any)
+            );
+        }, 500);
+
+        return () => window.clearTimeout(timer);
+    }, [dispatch, filters, currentPage, pageSize]);
 
     const columns: ColumnsType<QuoteItem> = [
         {
@@ -137,6 +168,11 @@ export default function QuotesListPage() {
             dataIndex: "quote_number",
             key: "quote_number",
             width: 160,
+            render: (_, record) => (
+                <Button type="link" style={{ padding: 0 }} onClick={() => navigate(`/${slug}/quotes/${record.id}`)}>
+                    {record.quote_number}
+                </Button>
+            ),
         },
         {
             title: "Title",
@@ -221,6 +257,19 @@ export default function QuotesListPage() {
                         icon: <PrinterOutlined />,
                         onClick: () => handlePrintPdf(record),
                     },
+                    // view and edit options here
+                    {
+                        label: "View Quote",
+                        key: "view-quote",
+                        icon: <EyeOutlined />,
+                        onClick: () => navigate(`/${slug}/quotes/${record.id}`),
+                    },
+                    {
+                        label: "Edit Quote",
+                        key: "edit-quote",
+                        icon: <EditFilled />,
+                        onClick: () => navigate(`/${slug}/quotes/${record.id}/edit`),
+                    },
                 ];
                 const quoteStage = String(record?.quote_stage || "").toLowerCase();
                 const canCreateSalesOrder =
@@ -235,13 +284,13 @@ export default function QuotesListPage() {
 
 
 
-                        <Button title="View Quote" type="primary" size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}`)}>
-                            <EyeOutlined />
-                        </Button>
+                        {/* <Button title="View Quote" type="primary" size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}`)}>
+                                <EyeOutlined />
+                            </Button>
 
-                        <Button title="Edit Quote" type="primary" size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}/edit`)}>
-                            <EditFilled />
-                        </Button>
+                            <Button title="Edit Quote" type="primary" size="small" onClick={() => navigate(`/${slug}/quotes/${record.id}/edit`)}>
+                                <EditFilled />
+                            </Button> */}
 
                         {record?.sales_order_id && (
                             <Button
@@ -294,16 +343,16 @@ export default function QuotesListPage() {
                         allowClear
                         placeholder="Search quotes"
                         prefix={<SearchOutlined />}
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        value={filters.search}
+                        onChange={(e) => handleFiltersChange({ search: e.target.value })}
                         style={{ width: 240 }}
                     />
 
                     <Select
                         allowClear
                         placeholder="Stage"
-                        value={stage}
-                        onChange={setStage}
+                        value={filters.stage}
+                        onChange={(value) => handleFiltersChange({ stage: value })}
                         options={quoteStatusOptions}
                         style={{ width: 150 }}
                     />
@@ -312,8 +361,8 @@ export default function QuotesListPage() {
                         allowClear
                         showSearch
                         placeholder="Assigned To"
-                        value={assignedTo}
-                        onChange={setAssignedTo}
+                        value={filters.assigned_to}
+                        onChange={(value) => handleFiltersChange({ assigned_to: value })}
                         options={userOptions}
                         optionFilterProp="label"
                         style={{ width: 180 }}
@@ -323,10 +372,9 @@ export default function QuotesListPage() {
 
                     <Button
                         onClick={() => {
-                            setSearch("");
-                            setStage(undefined);
-                            setAssignedTo(undefined);
-                            setSoStatus(undefined);
+                            setFilters(defaultFilters);
+                            setCurrentPage(1);
+                            setPageSize(10);
                         }}
                     >
                         Reset
@@ -335,16 +383,41 @@ export default function QuotesListPage() {
                     <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(`/${slug}/quotes/create`)}>
                         Create Quote
                     </Button>
+                    <TableExportButton
+                        moduleKey="quotes"
+                        params={{
+                            q: filters.search,
+                            status: filters.stage,
+                            assigned_to: filters.assigned_to,
+                            customer_id: filters.customer_id,
+                            organization_id: filters.organization_id,
+                            from_date: filters.from_date,
+                            to_date: filters.to_date,
+                        }}
+                    />
                 </Space>
             </Space>
 
             <Table
                 rowKey="id"
-                columns={columns}
-                dataSource={list}
                 loading={listLoading}
-                pagination={{ pageSize: 10 }}
-                scroll={{ x: 1200 }}
+                dataSource={list}
+                columns={columns}
+                pagination={{
+                    current: currentPage,
+                    pageSize,
+                    total: total || 0,
+                    showSizeChanger: true,
+                    pageSizeOptions: ["10", "20", "50", "100"],
+                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+                    onChange: (newPage, newPageSize) => {
+                        const nextPageSize = newPageSize || 10;
+                        const pageSizeChanged = nextPageSize !== pageSize;
+
+                        setCurrentPage(pageSizeChanged ? 1 : newPage);
+                        setPageSize(nextPageSize);
+                    },
+                }}
             />
 
             <Modal

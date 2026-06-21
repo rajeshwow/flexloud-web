@@ -26,6 +26,7 @@ import purchaseOrdersReducer from "./reducers/purchaseOrders.slice";
 import quotesReducer from "./reducers/quotes.slice";
 import rbacReducer from "./reducers/rbac.slice";
 import salesOrdersReducer from "./reducers/salesOrders.slice";
+import tableExportReducer from "./reducers/tableExport.slice";
 import tallyAnalyticsReportsReducer from "./reducers/tallyAnalyticsReports.slice";
 import tallyCompaniesReducer from "./reducers/tallyCompanies.slice";
 import tallyEmployeesReducer from "./reducers/tallyEmployees.slice";
@@ -76,6 +77,7 @@ export const store = configureStore({
     tallyAnalyticsReports: tallyAnalyticsReportsReducer,
     adminTenants: adminTenantsReducer,
     globalSearch: globalSearchReducer,
+    tableExport: tableExportReducer,
   },
 });
 

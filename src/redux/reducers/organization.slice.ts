@@ -78,6 +78,12 @@ export type GetOrganizationsParams = {
   page?: number;
   limit?: number;
   search?: string;
+  filters?: {
+    industry: string | null;
+    assigned_to: string | null;
+    from_date: string | null;
+    to_date: string | null;
+  };
 };
 
 type PaginationState = {

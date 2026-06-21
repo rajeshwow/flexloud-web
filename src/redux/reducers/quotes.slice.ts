@@ -119,6 +119,13 @@ export type GetQuotesParams = {
   search?: string;
   page?: number;
   limit?: number;
+  filters?: {
+    status: string;
+    customer_id: string;
+    organization_id: string;
+    from_date: string;
+    to_date: string;
+  };
 };
 
 type QuotesState = {
@@ -129,6 +136,10 @@ type QuotesState = {
   createLoading: boolean;
   updateLoading: boolean;
   error: string | null;
+
+  total: number;
+  page: number;
+  limit: number;
 };
 
 const initialState: QuotesState = {
@@ -139,6 +150,10 @@ const initialState: QuotesState = {
   createLoading: false,
   updateLoading: false,
   error: null,
+
+  total: 0,
+  page: 1,
+  limit: 10,
 };
 
 export const fetchQuotes = createAsyncThunk(
@@ -146,7 +161,15 @@ export const fetchQuotes = createAsyncThunk(
   async (params: GetQuotesParams | undefined, thunkAPI) => {
     try {
       const response = await Client.get(withTenant("/quotes"), { params });
-      return response?.data?.data || [];
+
+      const body = response?.data;
+
+      return {
+        data: Array.isArray(body?.data) ? body.data : [],
+        total: Number(body?.total || 0),
+        page: Number(body?.page || params?.page || 1),
+        limit: Number(body?.limit || params?.limit || 10),
+      };
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error?.response?.data?.message || "Failed to fetch quotes",
@@ -252,7 +275,10 @@ const quotesSlice = createSlice({
       })
       .addCase(fetchQuotes.fulfilled, (state, action) => {
         state.listLoading = false;
-        state.list = action.payload;
+        state.list = action.payload.data;
+        state.total = action.payload.total;
+        state.page = action.payload.page;
+        state.limit = action.payload.limit;
       })
       .addCase(fetchQuotes.rejected, (state, action) => {
         state.listLoading = false;

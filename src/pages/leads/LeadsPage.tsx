@@ -28,6 +28,7 @@ const { Title } = Typography;
 
 // apne actual slice ke hisaab se import change kar lena
 import dayjs from "dayjs";
+import TableExportButton from "../../layouts/TableExportButton";
 import {
     fetchLeads,
     resetLeadsListState,
@@ -72,6 +73,8 @@ export default function LeadsPage() {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
     const [search, setSearch] = useState("");
+
+    const [filters, setFilters] = useState<Record<string, string>>({});
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -324,6 +327,19 @@ export default function LeadsPage() {
                     >
                         Create Lead
                     </Button>
+
+                    <TableExportButton
+                        moduleKey="leads"
+                        params={{
+                            q: search,
+                            status_id: filters.status_id,
+                            priority_id: filters.priority_id,
+                            source_id: filters.source_id,
+                            assigned_to: filters.assigned_to,
+                            from_date: filters.from_date,
+                            to_date: filters.to_date,
+                        }}
+                    />
                 </Space>
             </div>
             <Table<LeadItem>

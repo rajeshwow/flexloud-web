@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import TableExportButton from "../../layouts/TableExportButton";
 import { fetchContacts, type ContactItem } from "../../redux/reducers/contacts.slice";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { toTitleCase } from "../../shared/Utils/utils";
@@ -28,6 +29,18 @@ export default function ContactsList() {
     const [searchText, setSearchText] = useState("");
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [filters, setFilters] = useState({
+        organization_id: null,
+        assigned_to: null,
+        from_date: null,
+        to_date: null,
+    });
+
+    const handleFiltersChange = (newFilters: any) => {
+        setFilters((prev) => ({ ...prev, ...newFilters }));
+        setPage(1);
+        dispatch(fetchContacts({ page: 1, limit: pageSize, search: searchText, filters: newFilters }));
+    };
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -170,6 +183,16 @@ export default function ContactsList() {
                     >
                         Create Contact
                     </Button>
+                    <TableExportButton
+                        moduleKey="contacts"
+                        params={{
+                            q: searchText,
+                            organization_id: filters.organization_id,
+                            assigned_to: filters.assigned_to,
+                            from_date: filters.from_date,
+                            to_date: filters.to_date,
+                        }}
+                    />
                 </Space>
             </div>
 

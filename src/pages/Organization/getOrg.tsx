@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
+import TableExportButton from "../../layouts/TableExportButton";
 import {
     getOrganization,
     type OrganizationItem,
@@ -29,19 +30,38 @@ export default function OrganizationGet() {
         (state: RootState) => state.organization
     );
 
-    const [searchText, setSearchText] = useState("");
+    const defaultFilters = {
+        search: "",
+        industry: undefined as string | undefined,
+        assigned_to: undefined as string | undefined,
+        from_date: undefined as string | undefined,
+        to_date: undefined as string | undefined,
+    };
+
+    const [filters, setFilters] = useState(defaultFilters);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+
+    const handleFiltersChange = (newFilters: Partial<typeof defaultFilters>) => {
+        setFilters((prev) => ({ ...prev, ...newFilters }));
+        setPage(1);
+    };
 
     useEffect(() => {
         dispatch(
             getOrganization({
                 page,
                 limit: pageSize,
-                search: searchText.trim(),
-            })
+                search: filters.search.trim(),
+                filters: {
+                    industry: filters.industry,
+                    assigned_to: filters.assigned_to,
+                    from_date: filters.from_date,
+                    to_date: filters.to_date,
+                },
+            } as any)
         );
-    }, [dispatch, page, pageSize, searchText]);
+    }, [dispatch, page, pageSize, filters]);
 
     const columns: ColumnsType<OrganizationItem> = useMemo(
         () => [
@@ -183,11 +203,8 @@ export default function OrganizationGet() {
                         allowClear
                         placeholder="Search organizations"
                         prefix={<SearchOutlined />}
-                        value={searchText}
-                        onChange={(e) => {
-                            setSearchText(e.target.value);
-                            setPage(1);
-                        }}
+                        value={filters.search}
+                        onChange={(e) => handleFiltersChange({ search: e.target.value })}
                         style={{ width: 320 }}
                     />
 
@@ -198,6 +215,16 @@ export default function OrganizationGet() {
                     >
                         Create
                     </Button>
+                    <TableExportButton
+                        moduleKey="organizations"
+                        params={{
+                            q: filters.search,
+                            industry: filters.industry,
+                            assigned_to: filters.assigned_to,
+                            from_date: filters.from_date,
+                            to_date: filters.to_date,
+                        }}
+                    />
                 </Space>
             </div>
 
@@ -219,8 +246,11 @@ export default function OrganizationGet() {
                     pageSizeOptions: ["10", "20", "50", "100"],
                     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
                     onChange: (newPage, newPageSize) => {
-                        setPage(newPage);
-                        setPageSize(newPageSize || 10);
+                        const nextPageSize = newPageSize || 10;
+                        const pageSizeChanged = nextPageSize !== pageSize;
+
+                        setPage(pageSizeChanged ? 1 : newPage);
+                        setPageSize(nextPageSize);
                     },
                 }}
             />
